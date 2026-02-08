@@ -1,70 +1,70 @@
 // Khởi tạo ứng dụng khi DOM đã sẵn sàng
 document.addEventListener('DOMContentLoaded', function() {
-    // Dữ liệu sản phẩm mẫu
+    // Dữ liệu sản phẩm mẫu với hình ảnh từ srcimg
     const products = [
         {
             id: 1,
             name: "Đầm dạ hội lộng lẫy",
             category: "Đầm dạ hội",
             price: 3500000,
-            image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"
+            image: "srcimg/1 (2).png"
         },
         {
             id: 2,
             name: "Áo sơ mi lụa cao cấp",
             category: "Áo sơ mi",
             price: 1200000,
-            image: "https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"
+            image: "srcimg/2 (3).png"
         },
         {
             id: 3,
             name: "Quần âu sang trọng",
             category: "Quần âu",
             price: 1800000,
-            image: "https://images.unsplash.com/photo-1544441893-675973e31985?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+            image: "srcimg/3 (4).png"
         },
         {
             id: 4,
             name: "Áo khoác da thật",
             category: "Áo khoác",
             price: 4500000,
-            image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80"
+            image: "srcimg/4 (5).png"
         },
         {
             id: 5,
             name: "Váy công sở thanh lịch",
             category: "Váy",
             price: 1600000,
-            image: "https://images.unsplash.com/photo-1566174053879-31528523f9ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80"
+            image: "srcimg/5 (6).png"
         },
         {
             id: 6,
             name: "Set đồ thể thao cao cấp",
             category: "Đồ thể thao",
             price: 2200000,
-            image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80"
+            image: "srcimg/6 (7).png"
         },
         {
             id: 7,
             name: "Áo len cashmere",
             category: "Áo len",
             price: 2800000,
-            image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80"
+            image: "srcimg/7 (8).png"
         },
         {
             id: 8,
             name: "Chân váy bút chì",
             category: "Chân váy",
             price: 1400000,
-            image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+            image: "srcimg/ChatGPT Image 11_33_10 8 thg 2, 2026 (1).png"
         }
     ];
 
     // Giỏ hàng
     let cart = [
-        {id: 1, name: "Đầm dạ hội lộng lẫy", price: 3500000, quantity: 1, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"},
-        {id: 2, name: "Áo sơ mi lụa cao cấp", price: 1200000, quantity: 2, image: "https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"},
-        {id: 4, name: "Áo khoác da thật", price: 4500000, quantity: 1, image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80"}
+        {id: 1, name: "Đầm dạ hội lộng lẫy", price: 3500000, quantity: 1, image: "srcimg/1 (2).png"},
+        {id: 2, name: "Áo sơ mi lụa cao cấp", price: 1200000, quantity: 2, image: "srcimg/2 (3).png"},
+        {id: 4, name: "Áo khoác da thật", price: 4500000, quantity: 1, image: "srcimg/4 (5).png"}
     ];
 
     // DOM Elements
