@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxeMode - Thời Trang Sang Trọng</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👗</text></svg>">
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <a href="#"><span class="logo-text">Velora</span><span class="logo-sub">Fashion</span></a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="active">Trang chủ</a></li>
+                    <li><a href="#collections">Bộ sưu tập</a></li>
+                    <li><a href="#products">Sản phẩm</a></li>
+                    <li><a href="#about">Về chúng tôi</a></li>
+                    <li><a href="#contact">Liên hệ</a></li>
+                </ul>
+                <div class="nav-icons">
+                    <button class="icon-btn" id="search-btn"><i class="fas fa-search"></i></button>
+                    <button class="icon-btn" id="cart-btn"><i class="fas fa-shopping-bag"></i><span class="cart-count">3</span></button>
+                    <button class="icon-btn" id="user-btn"><i class="fas fa-user"></i></button>
+                </div>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1 class="hero-title">Phong Cách <span class="highlight">Sang Trọng</span> Cho Mọi Dịp</h1>
+            <p class="hero-subtitle">Khám phá bộ sưu tập mới nhất từ các nhà thiết kế hàng đầu thế giới</p>
+            <a href="#collections" class="btn-primary">Khám phá ngay</a>
+        </div>
+    </section>
+
+    <!-- Collections Section -->
+    <section class="section collections" id="collections">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Bộ Sưu Tập Mùa Mới</h2>
+                <p class="section-subtitle">Những thiết kế độc đáo và tinh tế</p>
+            </div>
+            <div class="collections-grid">
+                <div class="collection-card">
+                    <div class="collection-img" style="background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80');"></div>
+                    <div class="collection-content">
+                        <h3>Xuân Hè 2023</h3>
+                        <p>Bộ sưu tập với tông màu tươi sáng, chất liệu nhẹ nhàng</p>
+                    </div>
+                </div>
+                <div class="collection-card">
+                    <div class="collection-img" style="background-image: url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80');"></div>
+                    <div class="collection-content">
+                        <h3>Thu Đông 2023</h3>
+                        <p>Phong cách ấm áp với chất liệu cao cấp</p>
+                    </div>
+                </div>
+                <div class="collection-card">
+                    <div class="collection-img" style="background-image: url('https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80');"></div>
+                    <div class="collection-content">
+                        <h3>Dạ Hội</h3>
+                        <p>Đầm dạ hội lộng lẫy, sang trọng cho các sự kiện đặc biệt</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="section products-section" id="products">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Sản Phẩm Nổi Bật</h2>
+                <p class="section-subtitle">Những thiết kế được yêu thích nhất</p>
+            </div>
+            <div class="products-grid">
+                <!-- Products will be loaded via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 class="section-title">Về LuxeMode Fashion</h2>
+                    <p>LuxeMode là thương hiệu thời trang cao cấp với hơn 10 năm kinh nghiệm trong ngành. Chúng tôi cam kết mang đến cho khách hàng những sản phẩm chất lượng nhất, với thiết kế tinh tế và sang trọng.</p>
+                    <p>Đội ngũ thiết kế của chúng tôi luôn tìm tòi và sáng tạo để cho ra đời những bộ sưu tập độc đáo, phù hợp với xu hướng thời trang thế giới nhưng vẫn giữ được nét thanh lịch đặc trưng của thương hiệu.</p>
+                    <a href="#contact" class="btn-secondary">Liên hệ với chúng tôi</a>
+                </div>
+                <div class="about-img">
+                    <div class="about-img-inner"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <div class="logo">
+                        <a href="#"><span class="logo-text">LuxeMode</span><span class="logo-sub">Fashion</span></a>
+                    </div>
+                    <p>Thương hiệu thời trang sang trọng hàng đầu Việt Nam</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="#home">Trang chủ</a></li>
+                        <li><a href="#collections">Bộ sưu tập</a></li>
+                        <li><a href="#products">Sản phẩm</a></li>
+                        <li><a href="#about">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Câu hỏi thường gặp</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản dịch vụ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên hệ</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Nguyễn Huệ, Quận 1, TP.HCM</li>
+                        <li><i class="fas fa-phone"></i> (028) 1234 5678</li>
+                        <li><i class="fas fa-envelope"></i> info@luxemode.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 LuxeMode Fashion. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đăng Nhập</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Nhập email của bạn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Mật khẩu</label>
+                        <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox">
+                            <input type="checkbox"> Ghi nhớ đăng nhập
+                        </label>
+                        <a href="#" class="forgot-password">Quên mật khẩu?</a>
+                    </div>
+                    <button type="submit" class="btn-primary full-width">Đăng nhập</button>
+                </form>
+                <div class="divider">
+                    <span>Hoặc</span>
+                </div>
+                <p class="switch-modal">Chưa có tài khoản? <a href="#" id="showRegister">Đăng ký ngay</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đăng Ký Tài Khoản</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Họ và tên</label>
+                        <input type="text" id="registerName" placeholder="Nhập họ và tên của bạn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" placeholder="Nhập email của bạn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPhone">Số điện thoại</label>
+                        <input type="tel" id="registerPhone" placeholder="Nhập số điện thoại" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Mật khẩu</label>
+                        <input type="password" id="registerPassword" placeholder="Nhập mật khẩu" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Xác nhận mật khẩu</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="Nhập lại mật khẩu" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox">
+                            <input type="checkbox" required> Tôi đồng ý với <a href="#">điều khoản dịch vụ</a> và <a href="#">chính sách bảo mật</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary full-width">Đăng ký</button>
+                </form>
+                <p class="switch-modal">Đã có tài khoản? <a href="#" id="showLogin">Đăng nhập ngay</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content cart-modal">
+            <div class="modal-header">
+                <h2>Giỏ Hàng Của Bạn</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items">
+                    <!-- Cart items will be loaded via JavaScript -->
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Tạm tính:</span>
+                        <span class="price">0 ₫</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Phí vận chuyển:</span>
+                        <span class="price">0 ₫</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Tổng cộng:</span>
+                        <span class="price">0 ₫</span>
+                    </div>
+                    <button class="btn-primary full-width" id="checkoutBtn">Tiến hành thanh toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đặt Hàng</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label for="orderName">Họ và tên *</label>
+                        <input type="text" id="orderName" placeholder="Nhập họ và tên" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderPhone">Số điện thoại *</label>
+                        <input type="tel" id="orderPhone" placeholder="Nhập số điện thoại" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderEmail">Email *</label>
+                        <input type="email" id="orderEmail" placeholder="Nhập email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderAddress">Địa chỉ nhận hàng *</label>
+                        <textarea id="orderAddress" placeholder="Nhập địa chỉ chi tiết" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Phương thức thanh toán *</label>
+                        <div class="payment-options">
+                            <label class="radio">
+                                <input type="radio" name="payment" value="cod" checked>
+                                <span>Thanh toán khi nhận hàng (COD)</span>
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="payment" value="bank">
+                                <span>Chuyển khoản ngân hàng</span>
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="payment" value="card">
+                                <span>Thẻ tín dụng/ghi nợ</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderNote">Ghi chú đơn hàng</label>
+                        <textarea id="orderNote" placeholder="Ghi chú thêm về đơn hàng (tùy chọn)" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary full-width">Hoàn tất đặt hàng</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content success-modal">
+            <div class="modal-body">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Đặt Hàng Thành Công!</h2>
+                <p>Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận đơn hàng.</p>
+                <button class="btn-primary" id="closeSuccess">Tiếp tục mua sắm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
