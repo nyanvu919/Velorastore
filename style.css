@@ -873,3 +873,144 @@ h1, h2, h3, h4, h5, h6 {
         padding: 20px;
     }
 }
+/* ... (giữ nguyên toàn bộ CSS cũ) ... */
+
+/* Testimonials */
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.testimonial-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-img {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+}
+
+.testimonial-content {
+    padding: 20px;
+}
+
+.testimonial-content p {
+    font-style: italic;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.testimonial-content h4 {
+    margin-bottom: 5px;
+    color: var(--dark-color);
+}
+
+.testimonial-content span {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* View More Button */
+.view-more-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* In cart text */
+.in-cart-text {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+/* Product details modal */
+.product-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.product-details-img {
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+}
+
+.product-details-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-description {
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.product-sizes {
+    margin: 20px 0;
+}
+
+.product-sizes h4 {
+    margin-bottom: 10px;
+}
+
+.size-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.size-option {
+    padding: 10px 20px;
+    border: 1px solid var(--border-color);
+    background: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.size-option.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+}
+
+.size-option:hover:not(.active) {
+    border-color: var(--primary-color);
+}
+
+/* Empty cart */
+.empty-cart {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .product-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-details-img {
+        height: 300px;
+    }
+    
+    .collection-card {
+        height: 350px;
+    }
+}
