@@ -1014,3 +1014,19 @@ h1, h2, h3, h4, h5, h6 {
         height: 350px;
     }
 }
+/* CSS cho nút trong giỏ hàng */
+.cart-add-btn.in-cart {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.cart-add-btn.in-cart:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Đảm bảo tất cả hình ảnh đều hiển thị đúng */
+.collection-img, .product-img, .about-img-inner, .testimonial-img {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
