@@ -1,70 +1,185 @@
 // Khởi tạo ứng dụng khi DOM đã sẵn sàng
 document.addEventListener('DOMContentLoaded', function() {
     // Dữ liệu sản phẩm mẫu với hình ảnh từ srcimg
-    const products = [
+    const allProducts = [
         {
             id: 1,
             name: "Đầm dạ hội lộng lẫy",
             category: "Đầm dạ hội",
             price: 3500000,
-            image: "srcimg/1 (2).png"
+            image: "srcimg/9 (10).png"
         },
         {
             id: 2,
             name: "Áo sơ mi lụa cao cấp",
             category: "Áo sơ mi",
             price: 1200000,
-            image: "srcimg/2 (3).png"
+            image: "srcimg/10 (11).png"
         },
         {
             id: 3,
             name: "Quần âu sang trọng",
             category: "Quần âu",
             price: 1800000,
-            image: "srcimg/3 (4).png"
+            image: "srcimg/11 (12).png"
         },
         {
             id: 4,
             name: "Áo khoác da thật",
             category: "Áo khoác",
             price: 4500000,
-            image: "srcimg/4 (5).png"
+            image: "srcimg/12 (13).png"
         },
         {
             id: 5,
             name: "Váy công sở thanh lịch",
             category: "Váy",
             price: 1600000,
-            image: "srcimg/5 (6).png"
+            image: "srcimg/13 (14).png"
         },
         {
             id: 6,
             name: "Set đồ thể thao cao cấp",
             category: "Đồ thể thao",
             price: 2200000,
-            image: "srcimg/6 (7).png"
+            image: "srcimg/14 (15).png"
         },
         {
             id: 7,
             name: "Áo len cashmere",
             category: "Áo len",
             price: 2800000,
-            image: "srcimg/7 (8).png"
+            image: "srcimg/15 (16).png"
         },
         {
             id: 8,
             name: "Chân váy bút chì",
             category: "Chân váy",
             price: 1400000,
-            image: "srcimg/ChatGPT Image 11_33_10 8 thg 2, 2026 (1).png"
+            image: "srcimg/16 (17).png"
+        },
+        {
+            id: 9,
+            name: "Áo thun thiết kế độc đáo",
+            category: "Áo thun",
+            price: 850000,
+            image: "srcimg/17 (18).png"
+        },
+        {
+            id: 10,
+            name: "Quần jeans cao cấp",
+            category: "Quần jeans",
+            price: 1900000,
+            image: "srcimg/18 (19).png"
+        },
+        {
+            id: 11,
+            name: "Áo khoác lông cừu",
+            category: "Áo khoác",
+            price: 5200000,
+            image: "srcimg/19 (20).png"
+        },
+        {
+            id: 12,
+            name: "Đầm voan thanh lịch",
+            category: "Đầm",
+            price: 2100000,
+            image: "srcimg/20 (21).png"
+        },
+        {
+            id: 13,
+            name: "Set đồ công sở nam",
+            category: "Đồ công sở",
+            price: 3200000,
+            image: "srcimg/21 (22).png"
+        },
+        {
+            id: 14,
+            name: "Áo sơ mi kẻ caro",
+            category: "Áo sơ mi",
+            price: 1100000,
+            image: "srcimg/22 (23).png"
+        },
+        {
+            id: 15,
+            name: "Quần shorts năng động",
+            category: "Quần shorts",
+            price: 950000,
+            image: "srcimg/23 (24).png"
+        },
+        {
+            id: 16,
+            name: "Áo khoác bomber",
+            category: "Áo khoác",
+            price: 2400000,
+            image: "srcimg/24 (25).png"
+        },
+        {
+            id: 17,
+            name: "Váy đầm dự tiệc",
+            category: "Váy dạ hội",
+            price: 3800000,
+            image: "srcimg/25 (26).png"
+        },
+        {
+            id: 18,
+            name: "Áo cardigan ấm áp",
+            category: "Áo len",
+            price: 1750000,
+            image: "srcimg/26 (27).png"
+        },
+        {
+            id: 19,
+            name: "Quần tây nam cao cấp",
+            category: "Quần âu",
+            price: 2100000,
+            image: "srcimg/27 (28).png"
+        },
+        {
+            id: 20,
+            name: "Đầm maxi dạo phố",
+            category: "Đầm",
+            price: 1850000,
+            image: "srcimg/28 (29).png"
+        },
+        {
+            id: 21,
+            name: "Áo hoodie thời trang",
+            category: "Áo hoodie",
+            price: 1350000,
+            image: "srcimg/29 (30).png"
+        },
+        {
+            id: 22,
+            name: "Set đồ thể thao nữ",
+            category: "Đồ thể thao",
+            price: 1950000,
+            image: "srcimg/30 (31).png"
+        },
+        {
+            id: 23,
+            name: "Áo sơ mi trắng thanh lịch",
+            category: "Áo sơ mi",
+            price: 1250000,
+            image: "srcimg/31 (32).png"
+        },
+        {
+            id: 24,
+            name: "Quần jeans rách phong cách",
+            category: "Quần jeans",
+            price: 1650000,
+            image: "srcimg/32 (33).png"
         }
     ];
 
+    // Biến để theo dõi số lượng sản phẩm hiển thị
+    let displayedProducts = 8;
+    
     // Giỏ hàng
     let cart = [
-        {id: 1, name: "Đầm dạ hội lộng lẫy", price: 3500000, quantity: 1, image: "srcimg/1 (2).png"},
-        {id: 2, name: "Áo sơ mi lụa cao cấp", price: 1200000, quantity: 2, image: "srcimg/2 (3).png"},
-        {id: 4, name: "Áo khoác da thật", price: 4500000, quantity: 1, image: "srcimg/4 (5).png"}
+        {id: 1, name: "Đầm dạ hội lộng lẫy", price: 3500000, quantity: 1, image: "srcimg/9 (10).png"},
+        {id: 2, name: "Áo sơ mi lụa cao cấp", price: 1200000, quantity: 2, image: "srcimg/10 (11).png"},
+        {id: 4, name: "Áo khoác da thật", price: 4500000, quantity: 1, image: "srcimg/12 (13).png"}
     ];
 
     // DOM Elements
@@ -83,12 +198,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const showLoginBtn = document.getElementById('showLogin');
     const checkoutBtn = document.getElementById('checkoutBtn');
     const closeSuccessBtn = document.getElementById('closeSuccess');
+    const loadMoreBtn = document.getElementById('loadMoreProducts');
 
     // Khởi tạo sản phẩm
     function initProducts() {
         productsGrid.innerHTML = '';
         
-        products.forEach(product => {
+        // Hiển thị số sản phẩm theo biến displayedProducts
+        const productsToShow = allProducts.slice(0, displayedProducts);
+        
+        productsToShow.forEach(product => {
             const productCard = document.createElement('div');
             productCard.className = 'product-card';
             
@@ -124,7 +243,19 @@ document.addEventListener('DOMContentLoaded', function() {
             productsGrid.appendChild(productCard);
         });
         
+        // Ẩn/hiện nút "Xem thêm sản phẩm"
+        if (displayedProducts >= allProducts.length) {
+            loadMoreBtn.style.display = 'none';
+        } else {
+            loadMoreBtn.style.display = 'inline-block';
+        }
+        
         // Thêm sự kiện cho các nút trên sản phẩm
+        addProductEvents();
+    }
+
+    // Thêm sự kiện cho các nút trên sản phẩm
+    function addProductEvents() {
         document.querySelectorAll('.cart-add-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const productId = parseInt(this.getAttribute('data-id'));
@@ -154,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Thêm sản phẩm vào giỏ hàng
     function addToCart(productId) {
-        const product = products.find(p => p.id === productId);
+        const product = allProducts.find(p => p.id === productId);
         if (!product) return;
         
         const existingItemIndex = cart.findIndex(item => item.id === productId);
@@ -300,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Xem chi tiết sản phẩm
     function viewProductDetails(productId) {
-        const product = products.find(p => p.id === productId);
+        const product = allProducts.find(p => p.id === productId);
         if (!product) return;
         
         // Tạo modal chi tiết sản phẩm
@@ -550,6 +681,21 @@ document.addEventListener('DOMContentLoaded', function() {
         openModal(successModal);
     }
 
+    // Tải thêm sản phẩm
+    function loadMoreProducts() {
+        displayedProducts += 8;
+        initProducts();
+        
+        // Cuộn đến phần sản phẩm mới
+        if (displayedProducts > 8) {
+            const productsSection = document.getElementById('products');
+            window.scrollTo({
+                top: productsSection.offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+    }
+
     // Khởi tạo sự kiện
     function initEvents() {
         // Menu hamburger cho mobile
@@ -651,6 +797,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('search-btn').addEventListener('click', () => {
             showNotification("Tính năng tìm kiếm đang được phát triển");
         });
+        
+        // Tải thêm sản phẩm
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', loadMoreProducts);
+        }
     }
 
     // Hiển thị menu tài khoản
