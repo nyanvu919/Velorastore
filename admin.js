@@ -332,6 +332,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button class="btn btn-sm btn-danger" onclick="window.adminUpdateOrderStatus('${order.id}', 'cancelled')">
                                 <i class="fas fa-times"></i>
                             </button>
+                            <!-- NÚT XÓA ĐÃ ĐƯỢC THÊM VÀO ĐÂY -->
+                            <button class="btn btn-sm btn-dark" onclick="window.adminDeleteOrder('${order.id}')" title="Xóa đơn hàng">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -467,49 +471,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // =================== DELETE ORDER ===================
+    
+    async function adminDeleteOrder(orderId) {
+        if (!confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN đơn hàng ${orderId}?\n\nHành động này sẽ:\n• Xóa đơn hàng khỏi hệ thống\n• Không thể khôi phục\n• Ảnh hưởng đến thống kê\n\nChỉ xóa nếu đây là đơn hàng test hoặc sai sót.`)) {
+            return;
+        }
+        
+        try {
+            showAlert('Đang xóa đơn hàng...', 'info');
+            
+            // Kiểm tra xem backend có hỗ trợ xóa không
+            const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-API-Key': adminKey,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                // Nếu backend chưa hỗ trợ DELETE
+                if (response.status === 404 || response.status === 405) {
+                    showAlert('Tính năng xóa đang được phát triển. Vui lòng đánh dấu "đã hủy" thay vì xóa.', 'warning');
+                    return;
+                }
+                throw new Error('Không thể xóa đơn hàng');
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert('✅ Đã xóa đơn hàng thành công!', 'success');
+                loadData(); // Refresh danh sách
+            } else {
+                showAlert('❌ Lỗi: ' + result.error, 'error');
+            }
+            
+        } catch (error) {
+            console.error('Delete error:', error);
+            showAlert('⚠️ Lỗi: ' + error.message, 'error');
+        }
+    }
+    
     function closeModal() {
         document.getElementById('orderModal').classList.remove('active');
     }
-    // =================== DELETE ORDER ===================
-
-async function adminDeleteOrder(orderId) {
-    if (!confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN đơn hàng ${orderId}? Hành động này không thể hoàn tác!`)) {
-        return;
-    }
     
-    try {
-        // Lưu ý: Backend chưa có endpoint xóa, bạn cần thêm vào worker
-        // Tạm thời dùng alert cho đến khi thêm backend
-        showAlert('Tính năng xóa đang được phát triển. Vui lòng đánh dấu "đã hủy" thay vì xóa.', 'warning');
-        
-        // Khi backend đã có endpoint, bạn có thể dùng code sau:
-        /*
-        const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-API-Key': adminKey
-            }
-        });
-        
-        if (!response.ok) throw new Error('Không thể xóa đơn hàng');
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showAlert('Đã xóa đơn hàng thành công!', 'success');
-            loadData(); // Refresh danh sách
-        } else {
-            showAlert('Lỗi: ' + result.error, 'error');
-        }
-        */
-        
-    } catch (error) {
-        showAlert('Lỗi: ' + error.message, 'error');
-    }
-}
-
-// Thêm vào phần expose functions
-window.adminDeleteOrder = adminDeleteOrder;
     // =================== AUTO REFRESH ===================
     
     function startAutoRefresh() {
@@ -567,6 +575,7 @@ window.adminDeleteOrder = adminDeleteOrder;
         // Expose functions to global scope for inline onclick
         window.adminViewOrderDetails = adminViewOrderDetails;
         window.adminUpdateOrderStatus = adminUpdateOrderStatus;
+        window.adminDeleteOrder = adminDeleteOrder;
         
         console.log('✅ Admin script loaded successfully');
     }
