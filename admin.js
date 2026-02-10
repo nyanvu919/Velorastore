@@ -388,58 +388,119 @@ document.addEventListener('DOMContentLoaded', function() {
 }
     
     function showOrderDetails(order) {
-        const modal = document.getElementById('orderModal');
-        const details = document.getElementById('orderDetails');
-        
-        details.innerHTML = `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <h3 style="color: var(--primary); margin-bottom: 15px;">
-                        <i class="fas fa-user"></i> Thông tin khách hàng
-                    </h3>
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                        <p><strong>Tên:</strong> ${order.customerName || 'N/A'}</p>
-                        <p><strong>SĐT:</strong> ${order.customerPhone || 'N/A'}</p>
+    const modal = document.getElementById('orderModal');
+    const details = document.getElementById('orderDetails');
+    
+    // Tạo HTML cho danh sách sản phẩm
+    let itemsHTML = '';
+    let totalQuantity = 0;
+    
+    if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+            totalQuantity += item.quantity || 0;
+            const itemTotal = (item.price || 0) * (item.quantity || 0);
+            
+            itemsHTML += `
+                <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">${item.name || 'Sản phẩm'}</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                            ${item.id ? `Mã: ${item.id}` : ''}
+                        </div>
+                    </div>
+                    <div style="width: 100px; text-align: center;">
+                        <div style="font-weight: 600;">SL: ${item.quantity || 1}</div>
+                    </div>
+                    <div style="width: 150px; text-align: right;">
+                        <div style="color: #666; font-size: 0.9rem;">${formatPrice(item.price || 0)}</div>
+                        <div style="font-weight: 600; color: var(--primary);">
+                            ${formatPrice(itemTotal)}
+                        </div>
                     </div>
                 </div>
-                
-                <div>
-                    <h3 style="color: var(--primary); margin-bottom: 15px;">
-                        <i class="fas fa-receipt"></i> Thông tin đơn hàng
-                    </h3>
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                        <p><strong>Mã đơn:</strong> ${order.id}</p>
-                        <p><strong>Trạng thái:</strong> 
-                            <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
-                        </p>
-                        <p><strong>Tạo lúc:</strong> ${formatDate(order.createdAt)}</p>
-                        <p><strong>Cập nhật:</strong> ${formatDate(order.updatedAt || order.createdAt)}</p>
-                    </div>
+            `;
+        });
+    } else {
+        itemsHTML = `
+            <div style="padding: 20px; text-align: center; color: #666;">
+                <i class="fas fa-box-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <p>Không có thông tin sản phẩm</p>
+            </div>
+        `;
+    }
+    
+    details.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <h3 style="color: var(--primary); margin-bottom: 15px;">
+                    <i class="fas fa-user"></i> Thông tin khách hàng
+                </h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <p><strong>Tên:</strong> ${order.customer?.name || order.customerName || 'N/A'}</p>
+                    <p><strong>SĐT:</strong> ${order.customer?.phone || order.customerPhone || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${order.customer?.email || 'N/A'}</p>
+                    <p><strong>Địa chỉ:</strong> ${order.customer?.address || 'N/A'}</p>
+                    ${order.customer?.notes ? `<p><strong>Ghi chú:</strong> ${order.customer.notes}</p>` : ''}
                 </div>
             </div>
             
             <div>
                 <h3 style="color: var(--primary); margin-bottom: 15px;">
-                    <i class="fas fa-boxes"></i> Sản phẩm (${order.itemCount || 0})
+                    <i class="fas fa-receipt"></i> Thông tin đơn hàng
                 </h3>
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 2px solid #ddd; font-weight: 600;">
-                        <div>Tổng số lượng</div>
-                        <div>Tổng tiền</div>
-                    </div>
-                    
-                    <div style="display: flex; justify-content: space-between; padding: 15px 10px; font-weight: 600; border-top: 2px solid var(--primary);">
-                        <div>Tổng cộng:</div>
-                        <div style="font-size: 1.2rem; color: var(--primary);">
-                            ${formatPrice(order.totalAmount || 0)}
-                        </div>
+                    <p><strong>Mã đơn:</strong> ${order.id}</p>
+                    <p><strong>Trạng thái:</strong> 
+                        <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
+                    </p>
+                    <p><strong>Thanh toán:</strong> ${order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản'}</p>
+                    <p><strong>Tạo lúc:</strong> ${formatDate(order.createdAt)}</p>
+                    <p><strong>Cập nhật:</strong> ${formatDate(order.updatedAt || order.createdAt)}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <h3 style="color: var(--primary); margin-bottom: 15px;">
+                <i class="fas fa-boxes"></i> Sản phẩm đã đặt (${order.items?.length || 0} sản phẩm, ${totalQuantity} cái)
+            </h3>
+            <div style="background: #f8f9fa; padding: 0; border-radius: 8px; overflow: hidden;">
+                <!-- Header bảng sản phẩm -->
+                <div style="display: flex; justify-content: space-between; padding: 15px; background: #e9ecef; font-weight: 600; border-bottom: 2px solid #ddd;">
+                    <div style="flex: 1;">Sản phẩm</div>
+                    <div style="width: 100px; text-align: center;">Số lượng</div>
+                    <div style="width: 150px; text-align: right;">Thành tiền</div>
+                </div>
+                
+                <!-- Danh sách sản phẩm -->
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${itemsHTML}
+                </div>
+                
+                <!-- Tổng cộng -->
+                <div style="display: flex; justify-content: space-between; padding: 20px 15px; font-weight: 600; border-top: 2px solid var(--primary); background: white;">
+                    <div style="font-size: 1.1rem;">Tổng cộng:</div>
+                    <div style="font-size: 1.3rem; color: var(--primary);">
+                        ${formatPrice(order.totalAmount || 0)}
                     </div>
                 </div>
             </div>
-        `;
+        </div>
         
-        modal.classList.add('active');
-    }
+        ${order.notes ? `
+        <div style="margin-top: 20px;">
+            <h3 style="color: var(--primary); margin-bottom: 10px;">
+                <i class="fas fa-sticky-note"></i> Ghi chú đơn hàng
+            </h3>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-style: italic;">
+                ${order.notes}
+            </div>
+        </div>
+        ` : ''}
+    `;
+    
+    modal.classList.add('active');
+}
     
     async function adminUpdateOrderStatus(orderId, newStatus) {
         if (!confirm(`Xác nhận chuyển trạng thái đơn hàng ${orderId} sang "${getStatusText(newStatus)}"?`)) {
