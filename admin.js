@@ -363,28 +363,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================== ORDER ACTIONS ===================
     
     async function adminViewOrderDetails(orderId) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/admin/orders`, {
-                headers: {
-                    'X-API-Key': adminKey
-                }
-            });
-            
-            if (!response.ok) throw new Error('Không thể lấy danh sách đơn hàng');
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                const order = result.data.find(o => o.id === orderId);
-                if (order) {
-                    showOrderDetails(order);
-                }
+    try {
+        showAlert('Đang tải chi tiết đơn hàng...', 'info');
+        
+        const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
+            headers: {
+                'X-API-Key': adminKey
             }
-            
-        } catch (error) {
-            showAlert('Lỗi: ' + error.message, 'error');
+        });
+        
+        if (!response.ok) throw new Error('Không thể lấy chi tiết đơn hàng');
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showOrderDetails(result.data);
+        } else {
+            showAlert('Lỗi: ' + result.error, 'error');
         }
+        
+    } catch (error) {
+        showAlert('Lỗi: ' + error.message, 'error');
     }
+}
     
     function showOrderDetails(order) {
         const modal = document.getElementById('orderModal');
