@@ -1200,3 +1200,76 @@ h1, h2, h3, h4, h5, h6 {
         font-size: 0.85rem;
     }
 </style>
+/* CSS cho chi tiết đơn hàng */
+.order-items-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 10px 0;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-item-info {
+    flex: 1;
+}
+
+.order-item-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.order-item-id {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.order-item-quantity {
+    width: 80px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.order-item-price {
+    width: 150px;
+    text-align: right;
+}
+
+.order-item-unit-price {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.order-item-total {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.order-total-section {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 15px;
+    font-weight: 600;
+    border-top: 2px solid var(--primary);
+    background: white;
+    margin-top: 10px;
+}
+
+.order-total-label {
+    font-size: 1.1rem;
+}
+
+.order-total-amount {
+    font-size: 1.3rem;
+    color: var(--primary);
+}
