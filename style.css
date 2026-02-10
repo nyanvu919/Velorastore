@@ -1175,3 +1175,28 @@ h1, h2, h3, h4, h5, h6 {
     background-color: #23272b;
     color: white;
 }
+<style>
+    /* Thêm vào phần style của admin.html */
+    .btn-dark {
+        background-color: #495057;
+        color: white;
+        border: 1px solid #495057;
+    }
+    
+    .btn-dark:hover {
+        background-color: #343a40;
+        border-color: #343a40;
+    }
+    
+    /* Tùy chọn: điều chỉnh khoảng cách giữa các nút */
+    .action-btns {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+</style>
