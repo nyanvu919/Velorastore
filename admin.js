@@ -288,6 +288,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusClass = `status-${order.status || 'pending'}`;
             const statusText = getStatusText(order.status);
             
+            // Tính tổng số lượng sản phẩm
+            const totalItems = order.itemCount || 0;
+            
             tableHTML += `
                 <tr>
                     <td><strong>${order.id || ''}</strong></td>
@@ -298,7 +301,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </td>
                     <td>
-                        <div>${order.itemCount || 0} sản phẩm</div>
+                        <div>${totalItems} sản phẩm</div>
+                        <div style="font-size: 0.85rem; color: #666;">
+                            ${order.items ? 'Click xem chi tiết' : 'Không có thông tin'}
+                        </div>
                     </td>
                     <td style="font-weight: 600; color: var(--primary);">
                         ${formatPrice(order.totalAmount || 0)}
@@ -311,29 +317,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>
                         <div class="action-btns">
-                            <button class="btn btn-sm btn-primary" onclick="window.adminViewOrderDetails('${order.id}')">
+                            <button class="btn btn-sm btn-primary" onclick="window.adminViewOrderDetails('${order.id}')" title="Xem chi tiết">
                                 <i class="fas fa-eye"></i>
                             </button>
                             ${order.status === 'pending' ? `
-                                <button class="btn btn-sm btn-success" onclick="window.adminUpdateOrderStatus('${order.id}', 'processing')">
+                                <button class="btn btn-sm btn-success" onclick="window.adminUpdateOrderStatus('${order.id}', 'processing')" title="Xử lý">
                                     <i class="fas fa-play"></i>
                                 </button>
                             ` : ''}
                             ${order.status === 'processing' ? `
-                                <button class="btn btn-sm btn-warning" onclick="window.adminUpdateOrderStatus('${order.id}', 'shipped')">
+                                <button class="btn btn-sm btn-warning" onclick="window.adminUpdateOrderStatus('${order.id}', 'shipped')" title="Đang giao">
                                     <i class="fas fa-shipping-fast"></i>
                                 </button>
                             ` : ''}
                             ${order.status === 'shipped' ? `
-                                <button class="btn btn-sm btn-success" onclick="window.adminUpdateOrderStatus('${order.id}', 'delivered')">
+                                <button class="btn btn-sm btn-success" onclick="window.adminUpdateOrderStatus('${order.id}', 'delivered')" title="Đã giao">
                                     <i class="fas fa-check"></i>
                                 </button>
                             ` : ''}
-                            <button class="btn btn-sm btn-danger" onclick="window.adminUpdateOrderStatus('${order.id}', 'cancelled')">
+                            <button class="btn btn-sm btn-danger" onclick="window.adminUpdateOrderStatus('${order.id}', 'cancelled')" title="Hủy đơn">
                                 <i class="fas fa-times"></i>
                             </button>
-                            <!-- NÚT XÓA ĐÃ ĐƯỢC THÊM VÀO ĐÂY -->
-                            <button class="btn btn-sm btn-dark" onclick="window.adminDeleteOrder('${order.id}')" title="Xóa đơn hàng">
+                            <button class="btn btn-sm btn-dark" onclick="window.adminDeleteOrder('${order.id}')" title="Xóa đơn">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
@@ -363,144 +368,248 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================== ORDER ACTIONS ===================
     
     async function adminViewOrderDetails(orderId) {
-    try {
-        showAlert('Đang tải chi tiết đơn hàng...', 'info');
-        
-        const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
-            headers: {
-                'X-API-Key': adminKey
+        try {
+            showAlert('Đang tải chi tiết đơn hàng...', 'info');
+            
+            const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
+                headers: {
+                    'X-API-Key': adminKey
+                }
+            });
+            
+            if (!response.ok) {
+                // Nếu endpoint chưa tồn tại, thử lấy từ danh sách
+                if (response.status === 404) {
+                    const allOrdersResponse = await fetch(`${API_BASE_URL}/admin/orders`, {
+                        headers: { 'X-API-Key': adminKey }
+                    });
+                    
+                    if (!allOrdersResponse.ok) throw new Error('Không thể lấy chi tiết đơn hàng');
+                    
+                    const allOrdersResult = await allOrdersResponse.json();
+                    
+                    if (allOrdersResult.success) {
+                        const order = allOrdersResult.data.find(o => o.id === orderId);
+                        if (order) {
+                            showOrderDetails(order);
+                            return;
+                        }
+                    }
+                }
+                throw new Error('Không thể lấy chi tiết đơn hàng');
             }
-        });
-        
-        if (!response.ok) throw new Error('Không thể lấy chi tiết đơn hàng');
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showOrderDetails(result.data);
-        } else {
-            showAlert('Lỗi: ' + result.error, 'error');
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showOrderDetails(result.data);
+            } else {
+                showAlert('Lỗi: ' + result.error, 'error');
+            }
+            
+        } catch (error) {
+            showAlert('Lỗi: ' + error.message, 'error');
         }
-        
-    } catch (error) {
-        showAlert('Lỗi: ' + error.message, 'error');
     }
-}
     
     function showOrderDetails(order) {
-    const modal = document.getElementById('orderModal');
-    const details = document.getElementById('orderDetails');
-    
-    // Tạo HTML cho danh sách sản phẩm
-    let itemsHTML = '';
-    let totalQuantity = 0;
-    
-    if (order.items && order.items.length > 0) {
-        order.items.forEach(item => {
-            totalQuantity += item.quantity || 0;
-            const itemTotal = (item.price || 0) * (item.quantity || 0);
-            
-            itemsHTML += `
-                <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; align-items: center;">
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600;">${item.name || 'Sản phẩm'}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
-                            ${item.id ? `Mã: ${item.id}` : ''}
+        const modal = document.getElementById('orderModal');
+        const details = document.getElementById('orderDetails');
+        
+        // Tạo HTML cho danh sách sản phẩm
+        let itemsHTML = '';
+        let totalQuantity = 0;
+        
+        if (order.items && order.items.length > 0) {
+            order.items.forEach((item, index) => {
+                totalQuantity += item.quantity || 0;
+                const itemTotal = (item.price || 0) * (item.quantity || 0);
+                
+                itemsHTML += `
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; align-items: center; background: ${index % 2 === 0 ? '#f9f9f9' : 'white'}">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: var(--primary);">${item.name || 'Sản phẩm'}</div>
+                            <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                                ${item.id ? `Mã: ${item.id}` : ''}
+                                ${item.category ? ` • ${item.category}` : ''}
+                            </div>
+                        </div>
+                        <div style="width: 100px; text-align: center;">
+                            <div style="font-weight: 600; background: #e9ecef; padding: 4px 8px; border-radius: 4px; display: inline-block;">
+                                ${item.quantity || 1} cái
+                            </div>
+                        </div>
+                        <div style="width: 180px; text-align: right;">
+                            <div style="color: #666; font-size: 0.9rem;">${formatPrice(item.price || 0)}/cái</div>
+                            <div style="font-weight: 600; color: var(--primary); font-size: 1.1rem; margin-top: 5px;">
+                                ${formatPrice(itemTotal)}
+                            </div>
                         </div>
                     </div>
-                    <div style="width: 100px; text-align: center;">
-                        <div style="font-weight: 600;">SL: ${item.quantity || 1}</div>
-                    </div>
-                    <div style="width: 150px; text-align: right;">
-                        <div style="color: #666; font-size: 0.9rem;">${formatPrice(item.price || 0)}</div>
-                        <div style="font-weight: 600; color: var(--primary);">
-                            ${formatPrice(itemTotal)}
-                        </div>
-                    </div>
+                `;
+            });
+        } else {
+            itemsHTML = `
+                <div style="padding: 30px; text-align: center; color: #666;">
+                    <i class="fas fa-box-open" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <p>Không có thông tin sản phẩm</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Đơn hàng này không chứa thông tin sản phẩm chi tiết</p>
                 </div>
             `;
-        });
-    } else {
-        itemsHTML = `
-            <div style="padding: 20px; text-align: center; color: #666;">
-                <i class="fas fa-box-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                <p>Không có thông tin sản phẩm</p>
-            </div>
-        `;
-    }
-    
-    details.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div>
-                <h3 style="color: var(--primary); margin-bottom: 15px;">
-                    <i class="fas fa-user"></i> Thông tin khách hàng
-                </h3>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <p><strong>Tên:</strong> ${order.customer?.name || order.customerName || 'N/A'}</p>
-                    <p><strong>SĐT:</strong> ${order.customer?.phone || order.customerPhone || 'N/A'}</p>
-                    <p><strong>Email:</strong> ${order.customer?.email || 'N/A'}</p>
-                    <p><strong>Địa chỉ:</strong> ${order.customer?.address || 'N/A'}</p>
-                    ${order.customer?.notes ? `<p><strong>Ghi chú:</strong> ${order.customer.notes}</p>` : ''}
+        }
+        
+        details.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <h3 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-user"></i> Thông tin khách hàng
+                    </h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-user-tag"></i> Tên:</strong> ${order.customer?.name || order.customerName || 'N/A'}</p>
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-phone"></i> SĐT:</strong> ${order.customer?.phone || order.customerPhone || 'N/A'}</p>
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-envelope"></i> Email:</strong> ${order.customer?.email || 'N/A'}</p>
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-map-marker-alt"></i> Địa chỉ:</strong> ${order.customer?.address || 'N/A'}</p>
+                        ${order.customer?.notes ? `
+                            <p style="margin-bottom: 0; padding-top: 10px; border-top: 1px dashed #ddd;">
+                                <strong><i class="fas fa-sticky-note"></i> Ghi chú khách hàng:</strong><br>
+                                <span style="font-style: italic;">${order.customer.notes}</span>
+                            </p>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-receipt"></i> Thông tin đơn hàng
+                    </h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-hashtag"></i> Mã đơn:</strong> <span style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-family: monospace;">${order.id}</span></p>
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-info-circle"></i> Trạng thái:</strong> 
+                            <span class="status-badge status-${order.status}" style="margin-left: 10px;">${getStatusText(order.status)}</span>
+                        </p>
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-credit-card"></i> Thanh toán:</strong> 
+                            <span style="background: ${order.paymentMethod === 'cod' ? '#d4edda' : '#d1ecf1'}; color: ${order.paymentMethod === 'cod' ? '#155724' : '#0c5460'}; padding: 3px 8px; border-radius: 4px;">
+                                ${order.paymentMethod === 'cod' ? 'COD (Thanh toán khi nhận hàng)' : 'Chuyển khoản'}
+                            </span>
+                        </p>
+                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-calendar-plus"></i> Tạo lúc:</strong> ${formatDate(order.createdAt)}</p>
+                        <p style="margin-bottom: 0;"><strong><i class="fas fa-calendar-check"></i> Cập nhật:</strong> ${formatDate(order.updatedAt || order.createdAt)}</p>
+                    </div>
                 </div>
             </div>
             
             <div>
-                <h3 style="color: var(--primary); margin-bottom: 15px;">
-                    <i class="fas fa-receipt"></i> Thông tin đơn hàng
+                <h3 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-boxes"></i> Sản phẩm đã đặt 
+                    <span style="background: var(--primary); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.9rem;">
+                        ${order.items?.length || 0} sản phẩm • ${totalQuantity} cái
+                    </span>
                 </h3>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <p><strong>Mã đơn:</strong> ${order.id}</p>
-                    <p><strong>Trạng thái:</strong> 
-                        <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
-                    </p>
-                    <p><strong>Thanh toán:</strong> ${order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản'}</p>
-                    <p><strong>Tạo lúc:</strong> ${formatDate(order.createdAt)}</p>
-                    <p><strong>Cập nhật:</strong> ${formatDate(order.updatedAt || order.createdAt)}</p>
-                </div>
-            </div>
-        </div>
-        
-        <div>
-            <h3 style="color: var(--primary); margin-bottom: 15px;">
-                <i class="fas fa-boxes"></i> Sản phẩm đã đặt (${order.items?.length || 0} sản phẩm, ${totalQuantity} cái)
-            </h3>
-            <div style="background: #f8f9fa; padding: 0; border-radius: 8px; overflow: hidden;">
-                <!-- Header bảng sản phẩm -->
-                <div style="display: flex; justify-content: space-between; padding: 15px; background: #e9ecef; font-weight: 600; border-bottom: 2px solid #ddd;">
-                    <div style="flex: 1;">Sản phẩm</div>
-                    <div style="width: 100px; text-align: center;">Số lượng</div>
-                    <div style="width: 150px; text-align: right;">Thành tiền</div>
-                </div>
-                
-                <!-- Danh sách sản phẩm -->
-                <div style="max-height: 300px; overflow-y: auto;">
-                    ${itemsHTML}
-                </div>
-                
-                <!-- Tổng cộng -->
-                <div style="display: flex; justify-content: space-between; padding: 20px 15px; font-weight: 600; border-top: 2px solid var(--primary); background: white;">
-                    <div style="font-size: 1.1rem;">Tổng cộng:</div>
-                    <div style="font-size: 1.3rem; color: var(--primary);">
-                        ${formatPrice(order.totalAmount || 0)}
+                <div style="background: #f8f9fa; padding: 0; border-radius: 10px; overflow: hidden; border: 1px solid #dee2e6;">
+                    <!-- Header bảng sản phẩm -->
+                    <div style="display: flex; justify-content: space-between; padding: 15px; background: #e9ecef; font-weight: 600; border-bottom: 2px solid #ddd;">
+                        <div style="flex: 1; font-size: 1rem;"><i class="fas fa-box"></i> Sản phẩm</div>
+                        <div style="width: 100px; text-align: center; font-size: 1rem;"><i class="fas fa-layer-group"></i> Số lượng</div>
+                        <div style="width: 180px; text-align: right; font-size: 1rem;"><i class="fas fa-money-bill-wave"></i> Thành tiền</div>
+                    </div>
+                    
+                    <!-- Danh sách sản phẩm -->
+                    <div style="max-height: 350px; overflow-y: auto;">
+                        ${itemsHTML}
+                    </div>
+                    
+                    <!-- Tổng cộng -->
+                    <div style="display: flex; justify-content: space-between; padding: 20px 15px; font-weight: 600; border-top: 2px solid var(--primary); background: white; align-items: center;">
+                        <div style="font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-calculator"></i> Tổng cộng:
+                        </div>
+                        <div style="font-size: 1.5rem; color: var(--primary); font-weight: 700;">
+                            ${formatPrice(order.totalAmount || 0)}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        ${order.notes ? `
-        <div style="margin-top: 20px;">
-            <h3 style="color: var(--primary); margin-bottom: 10px;">
-                <i class="fas fa-sticky-note"></i> Ghi chú đơn hàng
-            </h3>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-style: italic;">
-                ${order.notes}
+            
+            ${order.notes ? `
+            <div style="margin-top: 25px;">
+                <h3 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-sticky-note"></i> Ghi chú đơn hàng
+                </h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #FFC107;">
+                    <div style="display: flex; gap: 10px;">
+                        <i class="fas fa-quote-left" style="color: #FFC107; font-size: 1.2rem;"></i>
+                        <div style="flex: 1; font-style: italic; color: #666;">
+                            ${order.notes}
+                        </div>
+                        <i class="fas fa-quote-right" style="color: #FFC107; font-size: 1.2rem;"></i>
+                    </div>
+                </div>
             </div>
-        </div>
-        ` : ''}
-    `;
+            ` : ''}
+            
+            <div style="margin-top: 25px; text-align: center; padding-top: 20px; border-top: 1px dashed #ddd;">
+                <button class="btn btn-primary" onclick="printOrderDetails('${order.id}')" style="margin-right: 10px;">
+                    <i class="fas fa-print"></i> In đơn hàng
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+            </div>
+        `;
+        
+        modal.classList.add('active');
+    }
     
-    modal.classList.add('active');
-}
+    // Hàm in đơn hàng
+    function printOrderDetails(orderId) {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Đơn hàng ${orderId} - Velora Fashion</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .header h1 { color: #8B7355; }
+                        .section { margin-bottom: 20px; }
+                        .section-title { color: #8B7355; border-bottom: 2px solid #8B7355; padding-bottom: 5px; }
+                        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                        th { background: #8B7355; color: white; padding: 10px; text-align: left; }
+                        td { padding: 10px; border-bottom: 1px solid #ddd; }
+                        .total { font-weight: bold; font-size: 1.2em; }
+                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 0.9em; }
+                        @media print {
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>VELORA FASHION</h1>
+                        <p>Đơn hàng: <strong>${document.querySelector('#orderDetails .order-id')?.textContent || orderId}</strong></p>
+                        <p>Ngày in: ${new Date().toLocaleDateString('vi-VN')}</p>
+                    </div>
+                    <div class="section">
+                        <h3 class="section-title">Thông tin đơn hàng</h3>
+                        ${document.querySelector('#orderDetails .order-info')?.innerHTML || ''}
+                    </div>
+                    <div class="section">
+                        <h3 class="section-title">Sản phẩm đã đặt</h3>
+                        ${document.querySelector('#orderDetails .order-items')?.innerHTML || ''}
+                    </div>
+                    <div class="footer">
+                        <p>Cảm ơn quý khách đã mua hàng tại Velora Fashion!</p>
+                        <p>Hotline: (028) 1234 5678 | Email: info@velora.com</p>
+                    </div>
+                    <div class="no-print" style="margin-top: 20px;">
+                        <button onclick="window.print()">In trang</button>
+                        <button onclick="window.close()">Đóng</button>
+                    </div>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
     
     async function adminUpdateOrderStatus(orderId, newStatus) {
         if (!confirm(`Xác nhận chuyển trạng thái đơn hàng ${orderId} sang "${getStatusText(newStatus)}"?`)) {
@@ -638,6 +747,8 @@ document.addEventListener('DOMContentLoaded', function() {
         window.adminViewOrderDetails = adminViewOrderDetails;
         window.adminUpdateOrderStatus = adminUpdateOrderStatus;
         window.adminDeleteOrder = adminDeleteOrder;
+        window.printOrderDetails = printOrderDetails;
+        window.closeModal = closeModal;
         
         console.log('✅ Admin script loaded successfully');
     }
@@ -652,5 +763,4 @@ document.addEventListener('DOMContentLoaded', function() {
         showAlert('Tính năng xuất Excel đang được phát triển', 'info');
     };
     window.filterOrders = filterOrders;
-    window.closeModal = closeModal;
 });
