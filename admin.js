@@ -413,152 +413,205 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showOrderDetails(order) {
-        const modal = document.getElementById('orderModal');
-        const details = document.getElementById('orderDetails');
-        
-        // Tạo HTML cho danh sách sản phẩm
-        let itemsHTML = '';
-        let totalQuantity = 0;
-        
-        if (order.items && order.items.length > 0) {
-            order.items.forEach((item, index) => {
-                totalQuantity += item.quantity || 0;
-                const itemTotal = (item.price || 0) * (item.quantity || 0);
-                
-                itemsHTML += `
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; align-items: center; background: ${index % 2 === 0 ? '#f9f9f9' : 'white'}">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; color: var(--primary);">${item.name || 'Sản phẩm'}</div>
-                            <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
-                                ${item.id ? `Mã: ${item.id}` : ''}
-                                ${item.category ? ` • ${item.category}` : ''}
-                            </div>
+    const modal = document.getElementById('orderModal');
+    const details = document.getElementById('orderDetails');
+    
+    // Kiểm tra và làm giàu thông tin sản phẩm từ cache
+    const enrichedItems = (order.items || []).map(item => {
+        const productInfo = productsCache[item.id] || {};
+        return {
+            ...item,
+            fullName: productInfo.name || item.name,
+            description: productInfo.description || '',
+            image: productInfo.image || item.image,
+            category: productInfo.category || item.category,
+            url: productInfo.url || `#product-${item.id}`
+        };
+    });
+    
+    // Tạo HTML cho danh sách sản phẩm
+    let itemsHTML = '';
+    let totalQuantity = 0;
+    
+    if (enrichedItems.length > 0) {
+        enrichedItems.forEach((item, index) => {
+            totalQuantity += item.quantity || 0;
+            const itemTotal = (item.price || 0) * (item.quantity || 0);
+            const productLink = item.id ? `javascript:window.viewProductDetail('${item.id}')` : '#';
+            
+            itemsHTML += `
+                <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; background: ${index % 2 === 0 ? '#f9f9f9' : 'white'}">
+                    <div style="width: 60px; height: 60px; margin-right: 15px; border-radius: 8px; overflow: hidden; background: #f0f0f0;">
+                        ${item.image ? 
+                            `<img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.fullName}">` : 
+                            `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #999;">
+                                <i class="fas fa-image"></i>
+                            </div>`
+                        }
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--primary); margin-bottom: 5px; cursor: pointer;" 
+                             onclick="window.viewProductDetail('${item.id}')">
+                            ${item.fullName || 'Sản phẩm'}
                         </div>
-                        <div style="width: 100px; text-align: center;">
-                            <div style="font-weight: 600; background: #e9ecef; padding: 4px 8px; border-radius: 4px; display: inline-block;">
-                                ${item.quantity || 1} cái
-                            </div>
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 3px;">
+                            <span style="background: #e9ecef; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">
+                                Mã: ${item.id || 'N/A'}
+                            </span>
+                            ${item.category ? `<span style="background: #d4edda; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">${item.category}</span>` : ''}
+                            ${item.size ? `<span style="background: #cce5ff; padding: 2px 6px; border-radius: 4px;">Size: ${item.size}</span>` : ''}
                         </div>
-                        <div style="width: 180px; text-align: right;">
-                            <div style="color: #666; font-size: 0.9rem;">${formatPrice(item.price || 0)}/cái</div>
-                            <div style="font-weight: 600; color: var(--primary); font-size: 1.1rem; margin-top: 5px;">
-                                ${formatPrice(itemTotal)}
-                            </div>
+                        ${item.description ? `<div style="font-size: 0.85rem; color: #888; margin-top: 3px;">${item.description.substring(0, 50)}...</div>` : ''}
+                    </div>
+                    <div style="width: 120px; text-align: center;">
+                        <div style="font-weight: 600; background: #e9ecef; padding: 6px 10px; border-radius: 6px; display: inline-block;">
+                            ${item.quantity || 1} cái
                         </div>
                     </div>
-                `;
-            });
-        } else {
-            itemsHTML = `
-                <div style="padding: 30px; text-align: center; color: #666;">
-                    <i class="fas fa-box-open" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                    <p>Không có thông tin sản phẩm</p>
-                    <p style="font-size: 0.9rem; margin-top: 10px;">Đơn hàng này không chứa thông tin sản phẩm chi tiết</p>
+                    <div style="width: 180px; text-align: right;">
+                        <div style="color: #666; font-size: 0.9rem;">${formatPrice(item.price || 0)}/cái</div>
+                        <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem; margin-top: 5px;">
+                            ${formatPrice(itemTotal)}
+                        </div>
+                    </div>
                 </div>
             `;
-        }
-        
-        details.innerHTML = `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <h3 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-user"></i> Thông tin khách hàng
-                    </h3>
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid var(--primary);">
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-user-tag"></i> Tên:</strong> ${order.customer?.name || order.customerName || 'N/A'}</p>
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-phone"></i> SĐT:</strong> ${order.customer?.phone || order.customerPhone || 'N/A'}</p>
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-envelope"></i> Email:</strong> ${order.customer?.email || 'N/A'}</p>
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-map-marker-alt"></i> Địa chỉ:</strong> ${order.customer?.address || 'N/A'}</p>
-                        ${order.customer?.notes ? `
-                            <p style="margin-bottom: 0; padding-top: 10px; border-top: 1px dashed #ddd;">
-                                <strong><i class="fas fa-sticky-note"></i> Ghi chú khách hàng:</strong><br>
-                                <span style="font-style: italic;">${order.customer.notes}</span>
-                            </p>
-                        ` : ''}
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-receipt"></i> Thông tin đơn hàng
-                    </h3>
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid var(--primary);">
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-hashtag"></i> Mã đơn:</strong> <span style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-family: monospace;">${order.id}</span></p>
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-info-circle"></i> Trạng thái:</strong> 
-                            <span class="status-badge status-${order.status}" style="margin-left: 10px;">${getStatusText(order.status)}</span>
-                        </p>
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-credit-card"></i> Thanh toán:</strong> 
-                            <span style="background: ${order.paymentMethod === 'cod' ? '#d4edda' : '#d1ecf1'}; color: ${order.paymentMethod === 'cod' ? '#155724' : '#0c5460'}; padding: 3px 8px; border-radius: 4px;">
-                                ${order.paymentMethod === 'cod' ? 'COD (Thanh toán khi nhận hàng)' : 'Chuyển khoản'}
-                            </span>
-                        </p>
-                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-calendar-plus"></i> Tạo lúc:</strong> ${formatDate(order.createdAt)}</p>
-                        <p style="margin-bottom: 0;"><strong><i class="fas fa-calendar-check"></i> Cập nhật:</strong> ${formatDate(order.updatedAt || order.createdAt)}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div>
-                <h3 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-boxes"></i> Sản phẩm đã đặt 
-                    <span style="background: var(--primary); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.9rem;">
-                        ${order.items?.length || 0} sản phẩm • ${totalQuantity} cái
-                    </span>
-                </h3>
-                <div style="background: #f8f9fa; padding: 0; border-radius: 10px; overflow: hidden; border: 1px solid #dee2e6;">
-                    <!-- Header bảng sản phẩm -->
-                    <div style="display: flex; justify-content: space-between; padding: 15px; background: #e9ecef; font-weight: 600; border-bottom: 2px solid #ddd;">
-                        <div style="flex: 1; font-size: 1rem;"><i class="fas fa-box"></i> Sản phẩm</div>
-                        <div style="width: 100px; text-align: center; font-size: 1rem;"><i class="fas fa-layer-group"></i> Số lượng</div>
-                        <div style="width: 180px; text-align: right; font-size: 1rem;"><i class="fas fa-money-bill-wave"></i> Thành tiền</div>
-                    </div>
-                    
-                    <!-- Danh sách sản phẩm -->
-                    <div style="max-height: 350px; overflow-y: auto;">
-                        ${itemsHTML}
-                    </div>
-                    
-                    <!-- Tổng cộng -->
-                    <div style="display: flex; justify-content: space-between; padding: 20px 15px; font-weight: 600; border-top: 2px solid var(--primary); background: white; align-items: center;">
-                        <div style="font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-calculator"></i> Tổng cộng:
-                        </div>
-                        <div style="font-size: 1.5rem; color: var(--primary); font-weight: 700;">
-                            ${formatPrice(order.totalAmount || 0)}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            ${order.notes ? `
-            <div style="margin-top: 25px;">
-                <h3 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-sticky-note"></i> Ghi chú đơn hàng
-                </h3>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #FFC107;">
-                    <div style="display: flex; gap: 10px;">
-                        <i class="fas fa-quote-left" style="color: #FFC107; font-size: 1.2rem;"></i>
-                        <div style="flex: 1; font-style: italic; color: #666;">
-                            ${order.notes}
-                        </div>
-                        <i class="fas fa-quote-right" style="color: #FFC107; font-size: 1.2rem;"></i>
-                    </div>
-                </div>
-            </div>
-            ` : ''}
-            
-            <div style="margin-top: 25px; text-align: center; padding-top: 20px; border-top: 1px dashed #ddd;">
-                <button class="btn btn-primary" onclick="printOrderDetails('${order.id}')" style="margin-right: 10px;">
-                    <i class="fas fa-print"></i> In đơn hàng
-                </button>
-                <button class="btn btn-secondary" onclick="closeModal()">
-                    <i class="fas fa-times"></i> Đóng
+        });
+    } else {
+        itemsHTML = `
+            <div style="padding: 40px; text-align: center; color: #666;">
+                <i class="fas fa-box-open" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                <p>Không có thông tin sản phẩm chi tiết</p>
+                <button onclick="window.location.href='index.html'" style="margin-top: 15px; padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    <i class="fas fa-external-link-alt"></i> Xem danh sách sản phẩm
                 </button>
             </div>
         `;
-        
-        modal.classList.add('active');
     }
+    
+    // Cập nhật nội dung modal
+    details.innerHTML = `
+        <!-- Header và thông tin cơ bản -->
+        <div style="margin-bottom: 25px;">
+            <h2 style="color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-receipt"></i> Đơn hàng: ${order.id}
+                <span class="status-badge status-${order.status}" style="font-size: 0.9rem; margin-left: 10px;">
+                    ${getStatusText(order.status)}
+                </span>
+            </h2>
+            <div style="display: flex; gap: 15px; font-size: 0.9rem; color: #666; margin-top: 10px;">
+                <div><i class="fas fa-calendar-plus"></i> ${formatDate(order.createdAt)}</div>
+                <div><i class="fas fa-user"></i> ${order.customer?.name || order.customerName || 'Khách hàng'}</div>
+                <div><i class="fas fa-phone"></i> ${order.customer?.phone || order.customerPhone || 'N/A'}</div>
+            </div>
+        </div>
+        
+        <!-- Grid 2 cột cho thông tin -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+            <!-- Thông tin khách hàng -->
+            <div>
+                <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 1.1rem;">
+                    <i class="fas fa-user-circle"></i> Thông tin khách hàng
+                </h3>
+                <div style="background: #f8f9fa; padding: 18px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <p><strong><i class="fas fa-user"></i> Họ tên:</strong> ${order.customer?.name || order.customerName || 'N/A'}</p>
+                    <p><strong><i class="fas fa-phone"></i> Điện thoại:</strong> ${order.customer?.phone || order.customerPhone || 'N/A'}</p>
+                    <p><strong><i class="fas fa-envelope"></i> Email:</strong> ${order.customer?.email || 'N/A'}</p>
+                    <p><strong><i class="fas fa-map-marker-alt"></i> Địa chỉ:</strong> ${order.customer?.address || 'N/A'}</p>
+                    ${order.customer?.notes ? `
+                        <p style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;">
+                            <strong><i class="fas fa-sticky-note"></i> Ghi chú:</strong><br>
+                            <span style="font-style: italic;">${order.customer.notes}</span>
+                        </p>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <!-- Thông tin đơn hàng -->
+            <div>
+                <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 1.1rem;">
+                    <i class="fas fa-info-circle"></i> Thông tin đơn hàng
+                </h3>
+                <div style="background: #f8f9fa; padding: 18px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <p><strong><i class="fas fa-hashtag"></i> Mã đơn:</strong> <code>${order.id}</code></p>
+                    <p><strong><i class="fas fa-credit-card"></i> Thanh toán:</strong> 
+                        <span style="background: ${order.paymentMethod === 'cod' ? '#d4edda' : '#d1ecf1'}; 
+                              color: ${order.paymentMethod === 'cod' ? '#155724' : '#0c5460'}; 
+                              padding: 3px 8px; border-radius: 4px; margin-left: 8px;">
+                            ${order.paymentMethod === 'cod' ? 'COD' : order.paymentMethod === 'bank' ? 'Chuyển khoản' : 'Thẻ'}
+                        </span>
+                    </p>
+                    <p><strong><i class="fas fa-truck"></i> Vận chuyển:</strong> Giao hàng tiêu chuẩn</p>
+                    <p><strong><i class="fas fa-calendar-check"></i> Cập nhật:</strong> ${formatDate(order.updatedAt || order.createdAt)}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Danh sách sản phẩm -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color: var(--primary); font-size: 1.1rem;">
+                    <i class="fas fa-shopping-cart"></i> Sản phẩm đã đặt
+                    <span style="background: var(--primary); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.9rem; margin-left: 10px;">
+                        ${enrichedItems.length} sản phẩm
+                    </span>
+                </h3>
+                <button onclick="window.open('index.html', '_blank')" 
+                        style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                    <i class="fas fa-external-link-alt"></i> Xem cửa hàng
+                </button>
+            </div>
+            
+            <div style="background: white; border-radius: 10px; overflow: hidden; border: 1px solid #dee2e6; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <!-- Header bảng -->
+                <div style="display: flex; padding: 15px; background: #f8f9fa; font-weight: 600; border-bottom: 2px solid var(--primary);">
+                    <div style="flex: 1;"><i class="fas fa-box"></i> Sản phẩm (Click để xem)</div>
+                    <div style="width: 120px; text-align: center;"><i class="fas fa-layer-group"></i> Số lượng</div>
+                    <div style="width: 180px; text-align: right;"><i class="fas fa-money-bill"></i> Thành tiền</div>
+                </div>
+                
+                <!-- Danh sách sản phẩm -->
+                <div style="max-height: 400px; overflow-y: auto;">
+                    ${itemsHTML}
+                </div>
+                
+                <!-- Tổng cộng -->
+                <div style="display: flex; justify-content: space-between; padding: 20px; background: #f8f9fa; border-top: 2px solid #dee2e6;">
+                    <div style="font-size: 1.1rem; font-weight: 600;">
+                        <i class="fas fa-calculator"></i> Tổng cộng (${totalQuantity} sản phẩm):
+                    </div>
+                    <div style="font-size: 1.5rem; color: var(--primary); font-weight: 700;">
+                        ${formatPrice(order.totalAmount || 0)}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer với nút hành động -->
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+            <button class="btn btn-primary" onclick="printOrderDetails('${order.id}')" style="margin-right: 10px;">
+                <i class="fas fa-print"></i> In đơn hàng
+            </button>
+            <button class="btn btn-secondary" onclick="closeModal()">
+                <i class="fas fa-times"></i> Đóng
+            </button>
+        </div>
+    `;
+    
+    modal.classList.add('active');
+}
+
+// Thêm hàm viewProductDetail
+window.viewProductDetail = function(productId) {
+    // Tạo URL đến trang sản phẩm
+    const productUrl = `index.html?product=${productId}`;
+    
+    // Mở trong tab mới
+    window.open(productUrl, '_blank');
+    
+    // Hoặc hiển thị thông báo
+    showAlert(`Đang mở chi tiết sản phẩm ${productId}...`, 'info');
+};
     
     // Hàm in đơn hàng
     function printOrderDetails(orderId) {
@@ -728,7 +781,12 @@ document.addEventListener('DOMContentLoaded', function() {
             adminKey = savedKey;
             connectAdmin();
         }
-        
+            // Thêm khởi tạo cache sản phẩm
+    if (adminKey) {
+        setTimeout(() => {
+            initializeProductsCache();
+        }, 1000);
+    }
         // Close modal on click outside
         document.getElementById('orderModal').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -764,3 +822,37 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     window.filterOrders = filterOrders;
 });
+// Thêm vào phần HELPER FUNCTIONS trong admin.js
+async function loadProducts() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products`, {
+            headers: {
+                'X-API-Key': adminKey
+            }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                return result.data || [];
+            }
+        }
+    } catch (error) {
+        console.error('Load products error:', error);
+    }
+    return [];
+}
+
+// Tạo mapping giữa product ID và thông tin chi tiết
+let productsCache = {};
+
+async function initializeProductsCache() {
+    const products = await loadProducts();
+    productsCache = {};
+    products.forEach(product => {
+        if (product.id) {
+            productsCache[product.id] = product;
+        }
+    });
+    console.log('Products cache initialized:', productsCache);
+}
