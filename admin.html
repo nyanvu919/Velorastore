@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Velora Fashion</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; }
+        .admin-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: #8B7355; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .orders-table { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; }
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 0.9em; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.processing { background: #cce5ff; color: #004085; }
+        .status.shipped { background: #d4edda; color: #155724; }
+        .status.delivered { background: #d1ecf1; color: #0c5460; }
+        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 2px; }
+        .btn-process { background: #17a2b8; color: white; }
+        .btn-ship { background: #28a745; color: white; }
+        .btn-deliver { background: #6c757d; color: white; }
+        .refresh-btn { background: #8B7355; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .order-details { display: none; background: #f8f9fa; padding: 15px; margin-top: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="header">
+            <h1>📊 Admin Dashboard - Velora Fashion</h1>
+            <p>Quản lý đơn hàng và thống kê</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>📦 Tổng đơn hàng</h3>
+                <p id="totalOrders">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>💰 Doanh thu hôm nay</h3>
+                <p id="todayRevenue">0 ₫</p>
+            </div>
+            <div class="stat-card">
+                <h3>⏳ Đang chờ xử lý</h3>
+                <p id="pendingOrders">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>✅ Đã giao</h3>
+                <p id="deliveredOrders">0</p>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
+            <input type="password" id="adminKey" placeholder="Nhập Admin Key" style="padding: 10px; margin-left: 10px; width: 300px;">
+        </div>
+        
+        <div class="orders-table">
+            <h3 style="padding: 20px 20px 0;">📋 Danh sách đơn hàng</h3>
+            <div style="padding: 20px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Sản phẩm</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thời gian</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersList">
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'https://velora-api.nyaochen9.workers.dev/api';
+        
+        async function loadOrders() {
+            const apiKey = document.getElementById('adminKey').value;
+            if (!apiKey) {
+                alert('Vui lòng nhập Admin Key');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/orders`, {
+                    headers: {
+                        'X-API-Key': apiKey
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Không thể tải đơn hàng');
+                
+                const data = await response.json();
+                renderOrders(data.data);
+                updateStats(data.data);
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+        
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersList');
+            container.innerHTML = '';
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${order.id}</strong></td>
+                    <td>
+                        <strong>${order.customerName}</strong><br>
+                        📞 ${order.customerPhone}
+                    </td>
+                    <td>${order.itemCount} sản phẩm</td>
+                    <td>${formatPrice(order.totalAmount)}</td>
+                    <td><span class="status ${order.status}">${getStatusText(order.status)}</span></td>
+                    <td>${new Date(order.createdAt).toLocaleString('vi-VN')}</td>
+                    <td>
+                        <button class="btn btn-process" onclick="updateOrderStatus('${order.id}', 'processing')">Xử lý</button>
+                        <button class="btn btn-ship" onclick="updateOrderStatus('${order.id}', 'shipped')">Giao hàng</button>
+                        <button class="btn btn-deliver" onclick="updateOrderStatus('${order.id}', 'delivered')">Đã giao</button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        function updateStats(orders) {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(o => o.status === 'pending').length;
+            const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
+            
+            const today = new Date().toDateString();
+            const todayRevenue = orders
+                .filter(o => new Date(o.createdAt).toDateString() === today)
+                .reduce((sum, o) => sum + o.totalAmount, 0);
+            
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('deliveredOrders').textContent = deliveredOrders;
+            document.getElementById('todayRevenue').textContent = formatPrice(todayRevenue);
+        }
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Chờ xử lý',
+                'processing': 'Đang xử lý',
+                'shipped': 'Đang giao',
+                'delivered': 'Đã giao'
+            };
+            return statusMap[status] || status;
+        }
+        
+        async function updateOrderStatus(orderId, newStatus) {
+            const apiKey = document.getElementById('adminKey').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (response.ok) {
+                    alert('Cập nhật trạng thái thành công');
+                    loadOrders();
+                }
+            } catch (error) {
+                alert('Lỗi cập nhật: ' + error.message);
+            }
+        }
+        
+        // Tự động refresh mỗi 30 giây
+        setInterval(() => {
+            const apiKey = document.getElementById('adminKey').value;
+            if (apiKey) loadOrders();
+        }, 30000);
+        
+        // Load ngay khi trang mở
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('velora_admin_key');
+            if (savedKey) {
+                document.getElementById('adminKey').value = savedKey;
+                setTimeout(() => loadOrders(), 1000);
+            }
+            
+            // Lưu key
+            document.getElementById('adminKey').addEventListener('change', function() {
+                localStorage.setItem('velora_admin_key', this.value);
+            });
+        });
+    </script>
+</body>
+</html>
