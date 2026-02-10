@@ -138,7 +138,7 @@ p {
 
 /* ====== HEADER & NAVIGATION ====== */
 .header {
-    background: var(--white);
+    background: var(--primary-dark); /* Thay màu nền từ trắng sang màu tối */
     box-shadow: 0 2px 15px rgba(0,0,0,0.08);
     position: sticky;
     top: 0;
@@ -156,7 +156,7 @@ p {
     display: flex;
     align-items: baseline;
     text-decoration: none;
-    color: var(--primary);
+    color: var(--white); /* Thay màu chữ từ primary sang trắng */
     font-size: 1.8rem;
     font-weight: 700;
 }
@@ -168,7 +168,7 @@ p {
 .logo-sub {
     font-size: 1rem;
     margin-left: 8px;
-    color: var(--gray);
+    color: var(--secondary); /* Thay màu chữ phụ */
     font-weight: 400;
 }
 
@@ -180,7 +180,7 @@ p {
 
 .nav-menu a {
     text-decoration: none;
-    color: var(--dark);
+    color: var(--white); /* Thay màu chữ từ dark sang trắng */
     font-weight: 500;
     padding: 8px 0;
     position: relative;
@@ -189,7 +189,7 @@ p {
 
 .nav-menu a:hover,
 .nav-menu a.active {
-    color: var(--primary);
+    color: var(--secondary); /* Thay màu hover/active */
 }
 
 .nav-menu a.active::after {
@@ -199,7 +199,7 @@ p {
     left: 0;
     width: 100%;
     height: 2px;
-    background: var(--primary);
+    background: var(--secondary); /* Thay màu gạch dưới */
 }
 
 .nav-icons {
@@ -212,7 +212,7 @@ p {
     background: none;
     border: none;
     font-size: 1.2rem;
-    color: var(--dark);
+    color: var(--white); /* Thay màu icon từ dark sang trắng */
     cursor: pointer;
     position: relative;
     padding: 8px;
@@ -226,15 +226,15 @@ p {
 }
 
 .icon-btn:hover {
-    background: var(--light-gray);
+    background: rgba(255, 255, 255, 0.1); /* Thay màu hover nhẹ */
 }
 
 .cart-count {
     position: absolute;
     top: -5px;
     right: -5px;
-    background: var(--primary);
-    color: var(--white);
+    background: var(--secondary); /* Thay màu số giỏ hàng */
+    color: var(--dark); /* Thay màu chữ số */
     font-size: 0.7rem;
     width: 18px;
     height: 18px;
@@ -258,8 +258,29 @@ p {
     width: 25px;
     height: 3px;
     margin: 5px 0;
-    background-color: var(--dark);
+    background-color: var(--white); /* Thay màu hamburger sang trắng */
     transition: var(--transition);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-menu {
+        position: fixed;
+        top: 80px;
+        left: -100%;
+        flex-direction: column;
+        background: var(--primary-dark); /* Giữ màu nền menu mobile */
+        width: 100%;
+        text-align: center;
+        transition: var(--transition);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        padding: 20px 0;
+        z-index: 999;
+    }
+    
+    .nav-menu.active {
+        left: 0;
+    }
 }
 
 /* ====== HERO SLIDESHOW ====== */
