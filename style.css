@@ -1164,3 +1164,14 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--primary-color);
   width: 20px;
 }
+/* Trong phần CSS của admin.html */
+.btn-dark {
+    background-color: #343a40;
+    color: white;
+    border: none;
+}
+
+.btn-dark:hover {
+    background-color: #23272b;
+    color: white;
+}
