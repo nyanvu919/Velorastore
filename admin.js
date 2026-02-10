@@ -470,7 +470,46 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeModal() {
         document.getElementById('orderModal').classList.remove('active');
     }
+    // =================== DELETE ORDER ===================
+
+async function adminDeleteOrder(orderId) {
+    if (!confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN đơn hàng ${orderId}? Hành động này không thể hoàn tác!`)) {
+        return;
+    }
     
+    try {
+        // Lưu ý: Backend chưa có endpoint xóa, bạn cần thêm vào worker
+        // Tạm thời dùng alert cho đến khi thêm backend
+        showAlert('Tính năng xóa đang được phát triển. Vui lòng đánh dấu "đã hủy" thay vì xóa.', 'warning');
+        
+        // Khi backend đã có endpoint, bạn có thể dùng code sau:
+        /*
+        const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-API-Key': adminKey
+            }
+        });
+        
+        if (!response.ok) throw new Error('Không thể xóa đơn hàng');
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Đã xóa đơn hàng thành công!', 'success');
+            loadData(); // Refresh danh sách
+        } else {
+            showAlert('Lỗi: ' + result.error, 'error');
+        }
+        */
+        
+    } catch (error) {
+        showAlert('Lỗi: ' + error.message, 'error');
+    }
+}
+
+// Thêm vào phần expose functions
+window.adminDeleteOrder = adminDeleteOrder;
     // =================== AUTO REFRESH ===================
     
     function startAutoRefresh() {
