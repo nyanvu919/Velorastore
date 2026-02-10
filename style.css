@@ -365,7 +365,7 @@ p {
 
 /* ====== SIDEBAR CATEGORIES ====== */
 .sidebar {
-    background: var(--white);
+    background: var(--primary-dark); /* Thay màu nền từ white sang primary-dark */
     padding: 25px;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -375,10 +375,10 @@ p {
 }
 
 .sidebar h3 {
-    color: var(--primary);
+    color: var(--white); /* Thay màu chữ từ primary sang white */
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--secondary);
+    border-bottom: 2px solid var(--primary); /* Thay màu border */
     font-size: 1.3rem;
 }
 
@@ -392,7 +392,7 @@ p {
 
 .categories a {
     text-decoration: none;
-    color: var(--dark);
+    color: var(--white); /* Thay màu chữ từ dark sang white */
     display: flex;
     align-items: center;
     gap: 10px;
@@ -403,19 +403,21 @@ p {
 
 .categories a:hover,
 .categories a.active {
-    background: var(--secondary);
-    color: var(--primary);
+    background: var(--primary); /* Thay màu hover từ secondary sang primary */
+    color: var(--white);
     transform: translateX(5px);
 }
 
 .categories i {
     width: 20px;
     text-align: center;
+    color: var(--secondary); /* Thêm màu cho icon */
 }
 
 .category-count {
     margin-left: auto;
-    background: var(--light-gray);
+    background: rgba(255, 255, 255, 0.2); /* Thay màu nền count */
+    color: var(--white); /* Thay màu chữ count */
     padding: 3px 8px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -433,16 +435,22 @@ p {
 .filter-group h4 {
     font-size: 1rem;
     margin-bottom: 10px;
-    color: var(--gray);
+    color: var(--secondary); /* Thay màu chữ filter */
 }
 
 .price-filter {
     width: 100%;
     padding: 10px 15px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Thay màu border */
     border-radius: 6px;
-    background: var(--white);
+    background: rgba(255, 255, 255, 0.1); /* Thay màu nền select */
+    color: var(--white); /* Thay màu chữ */
     font-size: 0.9rem;
+}
+
+.price-filter option {
+    background: var(--primary-dark); /* Thêm màu nền cho option */
+    color: var(--white);
 }
 
 .size-filters {
@@ -454,8 +462,9 @@ p {
 .size-filter {
     width: 40px;
     height: 40px;
-    border: 1px solid var(--border);
-    background: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Thay màu border */
+    background: rgba(255, 255, 255, 0.1); /* Thay màu nền button */
+    color: var(--white); /* Thay màu chữ */
     border-radius: 6px;
     cursor: pointer;
     transition: var(--transition);
@@ -464,7 +473,7 @@ p {
 
 .size-filter.active,
 .size-filter:hover {
-    background: var(--primary);
+    background: var(--primary); /* Thay màu active/hover */
     color: var(--white);
     border-color: var(--primary);
 }
