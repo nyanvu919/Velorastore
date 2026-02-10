@@ -1190,3 +1190,31 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Khởi chạy ứng dụng
   await initApp();
 });
+// Thêm vào script.js (trong index.html)
+function handleProductHash() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#product-')) {
+        const productId = hash.replace('#product-', '');
+        viewProductDetail(productId);
+        
+        // Scroll đến sản phẩm
+        const productElement = document.querySelector(`[data-id="${productId}"]`);
+        if (productElement) {
+            productElement.scrollIntoView({ behavior: 'smooth' });
+            
+            // Highlight sản phẩm
+            productElement.style.boxShadow = '0 0 0 3px var(--primary)';
+            setTimeout(() => {
+                productElement.style.boxShadow = '';
+            }, 3000);
+        }
+    }
+}
+
+// Gọi hàm khi trang load
+document.addEventListener('DOMContentLoaded', function() {
+    handleProductHash();
+    
+    // Xử lý hash change (khi click link từ admin)
+    window.addEventListener('hashchange', handleProductHash);
+});
