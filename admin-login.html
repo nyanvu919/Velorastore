@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velora - Đăng nhập Quản trị</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8B7355 0%, #6B5A45 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #8B7355;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .login-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .tab-btn.active {
+            color: #8B7355;
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #8B7355;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B7355;
+        }
+        
+        .input-with-icon input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .input-with-icon input:focus {
+            border-color: #8B7355;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #8B7355;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background: #6B5A45;
+        }
+        
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #c33;
+        }
+        
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .back-link a {
+            color: #8B7355;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .security-note {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <h1>Velora</h1>
+                <p>Hệ thống quản trị thời trang</p>
+            </div>
+            
+            <div class="login-tabs">
+                <button class="tab-btn active" data-tab="password">Mật khẩu</button>
+                <button class="tab-btn" data-tab="apiKey">API Key</button>
+            </div>
+            
+            <!-- Password Login -->
+            <div id="password-tab" class="tab-content active">
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="username">Tên đăng nhập</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" required 
+                                   placeholder="Nhập tên đăng nhập">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Mật khẩu</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" required 
+                                   placeholder="Nhập mật khẩu">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="passwordBtn">
+                        <span id="passwordBtnText">Đăng nhập</span>
+                        <span id="passwordBtnLoading" style="display: none;">
+                            <span class="spinner"></span> Đang xử lý...
+                        </span>
+                    </button>
+                </form>
+                
+                <p class="security-note">
+                    <i class="fas fa-shield-alt"></i> Thông tin đăng nhập được mã hóa và bảo mật
+                </p>
+            </div>
+            
+            <!-- API Key Login -->
+            <div id="apiKey-tab" class="tab-content">
+                <form id="apiKeyForm">
+                    <div class="form-group">
+                        <label for="apiKey">API Key</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="apiKey" required 
+                                   placeholder="Nhập API Key của bạn">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="apiKeyBtn">
+                        <span id="apiKeyBtnText">Đăng nhập bằng API Key</span>
+                        <span id="apiKeyBtnLoading" style="display: none;">
+                            <span class="spinner"></span> Đang xác thực...
+                        </span>
+                    </button>
+                </form>
+                
+                <p class="security-note">
+                    <i class="fas fa-info-circle"></i> API Key được cấp cho quản trị viên
+                </p>
+            </div>
+            
+            <div id="errorMessage" class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Thông tin đăng nhập không đúng</span>
+            </div>
+            
+            <div class="back-link">
+                <a href="index.html">
+                    <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active tab
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Clear error
+                hideError();
+            });
+        });
+        
+        // Password form submission
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('Vui lòng nhập đầy đủ thông tin');
+                return;
+            }
+            
+            await login({ username, password }, 'passwordBtn');
+        });
+        
+        // API Key form submission
+        document.getElementById('apiKeyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                showError('Vui lòng nhập API Key');
+                return;
+            }
+            
+            await login({ apiKey }, 'apiKeyBtn');
+        });
+        
+        // Login function
+        async function login(credentials, buttonId) {
+            const button = document.getElementById(buttonId);
+            const buttonText = document.getElementById(`${buttonId}Text`);
+            const buttonLoading = document.getElementById(`${buttonId}Loading`);
+            
+            // Show loading
+            buttonText.style.display = 'none';
+            buttonLoading.style.display = 'inline';
+            button.disabled = true;
+            hideError();
+            
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(credentials)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.token) {
+                    // Store token in localStorage
+                    localStorage.setItem('admin_token', data.token);
+                    localStorage.setItem('admin_auth_method', data.authMethod);
+                    localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('token_expires', Date.now() + (data.expiresIn * 1000));
+                    
+                    // Redirect to admin panel
+                    window.location.href = 'Administration.html';
+                } else {
+                    throw new Error(data.error || 'Đăng nhập thất bại');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || 'Không thể kết nối đến máy chủ');
+                
+                // Reset button
+                buttonText.style.display = 'inline';
+                buttonLoading.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+        
+        // Error handling
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            errorText.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(hideError, 5000);
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+        
+        // Check if already logged in
+        const token = localStorage.getItem('admin_token');
+        const expires = localStorage.getItem('token_expires');
+        
+        if (token && expires && Date.now() < parseInt(expires)) {
+            // Verify token before auto-redirect
+            verifyToken(token);
+        }
+        
+        async function verifyToken(token) {
+            try {
+                const response = await fetch('/api/admin/verify', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    // Token is valid, redirect to admin panel
+                    window.location.href = 'Administration.html';
+                }
+            } catch (error) {
+                // Token invalid, stay on login page
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_logged_in');
+            }
+        }
+        
+        // Auto focus
+        document.getElementById('username').focus();
+    </script>
+</body>
+</html>
