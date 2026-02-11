@@ -27,10 +27,10 @@ export function initCart() {
     
     updateCartCount();
     
-    // Thanh toán
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', handleCheckout);
+    // Đặt hàng
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    if (placeOrderBtn) {
+        placeOrderBtn.addEventListener('click', handlePlaceOrder);
     }
 }
 
@@ -117,7 +117,7 @@ export function updateCartModal() {
                 <span class="price">0 VND</span>
             </div>
             <button class="btn btn-primary full-width" disabled>
-                <i class="fas fa-credit-card"></i> Thanh toán
+                <i class="fas fa-shopping-cart"></i> Đặt hàng
             </button>
         `;
         return;
@@ -172,10 +172,16 @@ export function updateCartModal() {
             <span class="price">${formatPrice(subtotal)}</span>
         </div>
         
-        <button class="btn btn-primary full-width" id="checkoutBtn">
-            <i class="fas fa-credit-card"></i> Thanh toán
+        <button class="btn btn-primary full-width" id="placeOrderBtn">
+            <i class="fas fa-shopping-cart"></i> Đặt hàng
         </button>
     `;
+    
+    // Re-attach event listener for the new button
+    const newPlaceOrderBtn = document.getElementById('placeOrderBtn');
+    if (newPlaceOrderBtn) {
+        newPlaceOrderBtn.addEventListener('click', handlePlaceOrder);
+    }
     
     attachCartItemEvents();
 }
@@ -272,23 +278,23 @@ function saveCart() {
 }
 
 // =========================
-// CHECKOUT
+// PLACE ORDER
 // =========================
-function handleCheckout() {
+function handlePlaceOrder() {
     if (cart.length === 0) {
         showNotification('Giỏ hàng trống!', 'error');
         return;
     }
     
-    // Open checkout modal
-    openCheckoutModal();
+    // Open order modal
+    openOrderModal();
 }
 
 // =========================
-// OPEN CHECKOUT MODAL
+// OPEN ORDER MODAL
 // =========================
-function openCheckoutModal() {
-    const modal = document.getElementById('checkoutModal') || createCheckoutModal();
+function openOrderModal() {
+    const modal = document.getElementById('orderModal') || createOrderModal();
     const modalBody = modal.querySelector('.modal-body');
     
     // Calculate total
@@ -297,8 +303,8 @@ function openCheckoutModal() {
     const total = subtotal + shipping;
     
     modalBody.innerHTML = `
-        <div class="checkout-form">
-            <h3>Thông tin thanh toán</h3>
+        <div class="order-form">
+            <h3>Thông tin đặt hàng</h3>
             
             <form id="orderForm">
                 <div class="form-row">
@@ -364,7 +370,7 @@ function openCheckoutModal() {
                         <i class="fas fa-times"></i> Hủy
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check"></i> Đặt hàng
+                        <i class="fas fa-check"></i> Xác nhận đặt hàng
                     </button>
                 </div>
             </form>
@@ -382,16 +388,16 @@ function openCheckoutModal() {
 }
 
 // =========================
-// CREATE CHECKOUT MODAL
+// CREATE ORDER MODAL
 // =========================
-function createCheckoutModal() {
+function createOrderModal() {
     const modal = document.createElement('div');
     modal.className = 'modal';
-    modal.id = 'checkoutModal';
+    modal.id = 'orderModal';
     modal.innerHTML = `
-        <div class="modal-content checkout-modal">
+        <div class="modal-content order-modal">
             <div class="modal-header">
-                <h2>Thanh toán</h2>
+                <h2>Đặt hàng</h2>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -499,7 +505,7 @@ async function handleOrderSubmit(e) {
             updateCartCount();
             
             // Close modals
-            closeModal(document.getElementById('checkoutModal'));
+            closeModal(document.getElementById('orderModal'));
             closeModal(document.getElementById('cartModal'));
             
         } else {
@@ -513,7 +519,7 @@ async function handleOrderSubmit(e) {
         // Reset button
         const submitBtn = document.querySelector('#orderForm button[type="submit"]');
         if (submitBtn) {
-            submitBtn.innerHTML = originalText || '<i class="fas fa-check"></i> Đặt hàng';
+            submitBtn.innerHTML = originalText || '<i class="fas fa-check"></i> Xác nhận đặt hàng';
             submitBtn.disabled = false;
         }
     }
