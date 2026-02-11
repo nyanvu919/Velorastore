@@ -1,5 +1,5 @@
 // script/cart.js
-function initCart() {
+export function initCart() {
     console.log('🔄 Khởi tạo giỏ hàng...');
     
     // Load cart from localStorage
