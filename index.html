@@ -11,305 +11,230 @@
 </head>
 <body>
     <!-- Header & Navigation -->
-    <header class="header">
-        <div class="container">
-            <nav class="navbar">
-                <div class="logo">
-                    <a href="index.html">
-                        <span class="logo-text">Velora</span>
-                        <span class="logo-sub">Fashion</span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.html" class="active">Trang chủ</a></li>
-                    <li><a href="#products">Sản phẩm</a></li>
-                    <li><a href="#collections">Bộ sưu tập</a></li>
-                    <li><a href="about.html">Về chúng tôi</a></li>
-                    <li><a href="#contact">Liên hệ</a></li>
-                </ul>
-                <div class="nav-icons">
-                    <button class="icon-btn" id="search-btn">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <button class="icon-btn" id="cart-btn">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span class="cart-count">3</span>
-                    </button>
-                    <button class="icon-btn" id="user-btn">
-                        <i class="fas fa-user"></i>
-                    </button>
-            
-                </div>
-                <button class="hamburger">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                </button>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Hero Slideshow -->
-    <section class="hero-slideshow">
-        <div class="slides-container">
-            <!-- Slide 1 -->
-            <div class="slide active" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('srcimg/slide1.jpg');">
-                <div class="container">
-                    <div class="slide-content">
-                        <h1>Bộ Sưu Tập Thu Đông 2023</h1>
-                        <p>Khám phá những thiết kế mới nhất với chất liệu cao cấp và phong cách sang trọng</p>
-                        <a href="#collections" class="btn btn-primary">
-                            <i class="fas fa-arrow-right"></i> Xem ngay
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- Slide 2 -->
-            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('srcimg/slide2.jpg');">
-                <div class="container">
-                    <div class="slide-content">
-                        <h1>Ưu đãi đặc biệt</h1>
-                        <p>Giảm giá lên đến 30% cho tất cả các sản phẩm thuộc bộ sưu tập mới</p>
-                        <a href="#products" class="btn btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Mua sắm ngay
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- Slide 3 -->
-            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('srcimg/slide3.jpg');">
-                <div class="container">
-                    <div class="slide-content">
-                        <h1>Thời trang công sở</h1>
-                        <p>Những bộ trang phục thanh lịch, chuyên nghiệp dành cho phụ nữ hiện đại</p>
-                        <a href="#categories" class="btn btn-primary">
-                            <i class="fas fa-briefcase"></i> Khám phá
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slideshow-nav">
-            <span class="dot active" data-slide="0"></span>
-            <span class="dot" data-slide="1"></span>
-            <span class="dot" data-slide="2"></span>
-        </div>
-    </section>
-
-    <!-- Collections Section (moved above Products) -->
-    <section class="section collections" id="collections">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Bộ Sưu Tập Đặc Biệt</h2>
-                <p class="section-subtitle">Những bộ sưu tập được thiết kế riêng cho từng mùa và dịp đặc biệt</p>
-            </div>
-            <div class="collections-grid">
-                <!-- Collection cards will be loaded by JavaScript -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="main-content container">
-        <!-- Sidebar Categories -->
-        <aside class="sidebar" id="categories">
-            <h3><i class="fas fa-list"></i> Danh mục</h3>
-            <ul class="categories">
-                <li><a href="#" class="active" data-category="all">
-                    <i class="fas fa-star"></i> Tất cả sản phẩm
-                    <span class="category-count">24</span>
-                </a></li>
-                <li><a href="#" data-category="dress">
-                    <i class="fas fa-tshirt"></i> Đầm/Váy
-                    <span class="category-count">8</span>
-                </a></li>
-                <li><a href="#" data-category="shirt">
-                    <i class="fas fa-vest"></i> Áo sơ mi
-                    <span class="category-count">6</span>
-                </a></li>
-                <li><a href="#" data-category="pants">
-                    <i class="fas fa-socks"></i> Quần
-                    <span class="category-count">4</span>
-                </a></li>
-                <li><a href="#" data-category="jacket">
-                    <i class="fas fa-vest-patches"></i> Áo khoác
-                    <span class="category-count">3</span>
-                </a></li>
-                <li><a href="#" data-category="accessories">
-                    <i class="fas fa-gem"></i> Phụ kiện
-                    <span class="category-count">3</span>
-                </a></li>
-                <li><a href="#" data-category="evening">
-                    <i class="fas fa-crown"></i> Đầm dạ hội
-                    <span class="category-count">5</span>
-                </a></li>
-            </ul>
-
-            <h3 style="margin-top: 30px;"><i class="fas fa-filter"></i> Lọc theo</h3>
-            <div class="filters">
-                <div class="filter-group">
-                    <h4>Giá</h4>
-                    <select class="price-filter">
-                        <option value="all">Tất cả mức giá</option>
-                        <option value="low">Dưới 2 triệu</option>
-                        <option value="medium">2-5 triệu</option>
-                        <option value="high">Trên 5 triệu</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <h4>Kích thước</h4>
-                    <div class="size-filters">
-                        <button class="size-filter" data-size="S">S</button>
-                        <button class="size-filter" data-size="M">M</button>
-                        <button class="size-filter" data-size="L">L</button>
-                        <button class="size-filter" data-size="XL">XL</button>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Products Grid -->
-        <section class="products-section" id="products">
-            <div class="products-header">
-                <h2>Sản Phẩm Nổi Bật</h2>
-                <div class="sort-filter">
-                    <span>Sắp xếp:</span>
-                    <select class="sort-select">
-                        <option value="popular">Phổ biến nhất</option>
-                        <option value="newest">Mới nhất</option>
-                        <option value="price-low">Giá thấp đến cao</option>
-                        <option value="price-high">Giá cao đến thấp</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="products-grid">
-                <!-- Products will be loaded by JavaScript -->
-            </div>
-
-            <div class="view-more-container">
-                <button class="btn btn-secondary" id="loadMoreBtn">
-                    <i class="fas fa-plus"></i> Xem thêm sản phẩm
-                </button>
-            </div>
-        </section>
-    </main>
+    <!-- ... toàn bộ HTML hiện tại ... -->
 
     <!-- Footer -->
-    <footer class="footer" id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <div class="logo">
-                        <a href="index.html">
-                            <span class="logo-text">Velora</span>
-                            <span class="logo-sub">Fashion</span>
-                        </a>
-                    </div>
-                    <p>Thương hiệu thời trang cao cấp với hơn 10 năm kinh nghiệm trong ngành thời trang Việt Nam.</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-pinterest-p"></i></a>
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h3>Liên kết nhanh</h3>
-                    <ul>
-                        <li><a href="index.html">Trang chủ</a></li>
-                        <li><a href="#products">Sản phẩm</a></li>
-                        <li><a href="#collections">Bộ sưu tập</a></li>
-                        <li><a href="about.html">Về chúng tôi</a></li>
-                        <li><a href="#contact">Liên hệ</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Chính sách</h3>
-                    <ul>
-                        <li><a href="#">Chính sách bảo mật</a></li>
-                        <li><a href="#">Điều khoản sử dụng</a></li>
-                        <li><a href="#">Chính sách đổi trả</a></li>
-                        <li><a href="#">Chính sách vận chuyển</a></li>
-                        <li><a href="#">Hướng dẫn mua hàng</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Liên hệ</h3>
-                    <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Nguyễn Huệ, Q.1, TP.HCM</li>
-                        <li><i class="fas fa-phone"></i> (028) 1234 5678</li>
-                        <li><i class="fas fa-envelope"></i> info@velora.com</li>
-                        <li><i class="fas fa-clock"></i> 8:00 - 21:00 (T2 - CN)</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2023 Velora Fashion. Tất cả các quyền được bảo lưu.</p>
-            </div>
-        </div>
-    </footer>
-<!-- Add this before </body> in index.html -->
-<!-- Login Modal -->
-<div class="modal" id="loginModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Đăng nhập</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <!-- Login form here -->
-        </div>
-    </div>
-</div>
+    <!-- ... toàn bộ footer HTML ... -->
 
-<!-- Cart Modal -->
-<div class="modal" id="cartModal">
-    <div class="modal-content cart-modal">
-        <div class="modal-header">
-            <h2>Giỏ hàng của bạn</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="cart-items">
-                <!-- Cart items will be loaded here -->
+    <!-- =================== MODALS =================== -->
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đăng nhập</h2>
+                <button class="close-modal">&times;</button>
             </div>
-            <div class="cart-summary">
-                <div class="summary-row">
-                    <span>Tạm tính:</span>
-                    <span class="price">0 VND</span>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Nhập email của bạn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Mật khẩu</label>
+                        <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox">
+                            <input type="checkbox"> Ghi nhớ đăng nhập
+                        </label>
+                        <a href="#" class="forgot-password">Quên mật khẩu?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>Hoặc đăng nhập với</span>
                 </div>
-                <div class="summary-row total">
-                    <span>Tổng cộng:</span>
-                    <span class="price">0 VND</span>
+                
+                <div class="social-login">
+                    <button class="btn btn-social facebook">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </button>
+                    <button class="btn btn-social google">
+                        <i class="fab fa-google"></i> Google
+                    </button>
                 </div>
-                <button class="btn btn-primary full-width" style="margin-top: 20px;">
-                    Thanh toán
-                </button>
+                
+                <div class="switch-modal">
+                    Chưa có tài khoản? <a href="#" id="switchToRegister">Đăng ký ngay</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Search Modal -->
-<div class="modal" id="searchModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Tìm kiếm sản phẩm</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm...">
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đăng ký tài khoản</h2>
+                <button class="close-modal">&times;</button>
             </div>
-            <div class="search-results" id="searchResults">
-                <!-- Search results will appear here -->
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Họ và tên</label>
+                        <input type="text" id="registerName" placeholder="Nhập họ và tên" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" placeholder="Nhập email của bạn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPhone">Số điện thoại</label>
+                        <input type="tel" id="registerPhone" placeholder="Nhập số điện thoại" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Mật khẩu</label>
+                        <input type="password" id="registerPassword" placeholder="Nhập mật khẩu (ít nhất 6 ký tự)" required minlength="6">
+                        <div class="password-strength">
+                            <div class="password-strength-bar"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Xác nhận mật khẩu</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="Nhập lại mật khẩu" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="registerTerms" required>
+                            Tôi đồng ý với <a href="#" class="terms-link">Điều khoản dịch vụ</a> và <a href="#" class="terms-link">Chính sách bảo mật</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width">
+                        <i class="fas fa-user-plus"></i> Đăng ký
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>Hoặc đăng ký với</span>
+                </div>
+                
+                <div class="social-login">
+                    <button class="btn btn-social facebook">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </button>
+                    <button class="btn btn-social google">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                </div>
+                
+                <div class="switch-modal">
+                    Đã có tài khoản? <a href="#" id="switchToLogin">Đăng nhập ngay</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
-    <!-- Include Modals from original index.html -->
-    <script src="script.js"></script>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal" id="forgotPasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Quên mật khẩu</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="forgotPasswordForm">
+                    <div class="form-group">
+                        <p>Nhập email của bạn để nhận liên kết đặt lại mật khẩu</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="resetEmail">Email</label>
+                        <input type="email" id="resetEmail" placeholder="Nhập email đã đăng ký" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width">
+                        <i class="fas fa-paper-plane"></i> Gửi yêu cầu
+                    </button>
+                </form>
+                
+                <div class="switch-modal" style="margin-top: 20px;">
+                    <a href="#" id="backToLogin"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content cart-modal">
+            <div class="modal-header">
+                <h2>Giỏ hàng của bạn</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Tạm tính:</span>
+                        <span class="price">0 VND</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Tổng cộng:</span>
+                        <span class="price">0 VND</span>
+                    </div>
+                    <button class="btn btn-primary full-width" style="margin-top: 20px;" id="checkoutBtn">
+                        <i class="fas fa-credit-card"></i> Thanh toán
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal" id="searchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tìm kiếm sản phẩm</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm...">
+                </div>
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Menu (dropdown khi đã đăng nhập) -->
+    <div class="user-menu" id="userMenu">
+        <div class="user-menu-header">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-info">
+                <h4 id="userName">Chào bạn!</h4>
+                <p id="userEmail">Đăng nhập để xem thông tin</p>
+            </div>
+        </div>
+        <div class="user-menu-items">
+            <a href="#" class="user-menu-item">
+                <i class="fas fa-user"></i> Thông tin cá nhân
+            </a>
+            <a href="#" class="user-menu-item">
+                <i class="fas fa-shopping-bag"></i> Đơn hàng của tôi
+            </a>
+            <a href="#" class="user-menu-item">
+                <i class="fas fa-heart"></i> Yêu thích
+            </a>
+            <a href="#" class="user-menu-item">
+                <i class="fas fa-map-marker-alt"></i> Địa chỉ giao hàng
+            </a>
+            <hr>
+            <a href="#" class="user-menu-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+
+    <!-- =================== SCRIPTS =================== -->
+    <!-- Sửa dòng này: thay vì script.js, gọi main.js -->
+    <script type="module" src="script/main.js"></script>
 </body>
 </html>
