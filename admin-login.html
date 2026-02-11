@@ -312,148 +312,131 @@
     </div>
     
     <script>
-        // Tab switching
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Update active tab
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Show corresponding content
-                const tabId = this.dataset.tab;
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(`${tabId}-tab`).classList.add('active');
-                
-                // Clear error
-                hideError();
-            });
+      // Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const tabId = this.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+        
+        hideError();
+    });
+});
+
+// Password form
+document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    
+    if (!username || !password) {
+        showError('Vui lòng nhập đầy đủ thông tin');
+        return;
+    }
+    
+    await login({ username, password }, 'passwordBtn');
+});
+
+// API Key form
+document.getElementById('apiKeyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const apiKey = document.getElementById('apiKey').value.trim();
+    
+    if (!apiKey) {
+        showError('Vui lòng nhập API Key');
+        return;
+    }
+    
+    await login({ apiKey }, 'apiKeyBtn');
+});
+
+// SIMPLE LOGIN FUNCTION
+async function login(credentials, buttonId) {
+    const button = document.getElementById(buttonId);
+    const buttonText = document.getElementById(`${buttonId}Text`);
+    const buttonLoading = document.getElementById(`${buttonId}Loading`);
+    
+    // Show loading
+    buttonText.style.display = 'none';
+    buttonLoading.style.display = 'inline';
+    button.disabled = true;
+    hideError();
+    
+    // ĐỊA CHỈ API - QUAN TRỌNG!
+    const API_URL = 'https://velora-api.nyacoen9.workers.dev/api/admin/login';
+    console.log('Sending login to:', API_URL);
+    console.log('Credentials:', credentials);
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(credentials)
         });
         
-        // Password form submission
-        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            
-            if (!username || !password) {
-                showError('Vui lòng nhập đầy đủ thông tin');
-                return;
-            }
-            
-            await login({ username, password }, 'passwordBtn');
-        });
+        console.log('Response status:', response.status);
         
-        // API Key form submission
-        document.getElementById('apiKeyForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const apiKey = document.getElementById('apiKey').value.trim();
-            
-            if (!apiKey) {
-                showError('Vui lòng nhập API Key');
-                return;
-            }
-            
-            await login({ apiKey }, 'apiKeyBtn');
-        });
+        const result = await response.json();
+        console.log('Response data:', result);
         
-        // Login function
-        async function login(credentials, buttonId) {
-            const button = document.getElementById(buttonId);
-            const buttonText = document.getElementById(`${buttonId}Text`);
-            const buttonLoading = document.getElementById(`${buttonId}Loading`);
+        if (result.success) {
+            // Save token
+            localStorage.setItem('admin_token', result.token);
+            localStorage.setItem('admin_auth_method', result.authMethod);
+            localStorage.setItem('admin_username', result.username || 'admin');
+            localStorage.setItem('token_expires', Date.now() + 86400000);
             
-            // Show loading
-            buttonText.style.display = 'none';
-            buttonLoading.style.display = 'inline';
-            button.disabled = true;
-            hideError();
+            alert('✅ Đăng nhập thành công! Chuyển hướng...');
+            setTimeout(() => {
+                window.location.href = 'Administration.html';
+            }, 1000);
             
-            try {
-                const response = await fetch('/api/admin/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(credentials)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.token) {
-                    // Store token in localStorage
-                    localStorage.setItem('admin_token', data.token);
-                    localStorage.setItem('admin_auth_method', data.authMethod);
-                    localStorage.setItem('admin_logged_in', 'true');
-                    localStorage.setItem('token_expires', Date.now() + (data.expiresIn * 1000));
-                    
-                    // Redirect to admin panel
-                    window.location.href = 'Administration.html';
-                } else {
-                    throw new Error(data.error || 'Đăng nhập thất bại');
-                }
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                showError(error.message || 'Không thể kết nối đến máy chủ');
-                
-                // Reset button
-                buttonText.style.display = 'inline';
-                buttonLoading.style.display = 'none';
-                button.disabled = false;
-            }
+        } else {
+            showError(result.error || 'Đăng nhập thất bại');
+            buttonText.style.display = 'inline';
+            buttonLoading.style.display = 'none';
+            button.disabled = false;
         }
         
-        // Error handling
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-            
-            errorText.textContent = message;
-            errorDiv.classList.add('show');
-            
-            // Auto hide after 5 seconds
-            setTimeout(hideError, 5000);
-        }
-        
-        function hideError() {
-            document.getElementById('errorMessage').classList.remove('show');
-        }
-        
-        // Check if already logged in
-        const token = localStorage.getItem('admin_token');
-        const expires = localStorage.getItem('token_expires');
-        
-        if (token && expires && Date.now() < parseInt(expires)) {
-            // Verify token before auto-redirect
-            verifyToken(token);
-        }
-        
-        async function verifyToken(token) {
-            try {
-                const response = await fetch('/api/admin/verify', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (response.ok) {
-                    // Token is valid, redirect to admin panel
-                    window.location.href = 'Administration.html';
-                }
-            } catch (error) {
-                // Token invalid, stay on login page
-                localStorage.removeItem('admin_token');
-                localStorage.removeItem('admin_logged_in');
-            }
-        }
-        
-        // Auto focus
-        document.getElementById('username').focus();
+    } catch (error) {
+        console.error('Login error:', error);
+        showError('Không thể kết nối đến máy chủ: ' + error.message);
+        buttonText.style.display = 'inline';
+        buttonLoading.style.display = 'none';
+        button.disabled = false;
+    }
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    errorText.textContent = message;
+    errorDiv.classList.add('show');
+    
+    setTimeout(hideError, 5000);
+}
+
+function hideError() {
+    document.getElementById('errorMessage').classList.remove('show');
+}
+
+// Check if already logged in
+const token = localStorage.getItem('admin_token');
+if (token) {
+    // Auto-redirect if token exists
+    window.location.href = 'Administration.html';
+}
+
+// Auto focus
+document.getElementById('username').focus();
     </script>
 </body>
 </html>
