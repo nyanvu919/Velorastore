@@ -571,42 +571,81 @@ function performSearch(keyword) {
         openModal('cartModal');
     }
     
-    function updateCartModal() {
-        const cartItemsContainer = document.querySelector('.cart-items');
-        if (!cartItemsContainer) return;
-        
-        if (cart.length === 0) {
-            cartItemsContainer.innerHTML = `
-                <div class="empty-cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <p>Giỏ hàng của bạn đang trống</p>
-                </div>
-            `;
-            return;
-        }
-        
-        // Build cart items HTML
-        cartItemsContainer.innerHTML = cart.map(item => `
-            <div class="cart-item">
-                <div class="cart-item-img" style="background-image: url('${item.image}')"></div>
-                <div class="cart-item-details">
-                    <h4>${item.name}</h4>
-                    <p class="cart-item-price">${formatPrice(item.price)}</p>
-                    <div class="cart-item-quantity">
-                        <button class="quantity-btn minus" data-id="${item.id}">-</button>
-                        <span class="quantity-value">${item.quantity}</span>
-                        <button class="quantity-btn plus" data-id="${item.id}">+</button>
-                    </div>
-                </div>
-                <button class="cart-item-remove" data-id="${item.id}">
-                    <i class="fas fa-times"></i>
-                </button>
+   function updateCartModal() {
+    const cartItemsContainer = document.querySelector('.cart-items');
+    const cartSummary = document.querySelector('.cart-summary');
+    
+    if (!cartItemsContainer || !cartSummary) return;
+    
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Giỏ hàng của bạn đang trống</p>
             </div>
-        `).join('');
+        `;
         
-        // Attach cart item events
-        attachCartItemEvents();
+        // Update summary
+        cartSummary.innerHTML = `
+            <div class="summary-row total">
+                <span>Tổng cộng:</span>
+                <span class="price">0 VND</span>
+            </div>
+            <button class="btn btn-primary full-width" style="margin-top: 20px;" disabled>
+                Thanh toán
+            </button>
+        `;
+        return;
     }
+    
+    // Build cart items HTML
+    cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <div class="cart-item-img" style="background-image: url('${item.image}')"></div>
+            <div class="cart-item-details">
+                <h4>${item.name}</h4>
+                <p class="cart-item-price">${formatPrice(item.price)}</p>
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn minus" data-id="${item.id}">-</button>
+                    <span class="quantity-value">${item.quantity}</span>
+                    <button class="quantity-btn plus" data-id="${item.id}">+</button>
+                </div>
+            </div>
+            <button class="cart-item-remove" data-id="${item.id}">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+    
+    // Calculate total
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    // Update summary
+    cartSummary.innerHTML = `
+        <div class="summary-row">
+            <span>Tạm tính:</span>
+            <span class="price">${formatPrice(subtotal)}</span>
+        </div>
+        <div class="summary-row total">
+            <span>Tổng cộng:</span>
+            <span class="price">${formatPrice(subtotal)}</span>
+        </div>
+        <button class="btn btn-primary full-width" style="margin-top: 20px;" id="checkoutBtn">
+            Thanh toán
+        </button>
+    `;
+    
+    // Add checkout event
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function() {
+            showNotification('Tính năng thanh toán đang được phát triển', 'info');
+        });
+    }
+    
+    // Attach cart item events
+    attachCartItemEvents();
+}
     
     function attachCartItemEvents() {
         // Remove buttons
