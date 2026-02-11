@@ -1,5 +1,5 @@
 // script/ui.js
-function initUI() {
+  export function initUI() {
     console.log('🔄 Khởi tạo giao diện...');
     
     // Navigation menu
