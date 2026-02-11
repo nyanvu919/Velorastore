@@ -3,7 +3,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Khởi tạo trang About...');
     
-    // Khởi tạo tất cả
     initNavigation();
     initCart();
     initModalSystem();
@@ -40,7 +39,6 @@ function initNavigation() {
 function initCart() {
     updateCartCount();
     
-    // Cart button
     const cartBtn = document.getElementById('cart-btn');
     if (cartBtn) {
         cartBtn.addEventListener('click', function() {
@@ -49,7 +47,6 @@ function initCart() {
         });
     }
     
-    // User button
     const userBtn = document.getElementById('user-btn');
     if (userBtn) {
         userBtn.addEventListener('click', function(e) {
@@ -73,7 +70,6 @@ function updateCartCount() {
 // MODAL SYSTEM
 // =========================
 function initModalSystem() {
-    // Close buttons
     document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', function() {
             const modal = this.closest('.modal');
@@ -81,7 +77,6 @@ function initModalSystem() {
         });
     });
     
-    // Close on outside click
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -90,7 +85,6 @@ function initModalSystem() {
         });
     });
     
-    // Close with Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.querySelectorAll('.modal.active').forEach(modal => {
@@ -99,24 +93,15 @@ function initModalSystem() {
         }
     });
     
-    // Search button
     const searchBtn = document.getElementById('search-btn');
     if (searchBtn) {
         searchBtn.addEventListener('click', function() {
             openModal('searchModal');
             const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.focus();
-                searchInput.value = '';
-                const resultsContainer = document.getElementById('searchResults');
-                if (resultsContainer) {
-                    resultsContainer.innerHTML = '<p class="empty-results">Nhập từ khóa để tìm kiếm...</p>';
-                }
-            }
+            if (searchInput) searchInput.focus();
         });
     }
     
-    // Form submissions
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     
@@ -136,7 +121,6 @@ function initModalSystem() {
         });
     }
     
-    // Modal switching
     const switchToRegister = document.getElementById('switchToRegister');
     const switchToLogin = document.getElementById('switchToLogin');
     
@@ -310,59 +294,87 @@ function updateQuantity(productId, change) {
 }
 
 // =========================
-// COUNTER ANIMATION - SIMPLE
+// COUNTER ANIMATION - FIXED
 // =========================
 function initCounterAnimation() {
-    const numbers = document.querySelectorAll('.achievement-number');
-    if (numbers.length === 0) return;
+    const section = document.querySelector('.achievements');
+    if (!section) return;
     
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateNumbers();
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
+    let animated = false;
     
-    observer.observe(document.querySelector('.achievements'));
-}
-
-function animateNumbers() {
-    const counters = document.querySelectorAll('.achievement-number');
-    
-    counters.forEach(counter => {
+    // Lưu giá trị gốc vào data attribute
+    document.querySelectorAll('.achievement-number').forEach(counter => {
         const original = counter.textContent;
-        let target, suffix;
-        
-        if (original.includes('K+')) {
-            target = parseInt(original.replace('K+', '')) * 1000;
-            suffix = 'K+';
-        } else if (original.includes('+')) {
-            target = parseInt(original.replace('+', ''));
-            suffix = '+';
-        } else {
-            target = parseInt(original);
-            suffix = '';
-        }
-        
-        let current = 0;
-        const increment = target / 50;
-        
-        const update = () => {
-            current += increment;
-            if (current < target) {
-                if (suffix === 'K+') {
-                    counter.textContent = Math.floor(current / 1000) + 'K+';
-                } else {
-                    counter.textContent = Math.floor(current) + suffix;
-                }
-                setTimeout(update, 30);
-            } else {
-                counter.textContent = original;
-            }
-        };
-        
-        update();
+        counter.setAttribute('data-original', original);
     });
+    
+    function animateNumbers() {
+        if (animated) return;
+        
+        const counters = document.querySelectorAll('.achievement-number');
+        
+        counters.forEach(counter => {
+            const original = counter.getAttribute('data-original');
+            let target;
+            let suffix = '';
+            
+            // Xử lý số 100K+
+            if (original.includes('K')) {
+                target = parseInt(original) * 1000;
+            } else {
+                target = parseInt(original);
+            }
+            
+            let current = 0;
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            
+            counter.textContent = '0';
+            
+            const update = () => {
+                current += increment;
+                if (current < target) {
+                    if (original.includes('K')) {
+                        counter.textContent = Math.floor(current / 1000) + 'K+';
+                    } else {
+                        counter.textContent = Math.floor(current) + '+';
+                    }
+                    requestAnimationFrame(update);
+                } else {
+                    counter.textContent = original;
+                }
+            };
+            
+            update();
+        });
+        
+        animated = true;
+    }
+    
+    // Kiểm tra ngay khi load nếu section đã visible
+    const checkSection = () => {
+        const rect = section.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        
+        if (rect.top < windowHeight * 0.8) {
+            setTimeout(animateNumbers, 300);
+            return true;
+        }
+        return false;
+    };
+    
+    // Thử check ngay
+    if (!checkSection()) {
+        // Dùng Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateNumbers, 300);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        observer.observe(section);
+    }
 }
