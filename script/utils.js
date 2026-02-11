@@ -151,3 +151,65 @@ function getCategoryName(categoryKey) {
     };
     return categories[categoryKey] || categoryKey.toUpperCase();
 }
+// script/utils.js
+
+// ... giữ nguyên các hàm hiện có ...
+
+// =========================
+// VALIDATE FUNCTIONS
+// =========================
+export function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+export function validatePhone(phone) {
+    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+    return phoneRegex.test(phone);
+}
+
+export function validateRequired(fields) {
+    for (const [field, value] of Object.entries(fields)) {
+        if (!value || value.trim() === '') {
+            return { valid: false, field: field, message: `Vui lòng điền ${field}` };
+        }
+    }
+    return { valid: true };
+}
+
+// =========================
+// DEBOUNCE FUNCTION
+// =========================
+export function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// =========================
+// LOADING INDICATOR
+// =========================
+export function showLoading(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = `
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Đang tải...</p>
+            </div>
+        `;
+    }
+}
+
+export function hideLoading(elementId, content = '') {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = content;
+    }
+}
