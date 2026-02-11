@@ -447,7 +447,81 @@ document.addEventListener('DOMContentLoaded', async function() {
                 openCartModal();
             });
         }
-        
+        // Search button
+const searchBtn = document.getElementById('search-btn');
+if (searchBtn) {
+    searchBtn.addEventListener('click', function() {
+        openSearchModal();
+    });
+}
+
+// Add this function
+function openSearchModal() {
+    openModal('searchModal');
+    
+    // Focus on search input
+    setTimeout(() => {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+            
+            // Add search functionality
+            searchInput.addEventListener('input', function() {
+                performSearch(this.value);
+            });
+        }
+    }, 100);
+}
+
+function performSearch(keyword) {
+    const resultsContainer = document.getElementById('searchResults');
+    if (!resultsContainer) return;
+    
+    if (!keyword.trim()) {
+        resultsContainer.innerHTML = '<p class="empty-cart">Nhập từ khóa để tìm kiếm</p>';
+        return;
+    }
+    
+    const searchTerm = keyword.toLowerCase();
+    const results = allProducts.filter(product => 
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.category.toLowerCase().includes(searchTerm) ||
+        product.description.toLowerCase().includes(searchTerm)
+    );
+    
+    if (results.length === 0) {
+        resultsContainer.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-search"></i>
+                <p>Không tìm thấy sản phẩm phù hợp</p>
+            </div>
+        `;
+        return;
+    }
+    
+    resultsContainer.innerHTML = results.map(product => `
+        <div class="search-result-item">
+            <div class="search-result-img" style="background-image: url('${product.image}')"></div>
+            <div class="search-result-details">
+                <h4>${product.name}</h4>
+                <p class="search-result-category">${getCategoryName(product.category)}</p>
+                <p class="search-result-price">${formatPrice(product.price)}</p>
+                <button class="btn btn-primary" data-id="${product.id}" style="margin-top: 10px;">
+                    Xem chi tiết
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Add click events to result items
+    document.querySelectorAll('.search-result-item .btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            closeModal(document.getElementById('searchModal'));
+            viewProductDetails(productId);
+        });
+    });
+}
         // Close modal buttons
         document.querySelectorAll('.close-modal').forEach(btn => {
             btn.addEventListener('click', function() {
