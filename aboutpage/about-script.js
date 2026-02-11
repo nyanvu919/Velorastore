@@ -386,6 +386,101 @@ function handleCheckout() {
     closeModal(document.getElementById('cartModal'));
 }
 
+// aboutpage/about-script.js - Thêm vào cuối file, trước dòng cuối cùng
+
+// =========================
+// COUNTER ANIMATION
+// =========================
+function initCounterAnimation() {
+    const achievementSection = document.querySelector('.achievements');
+    if (!achievementSection) return;
+    
+    let animationStarted = false;
+    
+    function startCountAnimation() {
+        if (animationStarted) return;
+        
+        const counters = document.querySelectorAll('.achievement-number');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent.replace('+', '').replace('K', '000'));
+            const suffix = counter.textContent.includes('+') ? '+' : 
+                          counter.textContent.includes('K') ? 'K+' : '';
+            
+            let start = 0;
+            const duration = 2000; // 2 giây
+            const increment = target / (duration / 16); // 60fps
+            
+            const updateCounter = () => {
+                start += increment;
+                if (start < target) {
+                    let displayValue;
+                    
+                    if (suffix === 'K+') {
+                        // Format cho số nghìn
+                        displayValue = Math.floor(start / 1000) + 'K+';
+                    } else {
+                        // Format cho số thường
+                        displayValue = Math.floor(start) + suffix;
+                    }
+                    
+                    counter.textContent = displayValue;
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    // Đảm bảo hiển thị giá trị cuối cùng
+                    counter.textContent = target.toLocaleString() + suffix;
+                }
+            };
+            
+            updateCounter();
+        });
+        
+        animationStarted = true;
+    }
+    
+    // Kiểm tra khi cuộn trang
+    function checkScroll() {
+        const sectionTop = achievementSection.offsetTop;
+        const sectionHeight = achievementSection.offsetHeight;
+        const scrollPosition = window.scrollY + window.innerHeight;
+        
+        // Khi phần thành tựu hiển thị trên màn hình
+        if (scrollPosition > sectionTop + 100 && 
+            window.scrollY < sectionTop + sectionHeight) {
+            startCountAnimation();
+        }
+    }
+    
+    // Thêm sự kiện scroll
+    window.addEventListener('scroll', checkScroll);
+    
+    // Kiểm tra ngay khi trang load (nếu phần tử đã visible)
+    setTimeout(checkScroll, 500);
+}
+
+// =========================
+// Gọi hàm counter animation khi trang load
+// =========================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 Khởi tạo trang About...');
+    
+    // Khởi tạo các chức năng chung
+    initCommonFunctions();
+    
+    // Khởi tạo giỏ hàng
+    initCart();
+    
+    // Khởi tạo navigation
+    initNavigation();
+    
+    // Khởi tạo modal system
+    initModalSystem();
+    
+    // Khởi tạo counter animation
+    initCounterAnimation();
+    
+    console.log('✅ Trang About đã sẵn sàng!');
+});
 // =========================
 // Các modal cần thêm vào HTML
 // =========================
