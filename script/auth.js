@@ -4,17 +4,23 @@ import { openModal, closeModal, showNotification } from './utils.js';
 // =========================
 // INIT AUTH
 // =========================
+// script/auth.js - Sửa phần initAuth()
 export function initAuth() {
     console.log('🔄 Khởi tạo hệ thống đăng nhập...');
     
-    // User button
+    // User button - SỬA CHỖ NÀY
     const userBtn = document.getElementById('user-btn');
     if (userBtn) {
         userBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
+            console.log('👤 Click user button');
             openLoginModal();
         });
     }
+    
+    // ... phần còn lại giữ nguyên
+}
     
     // Modal switching
     const switchToRegister = document.getElementById('switchToRegister');
