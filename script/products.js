@@ -1,5 +1,5 @@
 // script/products.js
-function initProducts() {
+  export function initProducts() {      
     console.log('🔄 Đang tải sản phẩm...');
     
     // Load sample products
