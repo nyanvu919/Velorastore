@@ -1,8 +1,30 @@
 // script/ui.js
-  export function initUI() {
+import { updateCartModal } from './cart.js';
+import { openModal, closeModal, performSearch } from './utils.js';
+
+// =========================
+// INIT UI
+// =========================
+export function initUI() {
     console.log('🔄 Khởi tạo giao diện...');
     
     // Navigation menu
+    initNavigation();
+    
+    // Slideshow
+    initSlideshow();
+    
+    // Modal system
+    initModalSystem();
+    
+    // Collections
+    initCollections();
+}
+
+// =========================
+// NAVIGATION
+// =========================
+function initNavigation() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
     
@@ -19,20 +41,18 @@
             });
         });
     }
-    
-    // Slideshow
-    initSlideshow();
-    
-    // Modal system
-    initModalSystem();
 }
 
+// =========================
+// SLIDESHOW
+// =========================
 function initSlideshow() {
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.dot');
     if (slides.length === 0) return;
     
     let currentSlide = 0;
+    let slideInterval;
     
     function showSlide(index) {
         slides.forEach(slide => slide.classList.remove('active'));
@@ -44,16 +64,38 @@ function initSlideshow() {
     }
     
     // Auto slide
-    setInterval(() => {
-        showSlide(currentSlide + 1);
-    }, 5000);
+    function startAutoSlide() {
+        slideInterval = setInterval(() => {
+            showSlide(currentSlide + 1);
+        }, 5000);
+    }
+    
+    function stopAutoSlide() {
+        clearInterval(slideInterval);
+    }
+    
+    startAutoSlide();
     
     // Dot click handlers
     dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => showSlide(index));
+        dot.addEventListener('click', () => {
+            stopAutoSlide();
+            showSlide(index);
+            startAutoSlide();
+        });
     });
+    
+    // Pause on hover
+    const slideshow = document.querySelector('.hero-slideshow');
+    if (slideshow) {
+        slideshow.addEventListener('mouseenter', stopAutoSlide);
+        slideshow.addEventListener('mouseleave', startAutoSlide);
+    }
 }
 
+// =========================
+// MODAL SYSTEM
+// =========================
 function initModalSystem() {
     // Close modal buttons
     document.querySelectorAll('.close-modal').forEach(btn => {
@@ -98,6 +140,12 @@ function initModalSystem() {
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.focus();
+                searchInput.value = '';
+                const resultsContainer = document.getElementById('searchResults');
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = '<p class="empty-results">Nhập từ khóa để tìm kiếm...</p>';
+                }
+                
                 searchInput.addEventListener('input', function() {
                     performSearch(this.value);
                 });
@@ -106,19 +154,50 @@ function initModalSystem() {
     }
 }
 
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+// =========================
+// COLLECTIONS
+// =========================
+function initCollections() {
+    const collectionsGrid = document.querySelector('.collections-grid');
+    if (!collectionsGrid) return;
+    
+    const collections = [
+        {
+            name: 'Thu Đông 2023',
+            image: 'srcimg/collection1.jpg',
+            description: 'Bộ sưu tập mới nhất với chất liệu ấm áp'
+        },
+        {
+            name: 'Đầm Dạ Hội',
+            image: 'srcimg/collection2.jpg',
+            description: 'Những thiết kế lộng lẫy cho các buổi tiệc'
+        },
+        {
+            name: 'Công Sở',
+            image: 'srcimg/collection3.jpg',
+            description: 'Trang phục thanh lịch dành cho văn phòng'
+        },
+        {
+            name: 'Cuối Tuần',
+            image: 'srcimg/collection4.jpg',
+            description: 'Phong cách thoải mái cho những ngày nghỉ'
+        }
+    ];
+    
+    collectionsGrid.innerHTML = collections.map(collection => `
+        <div class="collection-card">
+            <div class="collection-img" style="background-image: url('${collection.image}')">
+                <div class="collection-overlay">
+                    <h3>${collection.name}</h3>
+                    <p>${collection.description}</p>
+                    <button class="btn btn-outline">Khám phá</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
 
-function closeModal(modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-function showNotification(message, type = 'info') {
-    alert(message); // Tạm dùng alert cho đơn giản
-}
+// =========================
+// EXPORT MODAL FUNCTIONS
+// =========================
+export { openModal, closeModal };
