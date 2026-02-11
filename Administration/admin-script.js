@@ -1,89 +1,115 @@
-// ====== ADMIN SCRIPT WITH API INTEGRATION ======
+// ====== ADMIN SCRIPT WITH SESSION AUTHENTICATION ======
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize components
-    initSidebarNavigation();
-    initModals();
-    initForms();
-    initCharts();
-    initImageUpload();
-    initEditor();
-    
-    // Load admin data
-    checkAdminAuth();
-    
-    // Logout button
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-        showConfirm('Bạn có chắc chắn muốn đăng xuất?', function() {
-            localStorage.removeItem('admin_authenticated');
-            localStorage.removeItem('admin_api_key');
-            window.location.href = 'index.html';
-        });
+    // Check authentication first
+    checkAdminAuth().then(isAuthenticated => {
+        if (isAuthenticated) {
+            // Initialize components only if authenticated
+            initSidebarNavigation();
+            initModals();
+            initForms();
+            initCharts();
+            initImageUpload();
+            initEditor();
+            loadDashboardData();
+            
+            // Update logout button
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                logoutAdmin();
+            });
+        }
     });
 });
 
-// ====== ADMIN AUTHENTICATION ======
+// ====== AUTHENTICATION FUNCTIONS ======
+
 async function checkAdminAuth() {
-    // Check if already authenticated
-    const isAuthenticated = localStorage.getItem('admin_authenticated');
-    const savedApiKey = localStorage.getItem('admin_api_key');
+    // Check localStorage first
+    const token = localStorage.getItem('admin_token');
+    const expires = localStorage.getItem('token_expires');
     
-    console.log('Auth check - isAuthenticated:', isAuthenticated);
-    console.log('Auth check - savedApiKey:', savedApiKey);
+    if (!token || !expires) {
+        redirectToLogin();
+        return false;
+    }
     
-    if (!isAuthenticated || !savedApiKey) {
-        // Prompt for API key
-        const apiKey = prompt('🔐 Vui lòng nhập API Key để truy cập trang quản trị:');
-        
-        console.log('User entered API Key:', apiKey);
-        
-        if (!apiKey) {
-            window.location.href = 'index.html';
-            return;
-        }
-        
-        // Test API key
-        try {
-            console.log('Testing API key...');
-            
-            const response = await fetch('/api/admin/health', {
-                method: 'GET',
-                headers: {
-                    'X-API-Key': apiKey
-                }
-            });
-            
-            console.log('Response status:', response.status);
-            
-            const data = await response.json();
-            console.log('Response data:', data);
-            
-            if (response.ok && (data.admin === true || data.success === true)) {
-                localStorage.setItem('admin_authenticated', 'true');
-                localStorage.setItem('admin_api_key', apiKey);
-                showToast('✅ Xác thực thành công!');
-                loadDashboardData();
-            } else {
-                alert('❌ API Key không hợp lệ!');
-                window.location.href = 'index.html';
+    // Check if token is expired
+    if (Date.now() > parseInt(expires)) {
+        localStorage.clear();
+        redirectToLogin();
+        return false;
+    }
+    
+    // Verify token with server
+    try {
+        const response = await fetch('/api/admin/verify', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        } catch (error) {
-            console.error('Auth error:', error);
-            alert('⚠️ Không thể kết nối đến server!');
-            window.location.href = 'index.html';
+        });
+        
+        if (response.ok) {
+            // Hide loading overlay, show admin interface
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const adminContainer = document.querySelector('.admin-container');
+            
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
+            if (adminContainer) adminContainer.style.display = 'flex';
+            
+            return true;
+        } else {
+            throw new Error('Token không hợp lệ');
         }
-    } else {
-        console.log('Already authenticated, loading dashboard...');
-        loadDashboardData();
+    } catch (error) {
+        console.error('Auth error:', error);
+        localStorage.clear();
+        redirectToLogin();
+        return false;
     }
 }
 
-// ====== API FUNCTIONS ======
+async function logoutAdmin() {
+    showConfirm('Bạn có chắc chắn muốn đăng xuất?', async function() {
+        try {
+            const token = localStorage.getItem('admin_token');
+            
+            // Call logout endpoint
+            if (token) {
+                await fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            }
+            
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            // Clear localStorage and redirect
+            localStorage.clear();
+            window.location.href = 'admin-login.html';
+        }
+    });
+}
+
+function redirectToLogin() {
+    window.location.href = 'admin-login.html';
+}
+
+// ====== API FUNCTIONS (UPDATED) ======
+
 async function fetchAPI(endpoint, options = {}) {
-    const apiKey = localStorage.getItem('admin_api_key');
+    const token = localStorage.getItem('admin_token');
+    
+    if (!token) {
+        redirectToLogin();
+        throw new Error('No authentication token');
+    }
     
     const defaultHeaders = {
         'Content-Type': 'application/json',
-        'X-API-Key': apiKey
+        'Authorization': `Bearer ${token}`
     };
     
     try {
@@ -94,6 +120,13 @@ async function fetchAPI(endpoint, options = {}) {
                 ...options.headers
             }
         });
+        
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+            localStorage.clear();
+            redirectToLogin();
+            throw new Error('Session expired. Please login again.');
+        }
         
         const data = await response.json();
         
@@ -796,6 +829,31 @@ async function loadMessages() {
     }
 }
 
+// ====== DASHBOARD FUNCTIONS ======
+async function loadDashboardData() {
+    try {
+        // Load stats
+        const statsData = await fetchAPI('/api/admin/stats');
+        updateDashboardStats(statsData.data);
+        
+        // Load recent orders
+        const ordersData = await fetchAPI('/api/admin/orders?limit=5');
+        updateRecentOrders(ordersData.data);
+        
+        // Load analytics for charts
+        try {
+            const analyticsData = await fetchAPI('/api/admin/analytics');
+            updateCharts(analyticsData.data);
+        } catch (error) {
+            console.log('Analytics not available:', error);
+        }
+        
+    } catch (error) {
+        // Fallback to static data
+        console.log('Using fallback data for dashboard');
+        loadSampleDashboardData();
+    }
+}
 // ====== CHART FUNCTIONS ======
 let revenueChart = null;
 let productsChart = null;
