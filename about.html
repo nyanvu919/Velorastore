@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -35,12 +34,11 @@
                     </button>
                     <button class="icon-btn" id="cart-btn">
                         <i class="fas fa-shopping-bag"></i>
-                        <span class="cart-count">3</span>
+                        <span class="cart-count">0</span>
                     </button>
                     <button class="icon-btn" id="user-btn">
                         <i class="fas fa-user"></i>
                     </button>
-          
                 </div>
                 <button class="hamburger">
                     <span class="bar"></span>
@@ -161,32 +159,32 @@
     </section>
 
     <!-- Achievements -->
-<section class="section achievements">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Thành Tựu</h2>
-            <p class="section-subtitle">Hành trình 10 năm với nhiều dấu ấn đáng nhớ</p>
+    <section class="section achievements">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Thành Tựu</h2>
+                <p class="section-subtitle">Hành trình 10 năm với nhiều dấu ấn đáng nhớ</p>
+            </div>
+            <div class="achievements-grid">
+                <div class="achievement-item">
+                    <div class="achievement-number" data-target="10">10+</div>
+                    <div class="achievement-text">Năm kinh nghiệm</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number" data-target="50">50+</div>
+                    <div class="achievement-text">Cửa hàng trên toàn quốc</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number" data-target="100000">100K+</div>
+                    <div class="achievement-text">Khách hàng hài lòng</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number" data-target="15">15+</div>
+                    <div class="achievement-text">Giải thưởng thời trang</div>
+                </div>
+            </div>
         </div>
-        <div class="achievements-grid">
-            <div class="achievement-item">
-                <div class="achievement-number" data-target="10">0</div>
-                <div class="achievement-text">Năm kinh nghiệm</div>
-            </div>
-            <div class="achievement-item">
-                <div class="achievement-number" data-target="50">0</div>
-                <div class="achievement-text">Cửa hàng trên toàn quốc</div>
-            </div>
-            <div class="achievement-item">
-                <div class="achievement-number" data-target="100000">0</div>
-                <div class="achievement-text">Khách hàng hài lòng</div>
-            </div>
-            <div class="achievement-item">
-                <div class="achievement-number" data-target="15">0</div>
-                <div class="achievement-text">Giải thưởng thời trang</div>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
     <!-- Call to Action -->
     <section class="section cta">
@@ -256,194 +254,150 @@
             </div>
         </div>
     </footer>
-<!-- =================== MODALS =================== -->
-<!-- Login Modal -->
-<div class="modal" id="loginModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Đăng nhập</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" placeholder="Nhập email của bạn" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Mật khẩu</label>
-                    <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required>
-                </div>
-                <div class="form-options">
-                    <label class="checkbox">
-                        <input type="checkbox"> Ghi nhớ đăng nhập
-                    </label>
-                    <a href="#" class="forgot-password">Quên mật khẩu?</a>
-                </div>
-                <button type="submit" class="btn btn-primary full-width">
-                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                </button>
-            </form>
-            
-            <div class="divider">
-                <span>Hoặc đăng nhập với</span>
-            </div>
-            
-            <div class="social-login">
-                <button class="btn btn-social facebook">
-                    <i class="fab fa-facebook-f"></i> Facebook
-                </button>
-                <button class="btn btn-social google">
-                    <i class="fab fa-google"></i> Google
-                </button>
-            </div>
-            
-            <div class="switch-modal">
-                Chưa có tài khoản? <a href="#" id="switchToRegister">Đăng ký ngay</a>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Register Modal -->
-<div class="modal" id="registerModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Đăng ký tài khoản</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="registerName">Họ và tên</label>
-                    <input type="text" id="registerName" placeholder="Nhập họ và tên" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Email</label>
-                    <input type="email" id="registerEmail" placeholder="Nhập email của bạn" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPhone">Số điện thoại</label>
-                    <input type="tel" id="registerPhone" placeholder="Nhập số điện thoại" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Mật khẩu</label>
-                    <input type="password" id="registerPassword" placeholder="Nhập mật khẩu (ít nhất 6 ký tự)" required minlength="6">
-                </div>
-                <div class="form-group">
-                    <label for="registerConfirmPassword">Xác nhận mật khẩu</label>
-                    <input type="password" id="registerConfirmPassword" placeholder="Nhập lại mật khẩu" required>
-                </div>
-                <div class="form-group">
-                    <label class="checkbox">
-                        <input type="checkbox" id="registerTerms" required>
-                        Tôi đồng ý với <a href="#" class="terms-link">Điều khoản dịch vụ</a>
-                    </label>
-                </div>
-                <button type="submit" class="btn btn-primary full-width">
-                    <i class="fas fa-user-plus"></i> Đăng ký
-                </button>
-            </form>
-            
-            <div class="switch-modal">
-                Đã có tài khoản? <a href="#" id="switchToLogin">Đăng nhập ngay</a>
+    <!-- =================== MODALS =================== -->
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đăng nhập</h2>
+                <button class="close-modal">&times;</button>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Cart Modal -->
-<div class="modal" id="cartModal">
-    <div class="modal-content cart-modal">
-        <div class="modal-header">
-            <h2>Giỏ hàng của bạn</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="cart-items">
-                <!-- Cart items will be loaded here -->
-            </div>
-            <div class="cart-summary">
-                <div class="summary-row">
-                    <span>Tạm tính:</span>
-                    <span class="price">0 VND</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Tổng cộng:</span>
-                    <span class="price">0 VND</span>
-                </div>
-                <button class="btn btn-primary full-width" style="margin-top: 20px;" id="checkoutBtn">
-                    <i class="fas fa-credit-card"></i> Thanh toán
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Search Modal -->
-<div class="modal" id="searchModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Tìm kiếm sản phẩm</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm...">
-            </div>
-            <div class="search-results" id="searchResults">
-                <!-- Search results will appear here -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal xác nhận email (nếu muốn thêm) -->
-<div class="modal" id="verificationModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Xác nhận email</h2>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="verification-info">
-                <i class="fas fa-envelope"></i>
-                <p>Chúng tôi đã gửi mã xác nhận đến <strong id="verificationEmail"></strong></p>
-                <p class="verification-note">Mã có hiệu lực trong 15 phút</p>
-            </div>
-            
-            <form id="verificationForm">
-                <div class="form-group">
-                    <label for="verificationCode">Mã xác nhận (6 chữ số)</label>
-                    <div class="verification-inputs">
-                        <input type="text" maxlength="1" class="verification-digit" autofocus>
-                        <input type="text" maxlength="1" class="verification-digit">
-                        <input type="text" maxlength="1" class="verification-digit">
-                        <input type="text" maxlength="1" class="verification-digit">
-                        <input type="text" maxlength="1" class="verification-digit">
-                        <input type="text" maxlength="1" class="verification-digit">
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Nhập email của bạn" required>
                     </div>
-                    <input type="hidden" id="verificationCode">
+                    <div class="form-group">
+                        <label for="loginPassword">Mật khẩu</label>
+                        <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox">
+                            <input type="checkbox"> Ghi nhớ đăng nhập
+                        </label>
+                        <a href="#" class="forgot-password">Quên mật khẩu?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>Hoặc đăng nhập với</span>
                 </div>
                 
-                <button type="submit" class="btn btn-primary full-width">
-                    <i class="fas fa-check"></i> Xác nhận
-                </button>
-            </form>
-            
-            <div class="verification-footer">
-                <p>Không nhận được mã? 
-                    <a href="#" id="resendCode">Gửi lại mã</a> 
-                    <span id="countdown">(120s)</span>
-                </p>
+                <div class="social-login">
+                    <button class="btn btn-social facebook">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </button>
+                    <button class="btn btn-social google">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                </div>
+                
+                <div class="switch-modal">
+                    Chưa có tài khoản? <a href="#" id="switchToRegister">Đăng ký ngay</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Thay đổi script imports -->
-<script type="module" src="aboutpage/about-script.js"></script>
-<!-- Cuối file about.html, trước </body> -->
-<script type="module" src="aboutpage/about-script.js"></script>
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đăng ký tài khoản</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Họ và tên</label>
+                        <input type="text" id="registerName" placeholder="Nhập họ và tên" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" placeholder="Nhập email của bạn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPhone">Số điện thoại</label>
+                        <input type="tel" id="registerPhone" placeholder="Nhập số điện thoại" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Mật khẩu</label>
+                        <input type="password" id="registerPassword" placeholder="Nhập mật khẩu (ít nhất 6 ký tự)" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Xác nhận mật khẩu</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="Nhập lại mật khẩu" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="registerTerms" required>
+                            Tôi đồng ý với <a href="#" class="terms-link">Điều khoản dịch vụ</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width">
+                        <i class="fas fa-user-plus"></i> Đăng ký
+                    </button>
+                </form>
+                
+                <div class="switch-modal">
+                    Đã có tài khoản? <a href="#" id="switchToLogin">Đăng nhập ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content cart-modal">
+            <div class="modal-header">
+                <h2>Giỏ hàng của bạn</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Tạm tính:</span>
+                        <span class="price">0 VND</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Tổng cộng:</span>
+                        <span class="price">0 VND</span>
+                    </div>
+                    <button class="btn btn-primary full-width" style="margin-top: 20px;" id="checkoutBtn">
+                        <i class="fas fa-credit-card"></i> Thanh toán
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal" id="searchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tìm kiếm sản phẩm</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm...">
+                </div>
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="aboutpage/about-script.js"></script>
 </body>
 </html>
