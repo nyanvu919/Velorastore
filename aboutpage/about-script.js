@@ -294,87 +294,97 @@ function updateQuantity(productId, change) {
 }
 
 // =========================
-// COUNTER ANIMATION - FIXED
+// COUNTER ANIMATION - FIX HOÀN TOÀN
 // =========================
 function initCounterAnimation() {
-    const section = document.querySelector('.achievements');
-    if (!section) return;
+    const counters = document.querySelectorAll('.achievement-number');
+    if (counters.length === 0) return;
+    
+    // Lấy giá trị target từ HTML
+    const targets = [10, 50, 100000, 15]; // Giá trị đích
+    const suffixes = ['+', '+', '', '+']; // Hậu tố
     
     let animated = false;
     
-    // Lưu giá trị gốc vào data attribute
-    document.querySelectorAll('.achievement-number').forEach(counter => {
-        const original = counter.textContent;
-        counter.setAttribute('data-original', original);
-    });
-    
-    function animateNumbers() {
-        if (animated) return;
+    function animateCounter(counter, target, suffix, index) {
+        let current = 0;
+        const duration = 2000; // 2 giây
+        const steps = 60; // 60 bước
+        const increment = target / steps;
+        const stepTime = duration / steps;
         
-        const counters = document.querySelectorAll('.achievement-number');
-        
-        counters.forEach(counter => {
-            const original = counter.getAttribute('data-original');
-            let target;
-            let suffix = '';
+        const update = () => {
+            current += increment;
+            let displayValue;
             
-            // Xử lý số 100K+
-            if (original.includes('K')) {
-                target = parseInt(original) * 1000;
+            if (index === 2) { // Khách hàng hài lòng (100000)
+                if (current < 1000) {
+                    displayValue = Math.floor(current);
+                } else {
+                    displayValue = Math.floor(current / 1000) + 'K+';
+                }
             } else {
-                target = parseInt(original);
+                displayValue = Math.floor(current) + suffix;
             }
             
-            let current = 0;
-            const duration = 2000;
-            const increment = target / (duration / 16);
+            counter.textContent = displayValue;
             
-            counter.textContent = '0';
-            
-            const update = () => {
-                current += increment;
-                if (current < target) {
-                    if (original.includes('K')) {
-                        counter.textContent = Math.floor(current / 1000) + 'K+';
-                    } else {
-                        counter.textContent = Math.floor(current) + '+';
-                    }
-                    requestAnimationFrame(update);
+            if (current < target) {
+                setTimeout(update, stepTime);
+            } else {
+                // Đảm bảo giá trị cuối cùng đúng
+                if (index === 2) {
+                    counter.textContent = '100K+';
                 } else {
-                    counter.textContent = original;
+                    counter.textContent = target + suffix;
                 }
-            };
-            
-            update();
+            }
+        };
+        
+        update();
+    }
+    
+    function startAnimation() {
+        if (animated) return;
+        
+        counters.forEach((counter, index) => {
+            counter.textContent = '0'; // Reset về 0
+            setTimeout(() => {
+                animateCounter(counter, targets[index], suffixes[index], index);
+            }, index * 300); // Delay mỗi counter
         });
         
         animated = true;
     }
     
-    // Kiểm tra ngay khi load nếu section đã visible
-    const checkSection = () => {
-        const rect = section.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        
-        if (rect.top < windowHeight * 0.8) {
-            setTimeout(animateNumbers, 300);
-            return true;
-        }
-        return false;
-    };
+    // Kiểm tra khi scroll đến section
+    const section = document.querySelector('.achievements');
+    if (!section) return;
     
-    // Thử check ngay
-    if (!checkSection()) {
-        // Dùng Intersection Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setTimeout(animateNumbers, 300);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.3 });
-        
-        observer.observe(section);
+    function isElementInViewport(el) {
+        const rect = el.getBoundingClientRect();
+        return (
+            rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8 &&
+            rect.bottom >= 0
+        );
     }
+    
+    function checkScroll() {
+        if (isElementInViewport(section) && !animated) {
+            startAnimation();
+        }
+    }
+    
+    // Kiểm tra ngay khi load
+    setTimeout(checkScroll, 500);
+    
+    // Thêm event listener cho scroll
+    window.addEventListener('scroll', checkScroll);
+    
+    // Fallback: nếu không scroll, vẫn chạy sau 3s
+    setTimeout(() => {
+        if (!animated) {
+            startAnimation();
+        }
+    }, 3000);
 }
