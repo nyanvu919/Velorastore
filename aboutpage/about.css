@@ -101,7 +101,7 @@
 
 .value-icon {
     font-size: 3rem;
-    color: #764ba2;
+    color: #667eea; /* Màu chủ đạo 1 */
     margin-bottom: 20px;
     height: 70px;
     display: flex;
@@ -173,7 +173,7 @@
 }
 
 .team-position {
-    color: #764ba2;
+    color: #667eea; /* Màu chủ đạo 1 */
     font-weight: 600;
     margin-bottom: 15px;
     font-size: 1rem;
@@ -213,10 +213,9 @@
 .achievement-number {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #764ba2;
+    color: #667eea; /* Màu chủ đạo 1 */
     margin-bottom: 10px;
     font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s ease;
 }
 
 .achievement-text {
@@ -228,7 +227,7 @@
 /* ====== CALL TO ACTION ====== */
 .cta {
     padding: 100px 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradient 2 màu chủ đạo */
     text-align: center;
     color: white;
 }
@@ -251,7 +250,7 @@
 
 .cta .btn-primary {
     background: white;
-    color: #764ba2;
+    color: #667eea; /* Màu chủ đạo 1 */
     font-size: 1.1rem;
     padding: 15px 40px;
     border-radius: 50px;
@@ -269,9 +268,9 @@
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
-/* ====== FOOTER (FIX MÀU TÍM) ====== */
+/* ====== FOOTER (2 MÀU CHỦ ĐẠO) ====== */
 .footer {
-    background: #2c3e50; /* Màu xanh đậm thay vì tím */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradient 2 màu chủ đạo */
     color: white;
     padding: 60px 0 20px;
 }
@@ -334,7 +333,7 @@
 }
 
 .social-icons a:hover {
-    background: #764ba2;
+    background: rgba(255,255,255,0.2);
     transform: translateY(-3px);
 }
 
@@ -450,7 +449,7 @@
 }
 
 .cart-item-price {
-    color: #764ba2;
+    color: #667eea; /* Màu chủ đạo 1 */
     font-weight: 600;
     margin: 0 0 10px 0;
 }
@@ -525,7 +524,7 @@
 }
 
 .price {
-    color: #764ba2;
+    color: #667eea; /* Màu chủ đạo 1 */
     font-weight: 600;
 }
 
@@ -552,11 +551,11 @@
 
 .form-group input:focus {
     outline: none;
-    border-color: #764ba2;
+    border-color: #667eea; /* Màu chủ đạo 1 */
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradient 2 màu */
     color: white;
     border: none;
     padding: 12px 24px;
@@ -569,7 +568,7 @@
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary.full-width {
@@ -640,11 +639,6 @@
     .modal-content {
         width: 95%;
     }
-    
-    .footer-content {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -666,9 +660,5 @@
     
     .cart-modal .modal-content {
         width: 95%;
-    }
-    
-    .footer-content {
-        grid-template-columns: 1fr;
     }
 }
