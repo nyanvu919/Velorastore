@@ -1,194 +1,161 @@
-// script/auth.js
-// Xử lý đăng nhập, đăng ký
-
-function initAuth() {
-    console.log('🔄 Khởi tạo hệ thống đăng nhập...');
+// script/cart.js
+function initCart() {
+    console.log('🔄 Khởi tạo giỏ hàng...');
     
-    // User button
-    const userBtn = document.getElementById('user-btn');
-    if (userBtn) {
-        userBtn.addEventListener('click', function() {
-            openLoginModal();
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('velora_cart');
+    if (savedCart) {
+        cart = JSON.parse(savedCart);
+    }
+    
+    // Update cart count
+    updateCartCount();
+}
+
+function updateCartCount() {
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.querySelectorAll('.cart-count').forEach(el => {
+        el.textContent = totalItems;
+    });
+}
+
+function addToCart(productId) {
+    const product = allProducts.find(p => p.id === productId);
+    if (!product) return;
+    
+    const existingItem = cart.find(item => item.id === productId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            image: product.image
         });
     }
     
-    // Modal switching
-    const switchToRegister = document.getElementById('switchToRegister');
-    const switchToLogin = document.getElementById('switchToLogin');
-    const backToLogin = document.getElementById('backToLogin');
-    const forgotPassword = document.querySelector('.forgot-password');
+    // Save to localStorage
+    localStorage.setItem('velora_cart', JSON.stringify(cart));
     
-    if (switchToRegister) {
-        switchToRegister.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeModal(document.getElementById('loginModal'));
-            openRegisterModal();
-        });
-    }
-    
-    if (switchToLogin) {
-        switchToLogin.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeModal(document.getElementById('registerModal'));
-            openLoginModal();
-        });
-    }
-    
-    if (backToLogin) {
-        backToLogin.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeModal(document.getElementById('forgotPasswordModal'));
-            openLoginModal();
-        });
-    }
-    
-    if (forgotPassword) {
-        forgotPassword.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeModal(document.getElementById('loginModal'));
-            openForgotPasswordModal();
-        });
-    }
-    
-    // Form submissions
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-    
-    if (loginForm) loginForm.addEventListener('submit', handleLogin);
-    if (registerForm) registerForm.addEventListener('submit', handleRegister);
-    if (forgotPasswordForm) forgotPasswordForm.addEventListener('submit', handleForgotPassword);
-    
-    // Check login status
-    checkLoginStatus();
+    // Update UI
+    updateCartCount();
+    showNotification(`Đã thêm "${product.name}" vào giỏ hàng`);
 }
 
-function openLoginModal() {
-    openModal('loginModal');
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) loginForm.reset();
-}
-
-function openRegisterModal() {
-    openModal('registerModal');
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) registerForm.reset();
-}
-
-function openForgotPasswordModal() {
-    openModal('forgotPasswordModal');
-    const forgotForm = document.getElementById('forgotPasswordForm');
-    if (forgotForm) forgotForm.reset();
-}
-
-function checkLoginStatus() {
-    const user = JSON.parse(localStorage.getItem('velora_user') || 'null');
-    if (user && user.loggedIn) {
-        updateUserUI(user);
-    }
-}
-
-function updateUserUI(user) {
-    const userName = document.getElementById('userName');
-    const userEmail = document.getElementById('userEmail');
-    const userBtn = document.getElementById('user-btn');
+function updateCartModal() {
+    const cartItemsContainer = document.querySelector('.cart-items');
+    const cartSummary = document.querySelector('.cart-summary');
     
-    if (userName && userEmail && userBtn) {
-        userName.textContent = `Xin chào, ${user.name}`;
-        userEmail.textContent = user.email;
-        userBtn.innerHTML = '<i class="fas fa-user-circle"></i>';
+    if (!cartItemsContainer || !cartSummary) return;
+    
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Giỏ hàng của bạn đang trống</p>
+            </div>
+        `;
         
-        // Show user menu on click
-        userBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const userMenu = document.getElementById('userMenu');
-            if (userMenu) {
-                userMenu.classList.toggle('active');
-            }
+        cartSummary.innerHTML = `
+            <div class="summary-row total">
+                <span>Tổng cộng:</span>
+                <span class="price">0 VND</span>
+            </div>
+            <button class="btn btn-primary full-width" style="margin-top: 20px;" disabled>
+                Thanh toán
+            </button>
+        `;
+        return;
+    }
+    
+    // Build cart items
+    cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <div class="cart-item-img" style="background-image: url('${item.image}')"></div>
+            <div class="cart-item-details">
+                <h4>${item.name}</h4>
+                <p class="cart-item-price">${formatPrice(item.price)}</p>
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn minus" data-id="${item.id}">-</button>
+                    <span class="quantity-value">${item.quantity}</span>
+                    <button class="quantity-btn plus" data-id="${item.id}">+</button>
+                </div>
+            </div>
+            <button class="cart-item-remove" data-id="${item.id}">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+    
+    // Calculate total
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    // Update summary
+    cartSummary.innerHTML = `
+        <div class="summary-row">
+            <span>Tạm tính:</span>
+            <span class="price">${formatPrice(subtotal)}</span>
+        </div>
+        <div class="summary-row total">
+            <span>Tổng cộng:</span>
+            <span class="price">${formatPrice(subtotal)}</span>
+        </div>
+        <button class="btn btn-primary full-width" style="margin-top: 20px;" id="checkoutBtn">
+            Thanh toán
+        </button>
+    `;
+    
+    // Add cart item events
+    attachCartItemEvents();
+}
+
+function attachCartItemEvents() {
+    // Remove buttons
+    document.querySelectorAll('.cart-item-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            removeFromCart(productId);
         });
-    }
+    });
+    
+    // Quantity buttons
+    document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            updateCartItemQuantity(productId, -1);
+        });
+    });
+    
+    document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            updateCartItemQuantity(productId, 1);
+        });
+    });
 }
 
-async function handleLogin(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    
-    if (!email || !password) {
-        showNotification('Vui lòng nhập email và mật khẩu', 'error');
-        return;
-    }
-    
-    // Simulate login
-    showNotification('Đang đăng nhập...', 'info');
-    
-    setTimeout(() => {
-        // For demo - accept any email/password
-        const user = {
-            id: 'user_001',
-            name: email.split('@')[0],
-            email: email,
-            loggedIn: true
-        };
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+    localStorage.setItem('velora_cart', JSON.stringify(cart));
+    updateCartCount();
+    updateCartModal();
+    showNotification('Đã xóa sản phẩm khỏi giỏ hàng');
+}
+
+function updateCartItemQuantity(productId, change) {
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    if (itemIndex >= 0) {
+        cart[itemIndex].quantity += change;
         
-        localStorage.setItem('velora_user', JSON.stringify(user));
-        showNotification('Đăng nhập thành công!', 'success');
-        closeModal(document.getElementById('loginModal'));
-        updateUserUI(user);
-    }, 1000);
-}
-
-async function handleRegister(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('registerName').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
-    const phone = document.getElementById('registerPhone').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    
-    if (!name || !email || !phone || !password) {
-        showNotification('Vui lòng điền đầy đủ thông tin', 'error');
-        return;
+        if (cart[itemIndex].quantity <= 0) {
+            removeFromCart(productId);
+        } else {
+            localStorage.setItem('velora_cart', JSON.stringify(cart));
+            updateCartCount();
+            updateCartModal();
+        }
     }
-    
-    if (password.length < 6) {
-        showNotification('Mật khẩu phải có ít nhất 6 ký tự', 'error');
-        return;
-    }
-    
-    showNotification('Đang đăng ký...', 'info');
-    
-    setTimeout(() => {
-        const user = {
-            id: 'user_' + Date.now(),
-            name: name,
-            email: email,
-            phone: phone,
-            loggedIn: true
-        };
-        
-        localStorage.setItem('velora_user', JSON.stringify(user));
-        showNotification('Đăng ký thành công!', 'success');
-        closeModal(document.getElementById('registerModal'));
-        updateUserUI(user);
-    }, 1000);
-}
-
-async function handleForgotPassword(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('resetEmail').value.trim();
-    
-    if (!email) {
-        showNotification('Vui lòng nhập email', 'error');
-        return;
-    }
-    
-    showNotification('Đang gửi yêu cầu...', 'info');
-    
-    setTimeout(() => {
-        showNotification(`Đã gửi liên kết đặt lại mật khẩu đến ${email}`, 'success');
-        closeModal(document.getElementById('forgotPasswordModal'));
-    }, 1000);
 }
