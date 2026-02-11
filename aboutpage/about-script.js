@@ -389,73 +389,108 @@ function handleCheckout() {
 // aboutpage/about-script.js - Thêm vào cuối file, trước dòng cuối cùng
 
 // =========================
-// COUNTER ANIMATION
-// =========================
+// Phiên bản hoàn chỉnh
 function initCounterAnimation() {
     const achievementSection = document.querySelector('.achievements');
     if (!achievementSection) return;
     
-    let animationStarted = false;
+    let countersAnimated = false;
+    let itemsAnimated = false;
     
-    function startCountAnimation() {
-        if (animationStarted) return;
+    // 1. Animation cho các item (fade-in up)
+    function animateItems() {
+        if (itemsAnimated) return;
+        
+        const items = document.querySelectorAll('.achievement-item');
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                item.classList.add('animate');
+            }, index * 100);
+        });
+        
+        itemsAnimated = true;
+    }
+    
+    // 2. Animation cho counters (count-up)
+    function animateCounters() {
+        if (countersAnimated) return;
         
         const counters = document.querySelectorAll('.achievement-number');
         
         counters.forEach(counter => {
-            const target = parseInt(counter.textContent.replace('+', '').replace('K', '000'));
-            const suffix = counter.textContent.includes('+') ? '+' : 
-                          counter.textContent.includes('K') ? 'K+' : '';
+            const originalText = counter.textContent;
+            let target, suffix, formatFunc;
             
-            let start = 0;
-            const duration = 2000; // 2 giây
-            const increment = target / (duration / 16); // 60fps
+            // Phân tích text gốc
+            if (originalText.includes('K+')) {
+                const num = parseInt(originalText.replace('K+', ''));
+                target = num * 1000;
+                suffix = 'K+';
+                formatFunc = (val) => Math.floor(val / 1000) + 'K+';
+            } else if (originalText.includes('+')) {
+                target = parseInt(originalText.replace('+', ''));
+                suffix = '+';
+                formatFunc = (val) => Math.floor(val) + '+';
+            } else {
+                target = parseInt(originalText);
+                suffix = '';
+                formatFunc = (val) => Math.floor(val).toLocaleString();
+            }
+            
+            // Reset về 0
+            counter.textContent = '0' + suffix;
+            
+            // Bắt đầu animation
+            let current = 0;
+            const increment = target / 60; // 60 bước cho 2 giây
             
             const updateCounter = () => {
-                start += increment;
-                if (start < target) {
-                    let displayValue;
-                    
-                    if (suffix === 'K+') {
-                        // Format cho số nghìn
-                        displayValue = Math.floor(start / 1000) + 'K+';
-                    } else {
-                        // Format cho số thường
-                        displayValue = Math.floor(start) + suffix;
-                    }
-                    
-                    counter.textContent = displayValue;
-                    requestAnimationFrame(updateCounter);
+                current += increment;
+                if (current < target) {
+                    counter.textContent = formatFunc(current);
+                    setTimeout(updateCounter, 30); // ~33fps
                 } else {
-                    // Đảm bảo hiển thị giá trị cuối cùng
-                    counter.textContent = target.toLocaleString() + suffix;
+                    counter.textContent = originalText; // Hiển thị giá trị gốc
                 }
             };
             
-            updateCounter();
+            // Delay animation cho hiệu ứng đẹp
+            setTimeout(updateCounter, 500);
         });
         
-        animationStarted = true;
+        countersAnimated = true;
     }
     
-    // Kiểm tra khi cuộn trang
+    // Kiểm tra scroll
     function checkScroll() {
         const sectionTop = achievementSection.offsetTop;
         const sectionHeight = achievementSection.offsetHeight;
         const scrollPosition = window.scrollY + window.innerHeight;
         
-        // Khi phần thành tựu hiển thị trên màn hình
-        if (scrollPosition > sectionTop + 100 && 
-            window.scrollY < sectionTop + sectionHeight) {
-            startCountAnimation();
+        // Khi section hiển thị trên màn hình
+        if (scrollPosition > sectionTop + 100) {
+            animateItems();
+            
+            // Delay counter animation một chút
+            if (!countersAnimated) {
+                setTimeout(animateCounters, 300);
+            }
         }
     }
     
-    // Thêm sự kiện scroll
+    // Thêm sự kiện
     window.addEventListener('scroll', checkScroll);
     
-    // Kiểm tra ngay khi trang load (nếu phần tử đã visible)
-    setTimeout(checkScroll, 500);
+    // Kiểm tra ngay khi load (nếu section đã visible)
+    setTimeout(checkScroll, 100);
+    
+    // Fallback: nếu không scroll, vẫn chạy animation sau 2 giây
+    setTimeout(() => {
+        if (!countersAnimated) {
+            animateItems();
+            setTimeout(animateCounters, 300);
+        }
+    }, 2000);
 }
 
 // =========================
