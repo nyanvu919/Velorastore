@@ -1274,3 +1274,299 @@ p {
     max-height: 400px;
     overflow-y: auto;
 }
+/* =================== ADDITIONAL STYLES =================== */
+/* Search Results */
+.search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+}
+
+.search-result-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-img {
+    width: 80px;
+    height: 80px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 5px;
+}
+
+.search-result-details h4 {
+    margin-bottom: 5px;
+    color: var(--dark);
+}
+
+.search-result-category {
+    color: var(--primary);
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.search-result-price {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+/* Password Strength */
+.password-strength {
+    margin-top: 5px;
+    height: 4px;
+    border-radius: 2px;
+    background: #eee;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.password-strength.weak .password-strength-bar {
+    background: #F44336;
+    width: 33%;
+}
+
+.password-strength.medium .password-strength-bar {
+    background: #FF9800;
+    width: 66%;
+}
+
+.password-strength.strong .password-strength-bar {
+    background: #4CAF50;
+    width: 100%;
+}
+
+/* User Menu */
+.user-menu {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 300px;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.user-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-menu-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+.user-info h4 {
+    margin: 0 0 5px 0;
+    color: var(--dark);
+}
+
+.user-info p {
+    margin: 0;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.user-menu-items {
+    padding: 10px 0;
+}
+
+.user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    color: var(--dark);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.user-menu-item:hover {
+    background: var(--light);
+    color: var(--primary);
+}
+
+.user-menu-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.user-menu hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid var(--border);
+}
+
+#logoutBtn {
+    color: #F44336;
+}
+
+#logoutBtn:hover {
+    background: rgba(244, 67, 54, 0.1);
+}
+
+/* Social Buttons */
+.btn-social {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--dark);
+    transition: var(--transition);
+}
+
+.btn-social.facebook {
+    border-color: #1877F2;
+    color: #1877F2;
+}
+
+.btn-social.google {
+    border-color: #DB4437;
+    color: #DB4437;
+}
+
+.btn-social:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-social.facebook:hover {
+    background: #1877F2;
+    color: white;
+}
+
+.btn-social.google:hover {
+    background: #DB4437;
+    color: white;
+}
+
+.social-login {
+    margin: 20px 0;
+}
+
+/* Terms Links */
+.terms-link {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.terms-link:hover {
+    color: var(--primary-dark);
+}
+
+/* Form Validation */
+.form-group.error input {
+    border-color: #F44336;
+}
+
+.error-message {
+    color: #F44336;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.form-group.error .error-message {
+    display: block;
+}
+
+.success-message {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Notification */
+.notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    z-index: 9999;
+    transform: translateX(150%);
+    transition: transform 0.3s ease;
+    border-left: 4px solid var(--primary);
+}
+
+.notification.success {
+    border-left-color: #4CAF50;
+}
+
+.notification.error {
+    border-left-color: #F44336;
+}
+
+.notification.warning {
+    border-left-color: #FF9800;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .notification {
+        top: auto;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        transform: translateY(150%);
+    }
+    .notification.show {
+        transform: translateY(0);
+    }
+}
