@@ -478,3 +478,33 @@
 .btn-primary.full-width {
     width: 100%;
 }
+/* Thêm vào about.css hoặc style.css */
+.achievement-number {
+    font-size: 48px;
+    font-weight: 700;
+    color: #764ba2;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.achievement-item {
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.6s ease;
+}
+
+.achievement-item.animate {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Hiệu ứng cho từng item */
+.achievement-item:nth-child(1) { transition-delay: 0.1s; }
+.achievement-item:nth-child(2) { transition-delay: 0.2s; }
+.achievement-item:nth-child(3) { transition-delay: 0.3s; }
+.achievement-item:nth-child(4) { transition-delay: 0.4s; }
