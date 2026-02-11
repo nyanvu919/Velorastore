@@ -1,13 +1,11 @@
 // aboutpage/about-script.js
-import { openModal, closeModal, showNotification, performSearch } from '../script/utils.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Khởi tạo trang About...');
     
-    addModalsToPage();
-    initCommonFunctions();
-    initCart();
+    // Khởi tạo tất cả
     initNavigation();
+    initCart();
     initModalSystem();
     initCounterAnimation();
     
@@ -15,126 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // =========================
-// INIT COMMON FUNCTIONS
-// =========================
-function initCommonFunctions() {
-    updateCartCount();
-    
-    const userBtn = document.getElementById('user-btn');
-    if (userBtn) {
-        userBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openLoginModal();
-        });
-    }
-    
-    // Thêm sự kiện cho modal switching
-    setupModalSwitching();
-}
-
-// =========================
-// SETUP MODAL SWITCHING
-// =========================
-function setupModalSwitching() {
-    // Switch từ login sang register
-    const switchToRegister = document.getElementById('switchToRegister');
-    if (switchToRegister) {
-        switchToRegister.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeModal(document.getElementById('loginModal'));
-            openRegisterModal();
-        });
-    }
-    
-    // Switch từ register sang login
-    const switchToLogin = document.getElementById('switchToLogin');
-    if (switchToLogin) {
-        switchToLogin.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeModal(document.getElementById('registerModal'));
-            openLoginModal();
-        });
-    }
-}
-
-// =========================
-// OPEN REGISTER MODAL
-// =========================
-function openRegisterModal() {
-    openModal('registerModal');
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.reset();
-        
-        registerForm.onsubmit = function(e) {
-            e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const phone = document.getElementById('registerPhone').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
-            if (name && email && phone && password && confirmPassword) {
-                if (password !== confirmPassword) {
-                    showNotification('Mật khẩu xác nhận không khớp', 'error');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showNotification('Mật khẩu phải có ít nhất 6 ký tự', 'error');
-                    return;
-                }
-                
-                showNotification('Đăng ký thành công!', 'success');
-                closeModal(document.getElementById('registerModal'));
-                
-                const icon = document.querySelector('#user-btn i');
-                if (icon) icon.className = 'fas fa-user-check';
-            } else {
-                showNotification('Vui lòng nhập đầy đủ thông tin', 'error');
-            }
-        };
-    }
-}
-
-// =========================
-// INIT CART
-// =========================
-function initCart() {
-    const savedCart = localStorage.getItem('velora_cart');
-    let cart = [];
-    
-    if (savedCart) {
-        try {
-            cart = JSON.parse(savedCart) || [];
-        } catch (e) {
-            console.error('❌ Lỗi parse cart:', e);
-            cart = [];
-        }
-    }
-    
-    updateCartCount(cart);
-}
-
-// =========================
-// UPDATE CART COUNT
-// =========================
-function updateCartCount(cart = null) {
-    if (!cart) {
-        const savedCart = localStorage.getItem('velora_cart');
-        cart = savedCart ? JSON.parse(savedCart) : [];
-    }
-    
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    
-    document.querySelectorAll('.cart-count').forEach(el => {
-        el.textContent = totalItems;
-    });
-}
-
-// =========================
-// INIT NAVIGATION
+// NAVIGATION
 // =========================
 function initNavigation() {
     const hamburger = document.querySelector('.hamburger');
@@ -156,32 +35,12 @@ function initNavigation() {
 }
 
 // =========================
-// INIT MODAL SYSTEM
+// CART
 // =========================
-function initModalSystem() {
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            closeModal(modal);
-        });
-    });
+function initCart() {
+    updateCartCount();
     
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal(this);
-            }
-        });
-    });
-    
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal.active').forEach(modal => {
-                closeModal(modal);
-            });
-        }
-    });
-    
+    // Cart button
     const cartBtn = document.getElementById('cart-btn');
     if (cartBtn) {
         cartBtn.addEventListener('click', function() {
@@ -190,6 +49,57 @@ function initModalSystem() {
         });
     }
     
+    // User button
+    const userBtn = document.getElementById('user-btn');
+    if (userBtn) {
+        userBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('loginModal');
+        });
+    }
+}
+
+function updateCartCount() {
+    const savedCart = localStorage.getItem('velora_cart');
+    const cart = savedCart ? JSON.parse(savedCart) : [];
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    
+    document.querySelectorAll('.cart-count').forEach(el => {
+        el.textContent = totalItems;
+    });
+}
+
+// =========================
+// MODAL SYSTEM
+// =========================
+function initModalSystem() {
+    // Close buttons
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            closeModal(modal);
+        });
+    });
+    
+    // Close on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal(this);
+            }
+        });
+    });
+    
+    // Close with Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal.active').forEach(modal => {
+                closeModal(modal);
+            });
+        }
+    });
+    
+    // Search button
     const searchBtn = document.getElementById('search-btn');
     if (searchBtn) {
         searchBtn.addEventListener('click', function() {
@@ -202,44 +112,71 @@ function initModalSystem() {
                 if (resultsContainer) {
                     resultsContainer.innerHTML = '<p class="empty-results">Nhập từ khóa để tìm kiếm...</p>';
                 }
-                
-                searchInput.addEventListener('input', function() {
-                    performSearch(this.value);
-                });
             }
+        });
+    }
+    
+    // Form submissions
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Đăng nhập thành công! (Demo)');
+            closeModal(document.getElementById('loginModal'));
+        });
+    }
+    
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Đăng ký thành công! (Demo)');
+            closeModal(document.getElementById('registerModal'));
+        });
+    }
+    
+    // Modal switching
+    const switchToRegister = document.getElementById('switchToRegister');
+    const switchToLogin = document.getElementById('switchToLogin');
+    
+    if (switchToRegister) {
+        switchToRegister.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal(document.getElementById('loginModal'));
+            openModal('registerModal');
+        });
+    }
+    
+    if (switchToLogin) {
+        switchToLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal(document.getElementById('registerModal'));
+            openModal('loginModal');
         });
     }
 }
 
 // =========================
-// OPEN LOGIN MODAL
+// MODAL FUNCTIONS
 // =========================
-function openLoginModal() {
-    openModal('loginModal');
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.reset();
-        
-        loginForm.onsubmit = function(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (email && password) {
-                showNotification('Đăng nhập thành công!', 'success');
-                closeModal(document.getElementById('loginModal'));
-                
-                const icon = document.querySelector('#user-btn i');
-                if (icon) icon.className = 'fas fa-user-check';
-            } else {
-                showNotification('Vui lòng nhập đầy đủ thông tin', 'error');
-            }
-        };
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modal) {
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
     }
 }
 
 // =========================
-// UPDATE CART MODAL
+// CART MODAL
 // =========================
 function updateCartModal() {
     const cartItemsContainer = document.querySelector('.cart-items');
@@ -255,9 +192,6 @@ function updateCartModal() {
             <div class="empty-cart">
                 <i class="fas fa-shopping-cart"></i>
                 <p>Giỏ hàng của bạn đang trống</p>
-                <a href="index.html" class="btn btn-secondary" onclick="closeModal(document.getElementById('cartModal'))">
-                    <i class="fas fa-shopping-bag"></i> Mua sắm ngay
-                </a>
             </div>
         `;
         
@@ -301,10 +235,7 @@ function updateCartModal() {
         </div>
     `).join('');
     
-    const subtotal = cart.reduce(
-        (sum, item) => sum + (item.price * item.quantity),
-        0
-    );
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
     cartSummary.innerHTML = `
         <div class="summary-row">
@@ -322,354 +253,116 @@ function updateCartModal() {
         </button>
     `;
     
-    attachCartItemEvents(cart);
+    attachCartEvents();
 }
 
-// =========================
-// ATTACH CART ITEM EVENTS
-// =========================
-function attachCartItemEvents(cart) {
+function attachCartEvents() {
     document.querySelectorAll('.cart-item-remove').forEach(btn => {
         btn.onclick = () => {
-            removeFromCart(btn.dataset.id);
+            const savedCart = localStorage.getItem('velora_cart');
+            let cart = savedCart ? JSON.parse(savedCart) : [];
+            cart = cart.filter(item => item.id != btn.dataset.id);
+            localStorage.setItem('velora_cart', JSON.stringify(cart));
+            updateCartCount();
+            updateCartModal();
         };
     });
     
     document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
         btn.onclick = () => {
-            updateCartItemQuantity(btn.dataset.id, -1);
+            updateQuantity(btn.dataset.id, -1);
         };
     });
     
     document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
         btn.onclick = () => {
-            updateCartItemQuantity(btn.dataset.id, 1);
+            updateQuantity(btn.dataset.id, 1);
         };
     });
     
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (checkoutBtn) {
-        checkoutBtn.onclick = handleCheckout;
+        checkoutBtn.onclick = function() {
+            alert('Thanh toán thành công! (Demo)');
+            localStorage.removeItem('velora_cart');
+            updateCartCount();
+            closeModal(document.getElementById('cartModal'));
+        };
     }
 }
 
-// =========================
-// REMOVE FROM CART
-// =========================
-function removeFromCart(productId) {
-    const savedCart = localStorage.getItem('velora_cart');
-    let cart = savedCart ? JSON.parse(savedCart) : [];
-    
-    const item = cart.find(item => item.id == productId);
-    cart = cart.filter(item => item.id != productId);
-    
-    localStorage.setItem('velora_cart', JSON.stringify(cart));
-    
-    updateCartCount(cart);
-    updateCartModal();
-    
-    if (item) {
-        showNotification(`Đã xóa "${item.name}" khỏi giỏ hàng`, 'info');
-    }
-}
-
-// =========================
-// UPDATE CART ITEM QUANTITY
-// =========================
-function updateCartItemQuantity(productId, change) {
+function updateQuantity(productId, change) {
     const savedCart = localStorage.getItem('velora_cart');
     let cart = savedCart ? JSON.parse(savedCart) : [];
     
     const itemIndex = cart.findIndex(item => item.id == productId);
-    
     if (itemIndex < 0) return;
     
     cart[itemIndex].quantity += change;
     
     if (cart[itemIndex].quantity <= 0) {
-        removeFromCart(productId);
-        return;
+        cart = cart.filter(item => item.id != productId);
     }
     
     localStorage.setItem('velora_cart', JSON.stringify(cart));
-    
-    updateCartCount(cart);
+    updateCartCount();
     updateCartModal();
 }
 
 // =========================
-// HANDLE CHECKOUT
-// =========================
-function handleCheckout() {
-    const savedCart = localStorage.getItem('velora_cart');
-    const cart = savedCart ? JSON.parse(savedCart) : [];
-    
-    if (cart.length === 0) {
-        showNotification('Giỏ hàng trống!', 'error');
-        return;
-    }
-    
-    function formatPrice(price) {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(price);
-    }
-    
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    showNotification(`Thanh toán thành công! Tổng tiền: ${formatPrice(total)}`, 'success');
-    
-    localStorage.removeItem('velora_cart');
-    
-    updateCartCount([]);
-    updateCartModal();
-    
-    closeModal(document.getElementById('cartModal'));
-}
-
-// =========================
-// COUNTER ANIMATION (ĐÃ CẢI THIỆN)
+// COUNTER ANIMATION - SIMPLE
 // =========================
 function initCounterAnimation() {
-    const section = document.querySelector('.achievements');
-    if (!section) return;
-    
-    let animated = false;
-    
-    function animateAchievementItems() {
-        const items = document.querySelectorAll('.achievement-item');
-        items.forEach((item, index) => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                item.classList.add('animate');
-            }, index * 100);
-        });
-    }
-    
-    function animateCounters() {
-        if (animated) return;
-        
-        // Fade in các item trước
-        animateAchievementItems();
-        
-        // Sau đó animate counters
-        setTimeout(() => {
-            const counters = document.querySelectorAll('.achievement-number');
-            
-            counters.forEach(counter => {
-                const text = counter.textContent;
-                let target, suffix;
-                
-                if (text.includes('K+')) {
-                    target = parseInt(text.replace('K+', '')) * 1000;
-                    suffix = 'K+';
-                } else if (text.includes('+')) {
-                    target = parseInt(text.replace('+', ''));
-                    suffix = '+';
-                } else {
-                    target = parseInt(text);
-                    suffix = '';
-                }
-                
-                let start = 0;
-                const duration = 1500;
-                const increment = target / (duration / 16);
-                
-                const update = () => {
-                    start += increment;
-                    if (start < target) {
-                        if (suffix === 'K+') {
-                            counter.textContent = Math.floor(start / 1000) + 'K+';
-                        } else {
-                            counter.textContent = Math.floor(start) + suffix;
-                        }
-                        requestAnimationFrame(update);
-                    } else {
-                        counter.textContent = text;
-                    }
-                };
-                
-                update();
-            });
-        }, 500);
-        
-        animated = true;
-    }
+    const numbers = document.querySelectorAll('.achievement-number');
+    if (numbers.length === 0) return;
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                animateCounters();
+                animateNumbers();
+                observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.3 });
+    }, { threshold: 0.5 });
     
-    observer.observe(section);
-    
-    // Fallback: nếu không scroll đến section, vẫn animate sau 2s
-    setTimeout(() => {
-        if (!animated) {
-            const sectionTop = section.getBoundingClientRect().top;
-            const windowHeight = window.innerHeight;
-            
-            if (sectionTop < windowHeight) {
-                animateCounters();
-            }
-        }
-    }, 2000);
+    observer.observe(document.querySelector('.achievements'));
 }
 
-// =========================
-// ADD MODALS TO PAGE
-// =========================
-function addModalsToPage() {
-    if (!document.getElementById('loginModal')) {
-        const modalHTML = `
-        <!-- Login Modal -->
-        <div class="modal" id="loginModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Đăng nhập</h2>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label for="loginEmail">Email</label>
-                            <input type="email" id="loginEmail" placeholder="Nhập email của bạn" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="loginPassword">Mật khẩu</label>
-                            <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required>
-                        </div>
-                        <div class="form-options">
-                            <label class="checkbox">
-                                <input type="checkbox"> Ghi nhớ đăng nhập
-                            </label>
-                            <a href="#" class="forgot-password">Quên mật khẩu?</a>
-                        </div>
-                        <button type="submit" class="btn btn-primary full-width">
-                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                        </button>
-                    </form>
-                    
-                    <div class="divider">
-                        <span>Hoặc đăng nhập với</span>
-                    </div>
-                    
-                    <div class="social-login">
-                        <button class="btn btn-social facebook">
-                            <i class="fab fa-facebook-f"></i> Facebook
-                        </button>
-                        <button class="btn btn-social google">
-                            <i class="fab fa-google"></i> Google
-                        </button>
-                    </div>
-                    
-                    <div class="switch-modal">
-                        Chưa có tài khoản? <a href="#" id="switchToRegister">Đăng ký ngay</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Register Modal -->
-        <div class="modal" id="registerModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Đăng ký tài khoản</h2>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="registerForm">
-                        <div class="form-group">
-                            <label for="registerName">Họ và tên</label>
-                            <input type="text" id="registerName" placeholder="Nhập họ và tên" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="registerEmail">Email</label>
-                            <input type="email" id="registerEmail" placeholder="Nhập email của bạn" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="registerPhone">Số điện thoại</label>
-                            <input type="tel" id="registerPhone" placeholder="Nhập số điện thoại" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="registerPassword">Mật khẩu</label>
-                            <input type="password" id="registerPassword" placeholder="Nhập mật khẩu (ít nhất 6 ký tự)" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label for="registerConfirmPassword">Xác nhận mật khẩu</label>
-                            <input type="password" id="registerConfirmPassword" placeholder="Nhập lại mật khẩu" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="checkbox">
-                                <input type="checkbox" id="registerTerms" required>
-                                Tôi đồng ý với <a href="#" class="terms-link">Điều khoản dịch vụ</a>
-                            </label>
-                        </div>
-                        <button type="submit" class="btn btn-primary full-width">
-                            <i class="fas fa-user-plus"></i> Đăng ký
-                        </button>
-                    </form>
-                    
-                    <div class="switch-modal">
-                        Đã có tài khoản? <a href="#" id="switchToLogin">Đăng nhập ngay</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cart Modal -->
-        <div class="modal" id="cartModal">
-            <div class="modal-content cart-modal">
-                <div class="modal-header">
-                    <h2>Giỏ hàng của bạn</h2>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="cart-items">
-                        <!-- Cart items will be loaded here -->
-                    </div>
-                    <div class="cart-summary">
-                        <div class="summary-row">
-                            <span>Tạm tính:</span>
-                            <span class="price">0 VND</span>
-                        </div>
-                        <div class="summary-row total">
-                            <span>Tổng cộng:</span>
-                            <span class="price">0 VND</span>
-                        </div>
-                        <button class="btn btn-primary full-width" style="margin-top: 20px;" id="checkoutBtn">
-                            <i class="fas fa-credit-card"></i> Thanh toán
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Search Modal -->
-        <div class="modal" id="searchModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Tìm kiếm sản phẩm</h2>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm...">
-                    </div>
-                    <div class="search-results" id="searchResults">
-                        <!-- Search results will appear here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
+function animateNumbers() {
+    const counters = document.querySelectorAll('.achievement-number');
+    
+    counters.forEach(counter => {
+        const original = counter.textContent;
+        let target, suffix;
         
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-    }
+        if (original.includes('K+')) {
+            target = parseInt(original.replace('K+', '')) * 1000;
+            suffix = 'K+';
+        } else if (original.includes('+')) {
+            target = parseInt(original.replace('+', ''));
+            suffix = '+';
+        } else {
+            target = parseInt(original);
+            suffix = '';
+        }
+        
+        let current = 0;
+        const increment = target / 50;
+        
+        const update = () => {
+            current += increment;
+            if (current < target) {
+                if (suffix === 'K+') {
+                    counter.textContent = Math.floor(current / 1000) + 'K+';
+                } else {
+                    counter.textContent = Math.floor(current) + suffix;
+                }
+                setTimeout(update, 30);
+            } else {
+                counter.textContent = original;
+            }
+        };
+        
+        update();
+    });
 }
