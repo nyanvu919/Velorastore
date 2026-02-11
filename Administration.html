@@ -241,42 +241,94 @@
                     </div>
                 </div>
 
-                <!-- Add Product Section -->
-                <div id="add-product" class="content-section">
-                    <div class="section-header">
-                        <h3>Thêm sản phẩm mới</h3>
-                    </div>
-                    
-                    <form id="product-form" class="admin-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="product-name">Tên sản phẩm *</label>
-                                <input type="text" id="product-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="product-category">Danh mục *</label>
-                                <select id="product-category" required>
-                                    <option value="">Chọn danh mục</option>
-                                    <option value="dress">Đầm/Váy</option>
-                                    <option value="shirt">Áo sơ mi</option>
-                                    <option value="pants">Quần</option>
-                                    <option value="jacket">Áo khoác</option>
-                                    <option value="accessories">Phụ kiện</option>
-                                    <option value="evening">Đầm dạ hội</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="product-price">Giá *</label>
-                                <input type="number" id="product-price" required min="0">
-                            </div>
-                            <div class="form-group">
-                                <label for="product-stock">Số lượng tồn kho *</label>
-                                <input type="number" id="product-stock" required min="0">
-                            </div>
-                        </div>
+            <!-- Add Product Section -->
+<div id="add-product" class="content-section">
+    <div class="section-header">
+        <h3>Thêm sản phẩm mới</h3>
+    </div>
+    
+    <form id="product-form" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="product-name">Tên sản phẩm *</label>
+                <input type="text" id="product-name" required>
+            </div>
+            <div class="form-group">
+                <label for="product-category">Danh mục *</label>
+                <select id="product-category" required>
+                    <option value="">Chọn danh mục</option>
+                    <option value="dress">Đầm/Váy</option>
+                    <option value="shirt">Áo sơ mi</option>
+                    <option value="pants">Quần</option>
+                    <option value="jacket">Áo khoác</option>
+                    <option value="accessories">Phụ kiện</option>
+                    <option value="evening">Đầm dạ hội</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="product-price">Giá (VND) *</label>
+                <input type="number" id="product-price" required min="0" step="1000">
+            </div>
+            <div class="form-group">
+                <label for="product-stock">Số lượng tồn kho *</label>
+                <input type="number" id="product-stock" required min="0">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="product-image">URL hình ảnh</label>
+                <input type="text" id="product-image" placeholder="srcimg/product-name.jpg">
+            </div>
+            <div class="form-group">
+                <label for="product-featured">Sản phẩm nổi bật</label>
+                <select id="product-featured">
+                    <option value="false">Không</option>
+                    <option value="true">Có</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="product-description">Mô tả sản phẩm *</label>
+            <textarea id="product-description" rows="4" required placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="product-images">Upload hình ảnh</label>
+            <div class="image-upload">
+                <div class="upload-area" id="upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Kéo thả hình ảnh hoặc click để chọn</p>
+                    <input type="file" id="product-images-input" multiple accept="image/*" style="display: none;">
+                </div>
+                <div class="image-preview" id="image-preview">
+                    <!-- Preview images will appear here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="product-active">Trạng thái sản phẩm</label>
+            <select id="product-active">
+                <option value="true">Đang bán</option>
+                <option value="false">Ngừng bán</option>
+            </select>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Lưu sản phẩm
+            </button>
+            <button type="button" class="btn btn-secondary" id="reset-product-form">
+                <i class="fas fa-redo"></i> Làm mới
+            </button>
+        </div>
+    </form>
+</div>
                         
                         <div class="form-group">
                             <label for="product-description">Mô tả sản phẩm *</label>
