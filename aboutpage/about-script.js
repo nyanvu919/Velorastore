@@ -1,25 +1,14 @@
 // aboutpage/about-script.js
-
-// Import các function từ utils.js
 import { openModal, closeModal, showNotification, performSearch } from '../script/utils.js';
 
-// =========================
-// INIT ABOUT PAGE
-// =========================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Khởi tạo trang About...');
     
-    // Khởi tạo các chức năng chung
     initCommonFunctions();
-    
-    // Khởi tạo giỏ hàng
     initCart();
-    
-    // Khởi tạo navigation
     initNavigation();
-    
-    // Khởi tạo modal system
     initModalSystem();
+    initCounterAnimation();
     
     console.log('✅ Trang About đã sẵn sàng!');
 });
@@ -28,10 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // INIT COMMON FUNCTIONS
 // =========================
 function initCommonFunctions() {
-    // Load cart count
     updateCartCount();
     
-    // User button
     const userBtn = document.getElementById('user-btn');
     if (userBtn) {
         userBtn.addEventListener('click', function(e) {
@@ -46,7 +33,6 @@ function initCommonFunctions() {
 // INIT CART
 // =========================
 function initCart() {
-    // Load cart từ localStorage
     const savedCart = localStorage.getItem('velora_cart');
     let cart = [];
     
@@ -59,7 +45,6 @@ function initCart() {
         }
     }
     
-    // Update cart count
     updateCartCount(cart);
 }
 
@@ -105,7 +90,6 @@ function initNavigation() {
 // INIT MODAL SYSTEM
 // =========================
 function initModalSystem() {
-    // Close modal buttons
     document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', function() {
             const modal = this.closest('.modal');
@@ -113,7 +97,6 @@ function initModalSystem() {
         });
     });
     
-    // Close modal on outside click
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -122,7 +105,6 @@ function initModalSystem() {
         });
     });
     
-    // Close with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.querySelectorAll('.modal.active').forEach(modal => {
@@ -131,7 +113,6 @@ function initModalSystem() {
         }
     });
     
-    // Cart button
     const cartBtn = document.getElementById('cart-btn');
     if (cartBtn) {
         cartBtn.addEventListener('click', function() {
@@ -140,7 +121,6 @@ function initModalSystem() {
         });
     }
     
-    // Search button
     const searchBtn = document.getElementById('search-btn');
     if (searchBtn) {
         searchBtn.addEventListener('click', function() {
@@ -171,7 +151,6 @@ function openLoginModal() {
     if (loginForm) {
         loginForm.reset();
         
-        // Gắn sự kiện submit
         loginForm.onsubmit = function(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
@@ -181,7 +160,6 @@ function openLoginModal() {
                 showNotification('Đăng nhập thành công!', 'success');
                 closeModal(document.getElementById('loginModal'));
                 
-                // Update user icon
                 const icon = document.querySelector('#user-btn i');
                 if (icon) icon.className = 'fas fa-user-check';
             } else {
@@ -226,7 +204,6 @@ function updateCartModal() {
         return;
     }
     
-    // Format price function
     function formatPrice(price) {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -276,7 +253,6 @@ function updateCartModal() {
         </button>
     `;
     
-    // Attach cart item events
     attachCartItemEvents(cart);
 }
 
@@ -302,7 +278,6 @@ function attachCartItemEvents(cart) {
         };
     });
     
-    // Checkout button
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (checkoutBtn) {
         checkoutBtn.onclick = handleCheckout;
@@ -376,153 +351,83 @@ function handleCheckout() {
     
     showNotification(`Thanh toán thành công! Tổng tiền: ${formatPrice(total)}`, 'success');
     
-    // Xóa giỏ hàng sau khi thanh toán
     localStorage.removeItem('velora_cart');
     
     updateCartCount([]);
     updateCartModal();
     
-    // Đóng modal
     closeModal(document.getElementById('cartModal'));
 }
 
-// aboutpage/about-script.js - Thêm vào cuối file, trước dòng cuối cùng
-
 // =========================
-// Phiên bản hoàn chỉnh
+// COUNTER ANIMATION
+// =========================
 function initCounterAnimation() {
-    const achievementSection = document.querySelector('.achievements');
-    if (!achievementSection) return;
+    const section = document.querySelector('.achievements');
+    if (!section) return;
     
-    let countersAnimated = false;
-    let itemsAnimated = false;
+    let animated = false;
     
-    // 1. Animation cho các item (fade-in up)
-    function animateItems() {
-        if (itemsAnimated) return;
-        
-        const items = document.querySelectorAll('.achievement-item');
-        items.forEach((item, index) => {
-            setTimeout(() => {
-                item.classList.add('animate');
-            }, index * 100);
-        });
-        
-        itemsAnimated = true;
-    }
-    
-    // 2. Animation cho counters (count-up)
     function animateCounters() {
-        if (countersAnimated) return;
+        if (animated) return;
         
         const counters = document.querySelectorAll('.achievement-number');
         
         counters.forEach(counter => {
-            const originalText = counter.textContent;
-            let target, suffix, formatFunc;
+            const text = counter.textContent;
+            let target, suffix;
             
-            // Phân tích text gốc
-            if (originalText.includes('K+')) {
-                const num = parseInt(originalText.replace('K+', ''));
-                target = num * 1000;
+            if (text.includes('K+')) {
+                target = parseInt(text.replace('K+', '')) * 1000;
                 suffix = 'K+';
-                formatFunc = (val) => Math.floor(val / 1000) + 'K+';
-            } else if (originalText.includes('+')) {
-                target = parseInt(originalText.replace('+', ''));
+            } else if (text.includes('+')) {
+                target = parseInt(text.replace('+', ''));
                 suffix = '+';
-                formatFunc = (val) => Math.floor(val) + '+';
             } else {
-                target = parseInt(originalText);
+                target = parseInt(text);
                 suffix = '';
-                formatFunc = (val) => Math.floor(val).toLocaleString();
             }
             
-            // Reset về 0
-            counter.textContent = '0' + suffix;
+            let start = 0;
+            const duration = 1500;
+            const increment = target / (duration / 16);
             
-            // Bắt đầu animation
-            let current = 0;
-            const increment = target / 60; // 60 bước cho 2 giây
-            
-            const updateCounter = () => {
-                current += increment;
-                if (current < target) {
-                    counter.textContent = formatFunc(current);
-                    setTimeout(updateCounter, 30); // ~33fps
+            const update = () => {
+                start += increment;
+                if (start < target) {
+                    if (suffix === 'K+') {
+                        counter.textContent = Math.floor(start / 1000) + 'K+';
+                    } else {
+                        counter.textContent = Math.floor(start) + suffix;
+                    }
+                    requestAnimationFrame(update);
                 } else {
-                    counter.textContent = originalText; // Hiển thị giá trị gốc
+                    counter.textContent = text;
                 }
             };
             
-            // Delay animation cho hiệu ứng đẹp
-            setTimeout(updateCounter, 500);
+            update();
         });
         
-        countersAnimated = true;
+        animated = true;
     }
     
-    // Kiểm tra scroll
-    function checkScroll() {
-        const sectionTop = achievementSection.offsetTop;
-        const sectionHeight = achievementSection.offsetHeight;
-        const scrollPosition = window.scrollY + window.innerHeight;
-        
-        // Khi section hiển thị trên màn hình
-        if (scrollPosition > sectionTop + 100) {
-            animateItems();
-            
-            // Delay counter animation một chút
-            if (!countersAnimated) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
                 setTimeout(animateCounters, 300);
             }
-        }
-    }
+        });
+    }, { threshold: 0.3 });
     
-    // Thêm sự kiện
-    window.addEventListener('scroll', checkScroll);
-    
-    // Kiểm tra ngay khi load (nếu section đã visible)
-    setTimeout(checkScroll, 100);
-    
-    // Fallback: nếu không scroll, vẫn chạy animation sau 2 giây
-    setTimeout(() => {
-        if (!countersAnimated) {
-            animateItems();
-            setTimeout(animateCounters, 300);
-        }
-    }, 2000);
+    observer.observe(section);
 }
 
 // =========================
-// Gọi hàm counter animation khi trang load
-// =========================
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔄 Khởi tạo trang About...');
-    
-    // Khởi tạo các chức năng chung
-    initCommonFunctions();
-    
-    // Khởi tạo giỏ hàng
-    initCart();
-    
-    // Khởi tạo navigation
-    initNavigation();
-    
-    // Khởi tạo modal system
-    initModalSystem();
-    
-    // Khởi tạo counter animation
-    initCounterAnimation();
-    
-    console.log('✅ Trang About đã sẵn sàng!');
-});
-// =========================
-// Các modal cần thêm vào HTML
+// ADD MODALS TO PAGE
 // =========================
 function addModalsToPage() {
-    // Kiểm tra xem modal đã tồn tại chưa
     if (!document.getElementById('loginModal')) {
-        // Thêm modal vào body
         const modalHTML = `
         <!-- Login Modal -->
         <div class="modal" id="loginModal">
@@ -670,7 +575,4 @@ function addModalsToPage() {
     }
 }
 
-// =========================
-// Gọi hàm thêm modal khi trang load
-// =========================
 addModalsToPage();
