@@ -447,81 +447,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 openCartModal();
             });
         }
-        // Search button
-const searchBtn = document.getElementById('search-btn');
-if (searchBtn) {
-    searchBtn.addEventListener('click', function() {
-        openSearchModal();
-    });
-}
-
-// Add this function
-function openSearchModal() {
-    openModal('searchModal');
-    
-    // Focus on search input
-    setTimeout(() => {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.focus();
-            
-            // Add search functionality
-            searchInput.addEventListener('input', function() {
-                performSearch(this.value);
-            });
-        }
-    }, 100);
-}
-
-function performSearch(keyword) {
-    const resultsContainer = document.getElementById('searchResults');
-    if (!resultsContainer) return;
-    
-    if (!keyword.trim()) {
-        resultsContainer.innerHTML = '<p class="empty-cart">Nhập từ khóa để tìm kiếm</p>';
-        return;
-    }
-    
-    const searchTerm = keyword.toLowerCase();
-    const results = allProducts.filter(product => 
-        product.name.toLowerCase().includes(searchTerm) ||
-        product.category.toLowerCase().includes(searchTerm) ||
-        product.description.toLowerCase().includes(searchTerm)
-    );
-    
-    if (results.length === 0) {
-        resultsContainer.innerHTML = `
-            <div class="empty-cart">
-                <i class="fas fa-search"></i>
-                <p>Không tìm thấy sản phẩm phù hợp</p>
-            </div>
-        `;
-        return;
-    }
-    
-    resultsContainer.innerHTML = results.map(product => `
-        <div class="search-result-item">
-            <div class="search-result-img" style="background-image: url('${product.image}')"></div>
-            <div class="search-result-details">
-                <h4>${product.name}</h4>
-                <p class="search-result-category">${getCategoryName(product.category)}</p>
-                <p class="search-result-price">${formatPrice(product.price)}</p>
-                <button class="btn btn-primary" data-id="${product.id}" style="margin-top: 10px;">
-                    Xem chi tiết
-                </button>
-            </div>
-        </div>
-    `).join('');
-    
-    // Add click events to result items
-    document.querySelectorAll('.search-result-item .btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const productId = this.getAttribute('data-id');
-            closeModal(document.getElementById('searchModal'));
-            viewProductDetails(productId);
-        });
-    });
-}
+        
         // Close modal buttons
         document.querySelectorAll('.close-modal').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -571,81 +497,42 @@ function performSearch(keyword) {
         openModal('cartModal');
     }
     
-   function updateCartModal() {
-    const cartItemsContainer = document.querySelector('.cart-items');
-    const cartSummary = document.querySelector('.cart-summary');
-    
-    if (!cartItemsContainer || !cartSummary) return;
-    
-    if (cart.length === 0) {
-        cartItemsContainer.innerHTML = `
-            <div class="empty-cart">
-                <i class="fas fa-shopping-cart"></i>
-                <p>Giỏ hàng của bạn đang trống</p>
-            </div>
-        `;
+    function updateCartModal() {
+        const cartItemsContainer = document.querySelector('.cart-items');
+        if (!cartItemsContainer) return;
         
-        // Update summary
-        cartSummary.innerHTML = `
-            <div class="summary-row total">
-                <span>Tổng cộng:</span>
-                <span class="price">0 VND</span>
-            </div>
-            <button class="btn btn-primary full-width" style="margin-top: 20px;" disabled>
-                Thanh toán
-            </button>
-        `;
-        return;
-    }
-    
-    // Build cart items HTML
-    cartItemsContainer.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <div class="cart-item-img" style="background-image: url('${item.image}')"></div>
-            <div class="cart-item-details">
-                <h4>${item.name}</h4>
-                <p class="cart-item-price">${formatPrice(item.price)}</p>
-                <div class="cart-item-quantity">
-                    <button class="quantity-btn minus" data-id="${item.id}">-</button>
-                    <span class="quantity-value">${item.quantity}</span>
-                    <button class="quantity-btn plus" data-id="${item.id}">+</button>
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = `
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Giỏ hàng của bạn đang trống</p>
                 </div>
+            `;
+            return;
+        }
+        
+        // Build cart items HTML
+        cartItemsContainer.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <div class="cart-item-img" style="background-image: url('${item.image}')"></div>
+                <div class="cart-item-details">
+                    <h4>${item.name}</h4>
+                    <p class="cart-item-price">${formatPrice(item.price)}</p>
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn minus" data-id="${item.id}">-</button>
+                        <span class="quantity-value">${item.quantity}</span>
+                        <button class="quantity-btn plus" data-id="${item.id}">+</button>
+                    </div>
+                </div>
+                <button class="cart-item-remove" data-id="${item.id}">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <button class="cart-item-remove" data-id="${item.id}">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `).join('');
-    
-    // Calculate total
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Update summary
-    cartSummary.innerHTML = `
-        <div class="summary-row">
-            <span>Tạm tính:</span>
-            <span class="price">${formatPrice(subtotal)}</span>
-        </div>
-        <div class="summary-row total">
-            <span>Tổng cộng:</span>
-            <span class="price">${formatPrice(subtotal)}</span>
-        </div>
-        <button class="btn btn-primary full-width" style="margin-top: 20px;" id="checkoutBtn">
-            Thanh toán
-        </button>
-    `;
-    
-    // Add checkout event
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', function() {
-            showNotification('Tính năng thanh toán đang được phát triển', 'info');
-        });
+        `).join('');
+        
+        // Attach cart item events
+        attachCartItemEvents();
     }
-    
-    // Attach cart item events
-    attachCartItemEvents();
-}
     
     function attachCartItemEvents() {
         // Remove buttons
