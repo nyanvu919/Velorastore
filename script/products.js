@@ -1,26 +1,9 @@
 // script/products.js
-// Xử lý sản phẩm và danh mục
-
-async function initProducts() {
+function initProducts() {
     console.log('🔄 Đang tải sản phẩm...');
     
-    // Load products
-    try {
-        const response = await fetch('https://velora-api.nyaochen9.workers.dev/api/products');
-        if (response.ok) {
-            const result = await response.json();
-            if (result.success && result.data) {
-                allProducts = result.data;
-            } else {
-                allProducts = getSampleProducts();
-            }
-        } else {
-            allProducts = getSampleProducts();
-        }
-    } catch (error) {
-        console.error('Lỗi tải sản phẩm:', error);
-        allProducts = getSampleProducts();
-    }
+    // Load sample products
+    allProducts = getSampleProducts();
     
     // Render products
     renderProducts();
@@ -165,22 +148,6 @@ function initFilters() {
             filterProductsByCategory(category);
         });
     });
-    
-    // Price filter
-    const priceFilter = document.querySelector('.price-filter');
-    if (priceFilter) {
-        priceFilter.addEventListener('change', function() {
-            console.log('Filter by price:', this.value);
-        });
-    }
-    
-    // Sort filter
-    const sortFilter = document.querySelector('.sort-select');
-    if (sortFilter) {
-        sortFilter.addEventListener('change', function() {
-            console.log('Sort by:', this.value);
-        });
-    }
 }
 
 function filterProductsByCategory(category) {
@@ -195,29 +162,21 @@ function filterProductsByCategory(category) {
     });
 }
 
-// Make functions available globally
-window.addToCart = function(productId) {
-    const product = allProducts.find(p => p.id === productId);
-    if (!product) return;
-    
-    const existingItem = cart.find(item => item.id === productId);
-    
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: 1,
-            image: product.image
-        });
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('velora_cart', JSON.stringify(cart));
-    
-    // Update UI
-    updateCartCount();
-    showNotification(`Đã thêm "${product.name}" vào giỏ hàng`, 'success');
-};
+function getCategoryName(categoryKey) {
+    const categories = {
+        'dress': 'ĐẦM/VÁY',
+        'shirt': 'ÁO SƠ MI', 
+        'pants': 'QUẦN',
+        'jacket': 'ÁO KHOÁC',
+        'accessories': 'PHỤ KIỆN',
+        'evening': 'ĐẦM DẠ HỘI'
+    };
+    return categories[categoryKey] || categoryKey.toUpperCase();
+}
+
+function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(price);
+}
