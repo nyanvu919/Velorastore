@@ -1,5 +1,5 @@
 // script/auth.js
-function initAuth() {
+export function initAuth() {
     console.log('🔄 Khởi tạo hệ thống đăng nhập...');
     
     // User button
