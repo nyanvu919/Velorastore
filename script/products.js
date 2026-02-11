@@ -9,10 +9,19 @@ export async function initProducts() {
     console.log('🔄 Đang tải sản phẩm...');
     
     try {
-        // Load products from API
-        await loadProductsFromAPI();
+        // TẮT API - CHỈ DÙNG DATA MẪU
+        console.log('📦 Sử dụng dữ liệu sản phẩm mẫu');
         
-        // Initialize filters
+        // Load sản phẩm mẫu
+        window.allProducts = getSampleProducts();
+        
+        // Render sản phẩm
+        renderProducts();
+        
+        // Cập nhật số lượng danh mục
+        updateCategoryCounts();
+        
+        // Khởi tạo filters
         initFilters();
         
         // Load more button
@@ -21,82 +30,25 @@ export async function initProducts() {
             loadMoreBtn.addEventListener('click', loadMoreProducts);
         }
         
-        console.log(`✅ Đã tải ${window.allProducts.length} sản phẩm`);
+        console.log(`✅ Đã tải ${window.allProducts.length} sản phẩm mẫu`);
         return window.allProducts;
         
     } catch (error) {
         console.error('❌ Lỗi khi tải sản phẩm:', error);
-        loadSampleProducts(); // Fallback
+        
+        // Fallback cứng
+        window.allProducts = getSampleProducts();
+        renderProducts();
+        updateCategoryCounts();
+        initFilters();
+        
         return window.allProducts;
     }
 }
 
 // =========================
-// LOAD FROM API
+// SAMPLE PRODUCTS - DATA MẪU
 // =========================
-async function loadProductsFromAPI() {
-    try {
-        console.log('📡 Đang tải sản phẩm từ API...');
-        
-        const response = await fetch('/api/products');
-        
-        if (!response.ok) {
-            throw new Error(`API trả về mã lỗi: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-            window.allProducts = data.data;
-            renderProducts();
-            updateCategoryCounts();
-        } else {
-            throw new Error('API trả về dữ liệu không hợp lệ');
-        }
-        
-    } catch (error) {
-        console.error('❌ Lỗi khi tải từ API:', error);
-        throw error; // Rethrow để xử lý ở trên
-    }
-}
-
-// =========================
-// UPDATE CATEGORY COUNTS
-// =========================
-function updateCategoryCounts() {
-    const products = window.allProducts || [];
-    
-    // Tính số lượng sản phẩm theo danh mục
-    const categoryCounts = {
-        'all': products.length,
-        'dress': products.filter(p => p.category === 'dress').length,
-        'shirt': products.filter(p => p.category === 'shirt').length,
-        'pants': products.filter(p => p.category === 'pants').length,
-        'jacket': products.filter(p => p.category === 'jacket').length,
-        'accessories': products.filter(p => p.category === 'accessories').length,
-        'evening': products.filter(p => p.category === 'evening').length
-    };
-    
-    // Cập nhật UI
-    Object.entries(categoryCounts).forEach(([category, count]) => {
-        const countElement = document.querySelector(`.category-count[data-category="${category}"]`);
-        if (countElement) {
-            countElement.textContent = count;
-        }
-    });
-}
-
-// =========================
-// SAMPLE PRODUCTS FALLBACK
-// =========================
-function loadSampleProducts() {
-    console.log('🔄 Đang tải sản phẩm mẫu...');
-    
-    window.allProducts = getSampleProducts();
-    renderProducts();
-    updateCategoryCounts();
-}
-
 function getSampleProducts() {
     return [
         {
@@ -105,10 +57,12 @@ function getSampleProducts() {
             category: "evening",
             price: 3500000,
             image: "srcimg/5 (3).png",
-            description: "Đầm dạ hội cao cấp với chất liệu lụa mềm mại",
+            description: "Đầm dạ hội cao cấp với chất liệu lụa mềm mại, thiết kế sang trọng, phù hợp cho các buổi tiệc và sự kiện quan trọng.",
             stock: 10,
             featured: true,
-            active: true
+            active: true,
+            sizes: ["S", "M", "L"],
+            colors: ["Đỏ", "Đen", "Xanh"]
         },
         {
             id: "2",
@@ -116,10 +70,12 @@ function getSampleProducts() {
             category: "shirt",
             price: 850000,
             image: "srcimg/5 (2).png",
-            description: "Áo sơ mi trắng thanh lịch",
+            description: "Áo sơ mi trắng thanh lịch, chất liệu cotton cao cấp, không nhăn, thoáng mát, phù hợp môi trường công sở.",
             stock: 25,
             featured: true,
-            active: true
+            active: true,
+            sizes: ["S", "M", "L", "XL"],
+            colors: ["Trắng"]
         },
         {
             id: "3",
@@ -127,10 +83,12 @@ function getSampleProducts() {
             category: "pants",
             price: 1200000,
             image: "srcimg/5 (1).png",
-            description: "Quần âu cao cấp",
+            description: "Quần âu cao cấp, form dáng chuẩn, chất liệu co giãn nhẹ, thoải mái khi mặc.",
             stock: 15,
             featured: false,
-            active: true
+            active: true,
+            sizes: ["S", "M", "L", "XL"],
+            colors: ["Đen", "Ghi", "Nâu"]
         },
         {
             id: "4",
@@ -138,10 +96,12 @@ function getSampleProducts() {
             category: "jacket",
             price: 2200000,
             image: "srcimg/default-product.jpg",
-            description: "Áo khoác len ấm áp",
+            description: "Áo khoác len pha cashmere, ấm áp, mềm mại, thiết kế thời trang Hàn Quốc.",
             stock: 8,
             featured: true,
-            active: true
+            active: true,
+            sizes: ["M", "L", "XL"],
+            colors: ["Be", "Nâu", "Đen"]
         },
         {
             id: "5",
@@ -149,10 +109,51 @@ function getSampleProducts() {
             category: "dress",
             price: 1500000,
             image: "srcimg/default-product.jpg",
-            description: "Váy công sở phong cách Hàn Quốc",
+            description: "Váy công sở phong cách Hàn Quốc, chất liệu linen cao cấp, thoáng mát, form dáng chuẩn.",
             stock: 12,
             featured: true,
-            active: true
+            active: true,
+            sizes: ["S", "M", "L"],
+            colors: ["Đen", "Trắng", "Hồng"]
+        },
+        {
+            id: "6",
+            name: "Túi xách da thời trang",
+            category: "accessories",
+            price: 1800000,
+            image: "srcimg/default-product.jpg",
+            description: "Túi xách da bò cao cấp, khóa kim loại sang trọng, nhiều ngăn tiện lợi.",
+            stock: 7,
+            featured: true,
+            active: true,
+            sizes: ["M"],
+            colors: ["Đen", "Nâu", "Đỏ"]
+        },
+        {
+            id: "7",
+            name: "Đầm suông công sở",
+            category: "dress",
+            price: 1350000,
+            image: "srcimg/default-product.jpg",
+            description: "Đầm suông thanh lịch, tay lỡ, chất liệu phi bóng cao cấp.",
+            stock: 9,
+            featured: false,
+            active: true,
+            sizes: ["S", "M", "L"],
+            colors: ["Xanh", "Đen", "Trắng"]
+        },
+        {
+            id: "8",
+            name: "Áo blazer nữ",
+            category: "jacket",
+            price: 2500000,
+            image: "srcimg/default-product.jpg",
+            description: "Áo blazer form ôm, chất liệu tweed cao cấp, phù hợp dự tiệc và công sở.",
+            stock: 5,
+            featured: true,
+            active: true,
+            sizes: ["S", "M", "L"],
+            colors: ["Hồng", "Đen", "Trắng"]
         }
     ];
 }
@@ -221,6 +222,33 @@ function renderProducts() {
     
     // Add event listeners
     attachProductEvents();
+}
+
+// =========================
+// UPDATE CATEGORY COUNTS
+// =========================
+function updateCategoryCounts() {
+    const products = window.allProducts || [];
+    
+    // Tính số lượng sản phẩm theo danh mục
+    const categoryCounts = {
+        'all': products.length,
+        'dress': products.filter(p => p.category === 'dress').length,
+        'shirt': products.filter(p => p.category === 'shirt').length,
+        'pants': products.filter(p => p.category === 'pants').length,
+        'jacket': products.filter(p => p.category === 'jacket').length,
+        'accessories': products.filter(p => p.category === 'accessories').length,
+        'evening': products.filter(p => p.category === 'evening').length
+    };
+    
+    // Cập nhật UI
+    document.querySelectorAll('.categories a[data-category]').forEach(link => {
+        const category = link.dataset.category;
+        const countEl = link.querySelector('.category-count');
+        if (countEl && categoryCounts[category] !== undefined) {
+            countEl.textContent = categoryCounts[category];
+        }
+    });
 }
 
 // =========================
@@ -340,6 +368,15 @@ function viewProductDetails(productId) {
             input.value = value + 1;
         }
     });
+    
+    // Close modal
+    const closeBtn = modal.querySelector('.close-modal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
 }
 
 function createProductDetailModal() {
@@ -358,12 +395,6 @@ function createProductDetailModal() {
         </div>
     `;
     document.body.appendChild(modal);
-    
-    // Add close functionality
-    modal.querySelector('.close-modal').addEventListener('click', () => {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    });
     
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -416,7 +447,8 @@ function initFilters() {
     document.querySelectorAll('.size-filter').forEach(btn => {
         btn.addEventListener('click', function() {
             this.classList.toggle('active');
-            filterProductsBySize(this.dataset.size);
+            // Demo - không có filter size thực sự
+            showNotification(`Đã lọc theo kích thước ${this.dataset.size} (Demo)`, 'info');
         });
     });
     
@@ -472,14 +504,6 @@ function filterProductsByPrice(priceRange) {
 }
 
 // =========================
-// FILTER BY SIZE
-// =========================
-function filterProductsBySize(size) {
-    // This is a demo - in a real app, products would have size information
-    showNotification('Đã lọc theo kích thước ' + size, 'info');
-}
-
-// =========================
 // SORT PRODUCTS
 // =========================
 function sortProducts(sortBy) {
@@ -487,8 +511,8 @@ function sortProducts(sortBy) {
     
     switch(sortBy) {
         case 'newest':
-            // Sort by creation date (newest first)
-            products.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            // Demo - sắp xếp theo ID (giả định ID mới hơn là số lớn hơn)
+            products.sort((a, b) => parseInt(b.id) - parseInt(a.id));
             break;
         case 'price-low':
             products.sort((a, b) => a.price - b.price);
@@ -497,7 +521,7 @@ function sortProducts(sortBy) {
             products.sort((a, b) => b.price - a.price);
             break;
         case 'popular':
-            // Sort by featured first, then by name
+            // Sắp xếp: featured trước, sau đó theo tên
             products.sort((a, b) => {
                 if (a.featured && !b.featured) return -1;
                 if (!a.featured && b.featured) return 1;
@@ -577,20 +601,14 @@ function renderFilteredProducts(filteredProducts) {
 // LOAD MORE PRODUCTS
 // =========================
 function loadMoreProducts() {
-    showNotification('Đang tải thêm sản phẩm...', 'info');
+    showNotification('Đã hiển thị tất cả sản phẩm', 'info');
     
-    // In a real app, you would fetch more products from API
-    // For demo, just show a message
-    setTimeout(() => {
-        showNotification('Đã tải xong tất cả sản phẩm', 'success');
-        
-        // Disable the button
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
-        if (loadMoreBtn) {
-            loadMoreBtn.disabled = true;
-            loadMoreBtn.innerHTML = '<i class="fas fa-check"></i> Đã tải hết sản phẩm';
-        }
-    }, 1000);
+    // Disable the button
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.innerHTML = '<i class="fas fa-check"></i> Đã hiển thị tất cả';
+    }
 }
 
 // =========================
