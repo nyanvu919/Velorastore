@@ -1,13 +1,12 @@
 // script/products.js
-import { formatPrice, getCategoryName } from './ui.js';
-import { addToCart } from './cart.js';
+// Xử lý sản phẩm và danh mục
 
-let allProducts = [];
-
-// =================== PRODUCTS INITIALIZATION ===================
-async function initProducts(apiBaseUrl) {
+async function initProducts() {
+    console.log('🔄 Đang tải sản phẩm...');
+    
+    // Load products
     try {
-        const response = await fetch(`${apiBaseUrl}/products`);
+        const response = await fetch('https://velora-api.nyaochen9.workers.dev/api/products');
         if (response.ok) {
             const result = await response.json();
             if (result.success && result.data) {
@@ -19,11 +18,14 @@ async function initProducts(apiBaseUrl) {
             allProducts = getSampleProducts();
         }
     } catch (error) {
-        console.error('Error loading products:', error);
+        console.error('Lỗi tải sản phẩm:', error);
         allProducts = getSampleProducts();
     }
     
+    // Render products
     renderProducts();
+    
+    // Initialize filters
     initFilters();
 }
 
@@ -96,7 +98,6 @@ function getSampleProducts() {
     ];
 }
 
-// =================== RENDER PRODUCTS ===================
 function renderProducts() {
     const productsGrid = document.querySelector('.products-grid');
     if (!productsGrid) return;
@@ -128,11 +129,7 @@ function renderProducts() {
         `;
     }).join('');
     
-    attachProductEvents();
-}
-
-function attachProductEvents() {
-    // Add to cart buttons
+    // Add event listeners
     document.querySelectorAll('.cart-add-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
@@ -140,24 +137,21 @@ function attachProductEvents() {
         });
     });
     
-    // View buttons
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
-            viewProductDetails(productId);
+            showNotification('Xem chi tiết sản phẩm ID: ' + productId);
         });
     });
     
-    // Favorite buttons
     document.querySelectorAll('.favorite-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
-            toggleFavorite(productId);
+            showNotification('Đã thêm vào yêu thích: ' + productId);
         });
     });
 }
 
-// =================== FILTERS ===================
 function initFilters() {
     // Category filters
     document.querySelectorAll('.categories a').forEach(link => {
@@ -176,7 +170,7 @@ function initFilters() {
     const priceFilter = document.querySelector('.price-filter');
     if (priceFilter) {
         priceFilter.addEventListener('change', function() {
-            filterProductsByPrice(this.value);
+            console.log('Filter by price:', this.value);
         });
     }
     
@@ -184,7 +178,7 @@ function initFilters() {
     const sortFilter = document.querySelector('.sort-select');
     if (sortFilter) {
         sortFilter.addEventListener('change', function() {
-            sortProducts(this.value);
+            console.log('Sort by:', this.value);
         });
     }
 }
@@ -201,66 +195,29 @@ function filterProductsByCategory(category) {
     });
 }
 
-function filterProductsByPrice(range) {
-    console.log('Filter by price:', range);
-    // Implement price filtering logic here
-}
-
-function sortProducts(sortBy) {
-    console.log('Sort by:', sortBy);
-    // Implement sorting logic here
-}
-
-// =================== PRODUCT DETAILS ===================
-function viewProductDetails(productId) {
+// Make functions available globally
+window.addToCart = function(productId) {
     const product = allProducts.find(p => p.id === productId);
     if (!product) return;
     
-    // Create and show product details modal
-    const modalContent = `
-        <div class="product-details">
-            <div class="product-details-img" style="background-image: url('${product.image}')"></div>
-            <div class="product-details-info">
-                <h2>${product.name}</h2>
-                <p class="product-category">${getCategoryName(product.category)}</p>
-                <p class="product-price-large">${formatPrice(product.price)}</p>
-                <p class="product-description">${product.description}</p>
-                
-                <div class="product-actions" style="margin-top: 20px;">
-                    <button class="btn btn-primary" id="addToCartDetail" data-id="${product.id}">
-                        <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
-                    </button>
-                    <button class="btn btn-secondary">
-                        <i class="fas fa-heart"></i> Yêu thích
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+    const existingItem = cart.find(item => item.id === productId);
     
-    // You can create a modal for product details here
-    console.log('Viewing product:', product.name);
-}
-
-function toggleFavorite(productId) {
-    let favorites = JSON.parse(localStorage.getItem('velora_favorites')) || [];
-    const index = favorites.indexOf(productId);
-    
-    if (index >= 0) {
-        favorites.splice(index, 1);
-        console.log('Removed from favorites');
+    if (existingItem) {
+        existingItem.quantity += 1;
     } else {
-        favorites.push(productId);
-        console.log('Added to favorites');
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            image: product.image
+        });
     }
     
-    localStorage.setItem('velora_favorites', JSON.stringify(favorites));
-}
-
-// =================== EXPORTS ===================
-export {
-    allProducts,
-    initProducts,
-    renderProducts,
-    getAllProducts: () => allProducts
+    // Save to localStorage
+    localStorage.setItem('velora_cart', JSON.stringify(cart));
+    
+    // Update UI
+    updateCartCount();
+    showNotification(`Đã thêm "${product.name}" vào giỏ hàng`, 'success');
 };
