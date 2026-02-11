@@ -1005,3 +1005,184 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* ====== ADMIN STYLES ====== */
+/* ... keep all your existing CSS ... */
+
+/* Add these new styles to your existing admin-style.css */
+
+/* Stock warnings */
+.stock-warning {
+    color: #F56565;
+    margin-left: 5px;
+}
+
+/* Full width elements */
+.full-width {
+    width: 100% !important;
+}
+
+/* Text center */
+.text-center {
+    text-align: center !important;
+}
+
+/* Notification badges */
+.notification-badge {
+    display: none;
+    background: #F56565;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+}
+
+/* Warning text */
+.warning {
+    color: #ED8936 !important;
+}
+
+/* Dashboard warnings */
+.dashboard-warning {
+    background: #FEF3C7;
+    border: 1px solid #F59E0B;
+    border-radius: var(--radius);
+    padding: 15px;
+    margin: 10px 0;
+    display: none;
+}
+
+.dashboard-warning i {
+    color: #F59E0B;
+    margin-right: 10px;
+}
+
+/* Order details styles */
+.order-details {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.order-details .detail-row {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.order-details .detail-row:last-child {
+    border-bottom: none;
+}
+
+.order-details .order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: var(--light);
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.order-details .total-row {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+/* Customer details */
+.customer-details {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Status edit form */
+.order-status-edit {
+    padding: 20px 0;
+}
+
+/* Responsive table improvements */
+@media (max-width: 768px) {
+    .data-table {
+        font-size: 0.9em;
+    }
+    
+    .data-table td, .data-table th {
+        padding: 10px 5px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .action-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: var(--light-gray);
+}
+
+/* Chart improvements */
+.chart-container canvas {
+    max-height: 300px;
+}
+
+/* Form improvements */
+.admin-form .form-group label.required:after {
+    content: " *";
+    color: var(--danger);
+}
+
+/* Toast variations */
+.toast.success {
+    background: var(--success);
+}
+
+.toast.error {
+    background: var(--danger);
+}
+
+.toast.warning {
+    background: var(--warning);
+}
+
+.toast.info {
+    background: var(--info);
+}
