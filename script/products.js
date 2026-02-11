@@ -1,17 +1,35 @@
 // script/products.js
-  export function initProducts() {      
+import { addToCart } from './cart.js';
+import { showNotification, formatPrice } from './utils.js';
+
+// =========================
+// INIT PRODUCTS
+// =========================
+export async function initProducts() {      
     console.log('🔄 Đang tải sản phẩm...');
     
     // Load sample products
-    allProducts = getSampleProducts();
+    const products = getSampleProducts();
+    window.allProducts = products;
     
     // Render products
     renderProducts();
     
     // Initialize filters
     initFilters();
+    
+    // Load more button
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMoreProducts);
+    }
+    
+    return products;
 }
 
+// =========================
+// SAMPLE PRODUCTS
+// =========================
 function getSampleProducts() {
     return [
         {
@@ -81,11 +99,16 @@ function getSampleProducts() {
     ];
 }
 
+// =========================
+// RENDER PRODUCTS
+// =========================
 function renderProducts() {
     const productsGrid = document.querySelector('.products-grid');
     if (!productsGrid) return;
     
-    productsGrid.innerHTML = allProducts.map(product => {
+    const products = window.allProducts || [];
+    
+    productsGrid.innerHTML = products.map(product => {
         return `
             <div class="product-card" data-id="${product.id}" data-category="${product.category}">
                 <div class="product-img" style="background-image: url('${product.image}')">
@@ -113,6 +136,13 @@ function renderProducts() {
     }).join('');
     
     // Add event listeners
+    attachProductEvents();
+}
+
+// =========================
+// ATTACH PRODUCT EVENTS
+// =========================
+function attachProductEvents() {
     document.querySelectorAll('.cart-add-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
@@ -123,18 +153,24 @@ function renderProducts() {
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
-            showNotification('Xem chi tiết sản phẩm ID: ' + productId);
+            showNotification('Xem chi tiết sản phẩm ID: ' + productId, 'info');
         });
     });
     
     document.querySelectorAll('.favorite-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
-            showNotification('Đã thêm vào yêu thích: ' + productId);
+            const product = (window.allProducts || []).find(p => p.id == productId);
+            if (product) {
+                showNotification(`Đã thêm "${product.name}" vào yêu thích`, 'success');
+            }
         });
     });
 }
 
+// =========================
+// INIT FILTERS
+// =========================
 function initFilters() {
     // Category filters
     document.querySelectorAll('.categories a').forEach(link => {
@@ -148,20 +184,168 @@ function initFilters() {
             filterProductsByCategory(category);
         });
     });
+    
+    // Price filter
+    const priceFilter = document.querySelector('.price-filter');
+    if (priceFilter) {
+        priceFilter.addEventListener('change', function() {
+            filterProductsByPrice(this.value);
+        });
+    }
+    
+    // Size filters
+    document.querySelectorAll('.size-filter').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            // Thực hiện lọc theo size
+            showNotification('Đã lọc theo kích thước ' + this.dataset.size, 'info');
+        });
+    });
+    
+    // Sort filter
+    const sortSelect = document.querySelector('.sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            sortProducts(this.value);
+        });
+    }
 }
 
+// =========================
+// FILTER BY CATEGORY
+// =========================
 function filterProductsByCategory(category) {
     const productCards = document.querySelectorAll('.product-card');
+    const countElement = document.querySelector('.category-count[data-category="' + category + '"]');
+    
+    let visibleCount = 0;
     
     productCards.forEach(card => {
         if (category === 'all' || card.getAttribute('data-category') === category) {
             card.style.display = 'block';
+            visibleCount++;
         } else {
             card.style.display = 'none';
         }
     });
+    
+    showNotification(`Hiển thị ${visibleCount} sản phẩm`, 'info');
 }
 
+// =========================
+// FILTER BY PRICE
+// =========================
+function filterProductsByPrice(priceRange) {
+    const products = window.allProducts || [];
+    const filteredProducts = products.filter(product => {
+        switch(priceRange) {
+            case 'low': return product.price < 2000000;
+            case 'medium': return product.price >= 2000000 && product.price <= 5000000;
+            case 'high': return product.price > 5000000;
+            default: return true;
+        }
+    });
+    
+    renderFilteredProducts(filteredProducts);
+    showNotification(`Lọc theo mức giá: ${getPriceRangeName(priceRange)}`, 'info');
+}
+
+// =========================
+// SORT PRODUCTS
+// =========================
+function sortProducts(sortBy) {
+    const products = [...(window.allProducts || [])];
+    
+    switch(sortBy) {
+        case 'newest':
+            // Giả sử sản phẩm mới thêm sau
+            products.reverse();
+            break;
+        case 'price-low':
+            products.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-high':
+            products.sort((a, b) => b.price - a.price);
+            break;
+        case 'popular':
+            // Giả sử sản phẩm đầu tiên là phổ biến nhất
+            break;
+    }
+    
+    renderFilteredProducts(products);
+    showNotification(`Sắp xếp theo: ${getSortName(sortBy)}`, 'info');
+}
+
+// =========================
+// RENDER FILTERED PRODUCTS
+// =========================
+function renderFilteredProducts(filteredProducts) {
+    const productsGrid = document.querySelector('.products-grid');
+    if (!productsGrid) return;
+    
+    productsGrid.innerHTML = filteredProducts.map(product => {
+        return `
+            <div class="product-card" data-id="${product.id}" data-category="${product.category}">
+                <div class="product-img" style="background-image: url('${product.image}')">
+                    <div class="product-overlay">
+                        <div class="product-actions">
+                            <button class="action-btn view-btn" data-id="${product.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn cart-add-btn" data-id="${product.id}">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button class="action-btn favorite-btn" data-id="${product.id}">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">${product.name}</h3>
+                    <p class="product-category">${getCategoryName(product.category)}</p>
+                    <p class="product-price">${formatPrice(product.price)}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    attachProductEvents();
+}
+
+// =========================
+// LOAD MORE PRODUCTS
+// =========================
+function loadMoreProducts() {
+    // Thêm sản phẩm giả cho demo
+    const newProducts = [
+        {
+            id: "9",
+            name: "Áo dài cách tân",
+            category: "dress",
+            price: 2500000,
+            image: "srcimg/sample.jpg",
+            description: "Áo dài cách tân hiện đại"
+        },
+        {
+            id: "10",
+            name: "Set vest nữ cao cấp",
+            category: "jacket",
+            price: 3800000,
+            image: "srcimg/sample.jpg",
+            description: "Set vest công sở"
+        }
+    ];
+    
+    window.allProducts = [...window.allProducts, ...newProducts];
+    
+    renderProducts();
+    showNotification('Đã tải thêm 2 sản phẩm mới', 'success');
+}
+
+// =========================
+// HELPER FUNCTIONS
+// =========================
 function getCategoryName(categoryKey) {
     const categories = {
         'dress': 'ĐẦM/VÁY',
@@ -174,9 +358,22 @@ function getCategoryName(categoryKey) {
     return categories[categoryKey] || categoryKey.toUpperCase();
 }
 
-function formatPrice(price) {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
-    }).format(price);
+function getPriceRangeName(range) {
+    const ranges = {
+        'all': 'Tất cả mức giá',
+        'low': 'Dưới 2 triệu',
+        'medium': '2-5 triệu',
+        'high': 'Trên 5 triệu'
+    };
+    return ranges[range] || range;
+}
+
+function getSortName(sort) {
+    const sorts = {
+        'popular': 'Phổ biến nhất',
+        'newest': 'Mới nhất',
+        'price-low': 'Giá thấp đến cao',
+        'price-high': 'Giá cao đến thấp'
+    };
+    return sorts[sort] || sort;
 }
