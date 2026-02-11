@@ -1,3 +1,522 @@
+// ====== API CONFIGURATION ======
+const API_BASE_URL = ''; // Empty string for same-origin requests
+const ADMIN_API_KEY = 'velora-admin-secret-key-2024'; // This should match your Worker env.ADMIN_API_KEY
+
+// API Headers
+const adminHeaders = {
+    'Content-Type': 'application/json',
+    'X-API-Key': ADMIN_API_KEY
+};
+
+// ====== API FUNCTIONS ======
+async function fetchAPI(endpoint, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers: {
+                ...adminHeaders,
+                ...options.headers
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'API request failed');
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('API Error:', error);
+        showToast(error.message || 'Không thể kết nối với server', 'error');
+        throw error;
+    }
+}
+
+// Dashboard functions
+async function loadDashboardStats() {
+    try {
+        const data = await fetchAPI('/api/admin/stats');
+        
+        // Update dashboard cards
+        document.querySelectorAll('.card-value')[0].textContent = data.data.totalProducts || 0;
+        document.querySelectorAll('.card-value')[1].textContent = data.data.totalOrders || 0;
+        document.querySelectorAll('.card-value')[2].textContent = formatCurrency(data.data.totalRevenue || 0);
+        document.querySelectorAll('.card-value')[3].textContent = data.data.totalOrders || 0; // Simplified for customers
+        
+        // Update recent orders
+        await loadRecentOrders();
+        
+    } catch (error) {
+        // Fallback to static data
+        console.log('Using fallback data for dashboard');
+    }
+}
+
+async function loadRecentOrders() {
+    try {
+        const data = await fetchAPI('/api/admin/orders?limit=5');
+        const ordersBody = document.getElementById('recent-orders-body');
+        
+        if (ordersBody && data.data) {
+            ordersBody.innerHTML = '';
+            data.data.slice(0, 5).forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.id || order.orderNumber}</td>
+                    <td>${order.customerName || 'Khách hàng'}</td>
+                    <td>${order.itemCount || order.items?.length || 0} sản phẩm</td>
+                    <td>${formatCurrency(order.totalAmount || 0)}</td>
+                    <td><span class="status-badge status-${order.status || 'pending'}">${getStatusText(order.status || 'pending')}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view-btn" onclick="viewOrderDetails('${order.id || order.orderNumber}')" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit-btn" onclick="editOrderStatus('${order.id || order.orderNumber}')" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                ordersBody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.log('Using fallback data for orders');
+    }
+}
+
+// Products functions
+async function loadProducts() {
+    try {
+        const data = await fetchAPI('/api/admin/products');
+        const productsBody = document.getElementById('products-table-body');
+        
+        if (productsBody && data.data) {
+            productsBody.innerHTML = '';
+            data.data.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>#${product.id}</td>
+                    <td><div class="product-thumb" style="background-image: url('${product.image}')"></div></td>
+                    <td>${product.name}</td>
+                    <td>${getCategoryText(product.category)}</td>
+                    <td>${formatCurrency(product.price)}</td>
+                    <td>${product.stock || 0}</td>
+                    <td>
+                        <span class="status-badge status-${product.stock > 5 ? 'active' : product.stock > 0 ? 'low' : 'out'}">
+                            ${getProductStatusText(product.stock > 5 ? 'active' : product.stock > 0 ? 'low' : 'out')}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit-btn" onclick="editProduct('${product.id}')" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteProduct('${product.id}', '${product.name}')" title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                productsBody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.log('Using fallback data for products');
+    }
+}
+
+// Orders functions
+async function loadAllOrders() {
+    try {
+        const filter = document.getElementById('order-filter')?.value || 'all';
+        const data = await fetchAPI('/api/admin/orders');
+        const ordersBody = document.getElementById('orders-table-body');
+        
+        if (ordersBody && data.data) {
+            ordersBody.innerHTML = '';
+            
+            const filteredOrders = filter === 'all' 
+                ? data.data 
+                : data.data.filter(order => order.status === filter);
+            
+            filteredOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.id || order.orderNumber}</td>
+                    <td>${formatDate(order.createdAt)}</td>
+                    <td>${order.customerName || 'Khách hàng'}</td>
+                    <td>${order.itemCount || order.items?.length || 0} sản phẩm</td>
+                    <td>${formatCurrency(order.totalAmount || 0)}</td>
+                    <td><span class="status-badge status-${order.status || 'pending'}">${getStatusText(order.status || 'pending')}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view-btn" onclick="viewOrderDetails('${order.id || order.orderNumber}')" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit-btn" onclick="editOrderStatus('${order.id || order.orderNumber}')" title="Cập nhật trạng thái">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                ordersBody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.log('Using fallback data for all orders');
+    }
+}
+
+// Customers functions
+async function loadCustomers() {
+    try {
+        const data = await fetchAPI('/api/admin/customers');
+        const customersBody = document.getElementById('customers-table-body');
+        
+        if (customersBody && data.data) {
+            customersBody.innerHTML = '';
+            data.data.forEach(customer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>#${customer.id || 'CUST' + customer.email?.hashCode()}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.phone || 'Chưa cập nhật'}</td>
+                    <td>${customer.orderCount || 0}</td>
+                    <td>${formatCurrency(customer.totalSpent || 0)}</td>
+                    <td>${formatDate(customer.joinDate)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view-btn" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                customersBody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.log('Using fallback data for customers');
+    }
+}
+
+// ====== FORM HANDLERS ======
+async function submitProductForm(formData) {
+    try {
+        const response = await fetchAPI('/api/admin/products', {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        showToast('Sản phẩm đã được thêm thành công!');
+        
+        // Reload products list
+        await loadProducts();
+        
+        // Switch to products view
+        document.querySelector('a[data-section="products"]').click();
+        
+        return response;
+    } catch (error) {
+        showToast('Lỗi khi thêm sản phẩm', 'error');
+        throw error;
+    }
+}
+
+async function updateProduct(productId, formData) {
+    try {
+        const response = await fetchAPI(`/api/admin/products/${productId}`, {
+            method: 'PUT',
+            body: JSON.stringify(formData)
+        });
+        
+        showToast('Sản phẩm đã được cập nhật!');
+        await loadProducts();
+        
+        return response;
+    } catch (error) {
+        showToast('Lỗi khi cập nhật sản phẩm', 'error');
+        throw error;
+    }
+}
+
+async function deleteProduct(productId, productName) {
+    showConfirm(`Bạn có chắc chắn muốn xóa sản phẩm "${productName}"?`, async () => {
+        try {
+            await fetchAPI(`/api/admin/products/${productId}`, {
+                method: 'DELETE'
+            });
+            
+            showToast('Sản phẩm đã được xóa!');
+            await loadProducts();
+        } catch (error) {
+            showToast('Lỗi khi xóa sản phẩm', 'error');
+        }
+    });
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        await fetchAPI(`/api/admin/orders/${orderId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        showToast('Trạng thái đơn hàng đã được cập nhật!');
+        await loadRecentOrders();
+        await loadAllOrders();
+    } catch (error) {
+        showToast('Lỗi khi cập nhật trạng thái', 'error');
+    }
+}
+
+// ====== HELPER FUNCTIONS ======
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(amount);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('vi-VN');
+}
+
+// String hash function for customer IDs
+String.prototype.hashCode = function() {
+    let hash = 0;
+    for (let i = 0; i < this.length; i++) {
+        const char = this.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return Math.abs(hash).toString().slice(0, 6);
+};
+
+// ====== MODAL FUNCTIONS ======
+function viewOrderDetails(orderId) {
+    fetchAPI(`/api/admin/orders/${orderId}`)
+        .then(data => {
+            const modal = document.getElementById('editModal');
+            const modalBody = modal.querySelector('.modal-body');
+            
+            modalBody.innerHTML = `
+                <div class="order-details">
+                    <h4>Chi tiết đơn hàng: ${data.data.id}</h4>
+                    <div class="detail-row">
+                        <strong>Khách hàng:</strong> ${data.data.customer?.name || 'N/A'}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Email:</strong> ${data.data.customer?.email || 'N/A'}
+                    </div>
+                    <div class="detail-row">
+                        <strong>SĐT:</strong> ${data.data.customer?.phone || 'N/A'}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Địa chỉ:</strong> ${data.data.customer?.address || 'N/A'}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Ngày đặt:</strong> ${formatDate(data.data.createdAt)}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Trạng thái:</strong> <span class="status-badge status-${data.data.status}">${getStatusText(data.data.status)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Tổng tiền:</strong> ${formatCurrency(data.data.totalAmount)}
+                    </div>
+                    
+                    <h5 style="margin-top: 20px;">Sản phẩm:</h5>
+                    <div class="order-items">
+                        ${data.data.items?.map(item => `
+                            <div class="order-item">
+                                <div>${item.name || 'Sản phẩm'}</div>
+                                <div>Số lượng: ${item.quantity || 1}</div>
+                                <div>Giá: ${formatCurrency(item.price || 0)}</div>
+                            </div>
+                        `).join('') || '<p>Không có thông tin sản phẩm</p>'}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        })
+        .catch(error => {
+            showToast('Không thể tải chi tiết đơn hàng', 'error');
+        });
+}
+
+function editOrderStatus(orderId) {
+    const modal = document.getElementById('editModal');
+    const modalBody = modal.querySelector('.modal-body');
+    
+    modalBody.innerHTML = `
+        <h4>Cập nhật trạng thái đơn hàng</h4>
+        <p>Đơn hàng: ${orderId}</p>
+        
+        <div class="form-group">
+            <label for="order-status-select">Trạng thái mới:</label>
+            <select id="order-status-select" class="form-control">
+                <option value="pending">Chờ xử lý</option>
+                <option value="processing">Đang xử lý</option>
+                <option value="shipped">Đã giao hàng</option>
+                <option value="delivered">Đã nhận hàng</option>
+                <option value="cancelled">Đã hủy</option>
+            </select>
+        </div>
+        
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="btn btn-secondary close-modal">Hủy</button>
+            <button class="btn btn-primary" onclick="saveOrderStatus('${orderId}')">Lưu thay đổi</button>
+        </div>
+    `;
+    
+    modal.classList.add('active');
+}
+
+function saveOrderStatus(orderId) {
+    const newStatus = document.getElementById('order-status-select').value;
+    updateOrderStatus(orderId, newStatus);
+    document.querySelector('.close-modal').click();
+}
+
+function editProduct(productId) {
+    fetchAPI(`/api/admin/products`)
+        .then(data => {
+            const product = data.data.find(p => p.id === productId);
+            if (!product) {
+                showToast('Không tìm thấy sản phẩm', 'error');
+                return;
+            }
+            
+            const modal = document.getElementById('editModal');
+            const modalBody = modal.querySelector('.modal-body');
+            
+            modalBody.innerHTML = `
+                <h4>Chỉnh sửa sản phẩm</h4>
+                <form id="edit-product-form" class="admin-form" style="padding: 0; box-shadow: none;">
+                    <div class="form-group">
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="edit-product-name" value="${product.name}" class="form-control">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Danh mục</label>
+                            <select id="edit-product-category" class="form-control">
+                                <option value="dress" ${product.category === 'dress' ? 'selected' : ''}>Đầm/Váy</option>
+                                <option value="shirt" ${product.category === 'shirt' ? 'selected' : ''}>Áo sơ mi</option>
+                                <option value="pants" ${product.category === 'pants' ? 'selected' : ''}>Quần</option>
+                                <option value="jacket" ${product.category === 'jacket' ? 'selected' : ''}>Áo khoác</option>
+                                <option value="accessories" ${product.category === 'accessories' ? 'selected' : ''}>Phụ kiện</option>
+                                <option value="evening" ${product.category === 'evening' ? 'selected' : ''}>Đầm dạ hội</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Giá (VND)</label>
+                            <input type="number" id="edit-product-price" value="${product.price}" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Số lượng tồn kho</label>
+                            <input type="number" id="edit-product-stock" value="${product.stock || 0}" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>URL hình ảnh</label>
+                            <input type="text" id="edit-product-image" value="${product.image}" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        <textarea id="edit-product-description" rows="3" class="form-control">${product.description}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="edit-product-featured" ${product.featured ? 'checked' : ''}>
+                            <span>Sản phẩm nổi bật</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="edit-product-active" ${product.active !== false ? 'checked' : ''}>
+                            <span>Hiển thị sản phẩm</span>
+                        </label>
+                    </div>
+                    
+                    <div class="modal-actions" style="margin-top: 20px;">
+                        <button type="button" class="btn btn-secondary close-modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" onclick="saveProductChanges('${productId}')">Lưu thay đổi</button>
+                    </div>
+                </form>
+            `;
+            
+            modal.classList.add('active');
+        })
+        .catch(error => {
+            showToast('Không thể tải thông tin sản phẩm', 'error');
+        });
+}
+
+function saveProductChanges(productId) {
+    const formData = {
+        name: document.getElementById('edit-product-name').value,
+        category: document.getElementById('edit-product-category').value,
+        price: Number(document.getElementById('edit-product-price').value),
+        stock: Number(document.getElementById('edit-product-stock').value),
+        image: document.getElementById('edit-product-image').value,
+        description: document.getElementById('edit-product-description').value,
+        featured: document.getElementById('edit-product-featured').checked,
+        active: document.getElementById('edit-product-active').checked
+    };
+    
+    updateProduct(productId, formData);
+    document.querySelector('.close-modal').click();
+}
+
+// ====== INITIALIZATION ======
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // Load data when switching sections
+    const navLinks = document.querySelectorAll('.admin-nav a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const sectionId = this.dataset.section;
+            
+            // Load data based on section
+            setTimeout(() => {
+                switch(sectionId) {
+                    case 'dashboard':
+                        loadDashboardStats();
+                        break;
+                    case 'products':
+                        loadProducts();
+                        break;
+                    case 'orders':
+                        loadAllOrders();
+                        break;
+                    case 'customers':
+                        loadCustomers();
+                        break;
+                }
+            }, 100);
+        });
+    });
+    
+    // Initial load for dashboard
+    loadDashboardStats();
+});
 // ====== ADMIN SCRIPT ======
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize components
