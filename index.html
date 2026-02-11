@@ -250,7 +250,65 @@
             </div>
         </div>
     </footer>
+<!-- Add this before </body> in index.html -->
+<!-- Login Modal -->
+<div class="modal" id="loginModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Đăng nhập</h2>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Login form here -->
+        </div>
+    </div>
+</div>
 
+<!-- Cart Modal -->
+<div class="modal" id="cartModal">
+    <div class="modal-content cart-modal">
+        <div class="modal-header">
+            <h2>Giỏ hàng của bạn</h2>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Tạm tính:</span>
+                    <span class="price">0 VND</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Tổng cộng:</span>
+                    <span class="price">0 VND</span>
+                </div>
+                <button class="btn btn-primary full-width" style="margin-top: 20px;">
+                    Thanh toán
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Modal -->
+<div class="modal" id="searchModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Tìm kiếm sản phẩm</h2>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm...">
+            </div>
+            <div class="search-results" id="searchResults">
+                <!-- Search results will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Include Modals from original index.html -->
     <script src="script.js"></script>
 </body>
