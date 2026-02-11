@@ -27,9 +27,14 @@ async function checkAdminAuth() {
     const isAuthenticated = localStorage.getItem('admin_authenticated');
     const savedApiKey = localStorage.getItem('admin_api_key');
     
+    console.log('Auth check - isAuthenticated:', isAuthenticated);
+    console.log('Auth check - savedApiKey:', savedApiKey);
+    
     if (!isAuthenticated || !savedApiKey) {
         // Prompt for API key
-        const apiKey = prompt('Vui lòng nhập API Key để truy cập trang quản trị:');
+        const apiKey = prompt('🔐 Vui lòng nhập API Key để truy cập trang quản trị:');
+        
+        console.log('User entered API Key:', apiKey);
         
         if (!apiKey) {
             window.location.href = 'index.html';
@@ -38,6 +43,8 @@ async function checkAdminAuth() {
         
         // Test API key
         try {
+            console.log('Testing API key...');
+            
             const response = await fetch('/api/admin/health', {
                 method: 'GET',
                 headers: {
@@ -45,22 +52,27 @@ async function checkAdminAuth() {
                 }
             });
             
-            const data = await response.json();
+            console.log('Response status:', response.status);
             
-            if (response.ok && data.admin === true) {
+            const data = await response.json();
+            console.log('Response data:', data);
+            
+            if (response.ok && (data.admin === true || data.success === true)) {
                 localStorage.setItem('admin_authenticated', 'true');
                 localStorage.setItem('admin_api_key', apiKey);
-                showToast('Xác thực thành công!');
+                showToast('✅ Xác thực thành công!');
                 loadDashboardData();
             } else {
-                alert('API Key không hợp lệ!');
+                alert('❌ API Key không hợp lệ!');
                 window.location.href = 'index.html';
             }
         } catch (error) {
-            alert('Không thể kết nối đến server!');
+            console.error('Auth error:', error);
+            alert('⚠️ Không thể kết nối đến server!');
             window.location.href = 'index.html';
         }
     } else {
+        console.log('Already authenticated, loading dashboard...');
         loadDashboardData();
     }
 }
