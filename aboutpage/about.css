@@ -1,4 +1,4 @@
-/* about.css - CSS cho trang About */
+/* aboutpage/about.css */
 
 /* ====== PAGE HERO ====== */
 .page-hero {
@@ -204,20 +204,7 @@
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
-    transform: translateY(20px);
-    opacity: 0;
 }
-
-.achievement-item.animate {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-/* Hiệu ứng delay cho từng item */
-.achievement-item:nth-child(1) { transition-delay: 0.1s; }
-.achievement-item:nth-child(2) { transition-delay: 0.2s; }
-.achievement-item:nth-child(3) { transition-delay: 0.3s; }
-.achievement-item:nth-child(4) { transition-delay: 0.4s; }
 
 .achievement-item:hover {
     transform: translateY(-5px);
@@ -236,17 +223,6 @@
     font-size: 1.2rem;
     color: #333;
     font-weight: 600;
-}
-
-/* Counter animation */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.achievement-number.animating {
-    animation: pulse 0.5s ease;
 }
 
 /* ====== CALL TO ACTION ====== */
@@ -283,12 +259,92 @@
     transition: all 0.3s;
     border: none;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .cta .btn-primary:hover {
     background: #f8f9fa;
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* ====== FOOTER (FIX MÀU TÍM) ====== */
+.footer {
+    background: #2c3e50; /* Màu xanh đậm thay vì tím */
+    color: white;
+    padding: 60px 0 20px;
+}
+
+.footer .logo-text {
+    color: white;
+}
+
+.footer .logo-sub {
+    color: #ddd;
+}
+
+.footer-col h3 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.footer-col ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-col ul li {
+    margin-bottom: 10px;
+    color: #ddd;
+}
+
+.footer-col ul li a {
+    color: #ddd;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: white;
+}
+
+.footer-col ul li i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.social-icons a {
+    color: white;
+    background: rgba(255,255,255,0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.social-icons a:hover {
+    background: #764ba2;
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    color: #ddd;
+    font-size: 14px;
 }
 
 /* ====== MODAL STYLES ====== */
@@ -356,7 +412,7 @@
     padding: 20px;
 }
 
-/* Cart Modal Specific */
+/* Cart Modal */
 .cart-modal .modal-content {
     max-width: 800px;
 }
@@ -531,53 +587,7 @@
     padding: 40px 20px;
 }
 
-.search-results-grid {
-    display: grid;
-    gap: 15px;
-}
-
-.search-result-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.search-result-item:hover {
-    background: #f8f9fa;
-}
-
-.search-result-img {
-    width: 60px;
-    height: 60px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 5px;
-    margin-right: 15px;
-}
-
-.search-result-info h5 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-    color: #333;
-}
-
-.search-result-category {
-    color: #666;
-    font-size: 14px;
-    margin: 0 0 5px 0;
-}
-
-.search-result-price {
-    color: #764ba2;
-    font-weight: 600;
-    margin: 0;
-}
-
-/* ====== RESPONSIVE ABOUT ====== */
+/* ====== RESPONSIVE ====== */
 @media (max-width: 992px) {
     .page-hero {
         height: 350px;
@@ -630,6 +640,11 @@
     .modal-content {
         width: 95%;
     }
+    
+    .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -651,5 +666,9 @@
     
     .cart-modal .modal-content {
         width: 95%;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
     }
 }
