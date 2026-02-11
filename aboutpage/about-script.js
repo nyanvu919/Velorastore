@@ -4,6 +4,7 @@ import { openModal, closeModal, showNotification, performSearch } from '../scrip
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Khởi tạo trang About...');
     
+    addModalsToPage();
     initCommonFunctions();
     initCart();
     initNavigation();
@@ -26,6 +27,74 @@ function initCommonFunctions() {
             e.stopPropagation();
             openLoginModal();
         });
+    }
+    
+    // Thêm sự kiện cho modal switching
+    setupModalSwitching();
+}
+
+// =========================
+// SETUP MODAL SWITCHING
+// =========================
+function setupModalSwitching() {
+    // Switch từ login sang register
+    const switchToRegister = document.getElementById('switchToRegister');
+    if (switchToRegister) {
+        switchToRegister.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal(document.getElementById('loginModal'));
+            openRegisterModal();
+        });
+    }
+    
+    // Switch từ register sang login
+    const switchToLogin = document.getElementById('switchToLogin');
+    if (switchToLogin) {
+        switchToLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal(document.getElementById('registerModal'));
+            openLoginModal();
+        });
+    }
+}
+
+// =========================
+// OPEN REGISTER MODAL
+// =========================
+function openRegisterModal() {
+    openModal('registerModal');
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.reset();
+        
+        registerForm.onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (name && email && phone && password && confirmPassword) {
+                if (password !== confirmPassword) {
+                    showNotification('Mật khẩu xác nhận không khớp', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showNotification('Mật khẩu phải có ít nhất 6 ký tự', 'error');
+                    return;
+                }
+                
+                showNotification('Đăng ký thành công!', 'success');
+                closeModal(document.getElementById('registerModal'));
+                
+                const icon = document.querySelector('#user-btn i');
+                if (icon) icon.className = 'fas fa-user-check';
+            } else {
+                showNotification('Vui lòng nhập đầy đủ thông tin', 'error');
+            }
+        };
     }
 }
 
@@ -360,7 +429,7 @@ function handleCheckout() {
 }
 
 // =========================
-// COUNTER ANIMATION
+// COUNTER ANIMATION (ĐÃ CẢI THIỆN)
 // =========================
 function initCounterAnimation() {
     const section = document.querySelector('.achievements');
@@ -368,46 +437,64 @@ function initCounterAnimation() {
     
     let animated = false;
     
+    function animateAchievementItems() {
+        const items = document.querySelectorAll('.achievement-item');
+        items.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                item.classList.add('animate');
+            }, index * 100);
+        });
+    }
+    
     function animateCounters() {
         if (animated) return;
         
-        const counters = document.querySelectorAll('.achievement-number');
+        // Fade in các item trước
+        animateAchievementItems();
         
-        counters.forEach(counter => {
-            const text = counter.textContent;
-            let target, suffix;
+        // Sau đó animate counters
+        setTimeout(() => {
+            const counters = document.querySelectorAll('.achievement-number');
             
-            if (text.includes('K+')) {
-                target = parseInt(text.replace('K+', '')) * 1000;
-                suffix = 'K+';
-            } else if (text.includes('+')) {
-                target = parseInt(text.replace('+', ''));
-                suffix = '+';
-            } else {
-                target = parseInt(text);
-                suffix = '';
-            }
-            
-            let start = 0;
-            const duration = 1500;
-            const increment = target / (duration / 16);
-            
-            const update = () => {
-                start += increment;
-                if (start < target) {
-                    if (suffix === 'K+') {
-                        counter.textContent = Math.floor(start / 1000) + 'K+';
-                    } else {
-                        counter.textContent = Math.floor(start) + suffix;
-                    }
-                    requestAnimationFrame(update);
+            counters.forEach(counter => {
+                const text = counter.textContent;
+                let target, suffix;
+                
+                if (text.includes('K+')) {
+                    target = parseInt(text.replace('K+', '')) * 1000;
+                    suffix = 'K+';
+                } else if (text.includes('+')) {
+                    target = parseInt(text.replace('+', ''));
+                    suffix = '+';
                 } else {
-                    counter.textContent = text;
+                    target = parseInt(text);
+                    suffix = '';
                 }
-            };
-            
-            update();
-        });
+                
+                let start = 0;
+                const duration = 1500;
+                const increment = target / (duration / 16);
+                
+                const update = () => {
+                    start += increment;
+                    if (start < target) {
+                        if (suffix === 'K+') {
+                            counter.textContent = Math.floor(start / 1000) + 'K+';
+                        } else {
+                            counter.textContent = Math.floor(start) + suffix;
+                        }
+                        requestAnimationFrame(update);
+                    } else {
+                        counter.textContent = text;
+                    }
+                };
+                
+                update();
+            });
+        }, 500);
         
         animated = true;
     }
@@ -415,12 +502,24 @@ function initCounterAnimation() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                setTimeout(animateCounters, 300);
+                animateCounters();
             }
         });
     }, { threshold: 0.3 });
     
     observer.observe(section);
+    
+    // Fallback: nếu không scroll đến section, vẫn animate sau 2s
+    setTimeout(() => {
+        if (!animated) {
+            const sectionTop = section.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if (sectionTop < windowHeight) {
+                animateCounters();
+            }
+        }
+    }, 2000);
 }
 
 // =========================
@@ -574,5 +673,3 @@ function addModalsToPage() {
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 }
-
-addModalsToPage();
