@@ -6,16 +6,18 @@ import { initAuth } from './auth.js';
 
 console.log('🚀 Khởi động Velora Fashion...');
 
-let allProducts = [];
-let cart = [];
+// Biến global
+window.allProducts = [];
+window.cart = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('✅ DOM đã sẵn sàng');
-
+    
+    // Khởi tạo theo thứ tự
     initUI();
+    await initProducts(); // Đợi sản phẩm load trước
     initCart();
-    await initProducts();
     initAuth();
-
+    
     console.log('✅ Ứng dụng đã sẵn sàng!');
 });
