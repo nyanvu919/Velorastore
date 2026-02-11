@@ -1,11 +1,17 @@
 // script/auth.js
+import { openModal, closeModal, showNotification } from './utils.js';
+
+// =========================
+// INIT AUTH
+// =========================
 export function initAuth() {
     console.log('🔄 Khởi tạo hệ thống đăng nhập...');
     
     // User button
     const userBtn = document.getElementById('user-btn');
     if (userBtn) {
-        userBtn.addEventListener('click', function() {
+        userBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
             openLoginModal();
         });
     }
@@ -56,8 +62,26 @@ export function initAuth() {
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
     if (registerForm) registerForm.addEventListener('submit', handleRegister);
     if (forgotPasswordForm) forgotPasswordForm.addEventListener('submit', handleForgotPassword);
+    
+    // Password strength
+    const registerPassword = document.getElementById('registerPassword');
+    if (registerPassword) {
+        registerPassword.addEventListener('input', checkPasswordStrength);
+    }
+    
+    // Social login buttons
+    document.querySelectorAll('.btn-social').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const provider = this.classList.contains('facebook') ? 'Facebook' : 'Google';
+            showNotification(`Đăng nhập với ${provider} (Demo)`, 'info');
+        });
+    });
 }
 
+// =========================
+// OPEN MODALS
+// =========================
 function openLoginModal() {
     openModal('loginModal');
     const loginForm = document.getElementById('loginForm');
@@ -68,6 +92,13 @@ function openRegisterModal() {
     openModal('registerModal');
     const registerForm = document.getElementById('registerForm');
     if (registerForm) registerForm.reset();
+    
+    // Reset password strength
+    const strengthBar = document.querySelector('.password-strength-bar');
+    if (strengthBar) {
+        strengthBar.style.width = '0%';
+        strengthBar.style.backgroundColor = '#ddd';
+    }
 }
 
 function openForgotPasswordModal() {
@@ -76,6 +107,9 @@ function openForgotPasswordModal() {
     if (forgotForm) forgotForm.reset();
 }
 
+// =========================
+// HANDLE LOGIN
+// =========================
 function handleLogin(e) {
     e.preventDefault();
     
@@ -83,46 +117,26 @@ function handleLogin(e) {
     const password = document.getElementById('loginPassword').value;
     
     if (!email || !password) {
-        showNotification('Vui lòng nhập email và mật khẩu');
+        showNotification('Vui lòng nhập email và mật khẩu', 'error');
         return;
     }
     
-    showNotification('Đăng nhập thành công! (Demo)');
-    closeModal(document.getElementById('loginModal'));
-}
-
-function handleRegister(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('registerName').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
-    const phone = document.getElementById('registerPhone').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    
-    if (!name || !email || !phone || !password) {
-        showNotification('Vui lòng điền đầy đủ thông tin');
+    if (!isValidEmail(email)) {
+        showNotification('Email không hợp lệ', 'error');
         return;
     }
     
-    if (password.length < 6) {
-        showNotification('Mật khẩu phải có ít nhất 6 ký tự');
-        return;
-    }
+    // Demo login - kiểm tra với dữ liệu mẫu
+    const demoUsers = [
+        { email: 'admin@velora.com', password: '123456' },
+        { email: 'user@velora.com', password: '123456' }
+    ];
     
-    showNotification('Đăng ký thành công! (Demo)');
-    closeModal(document.getElementById('registerModal'));
-}
-
-function handleForgotPassword(e) {
-    e.preventDefault();
+    const user = demoUsers.find(u => u.email === email && u.password === password);
     
-    const email = document.getElementById('resetEmail').value.trim();
-    
-    if (!email) {
-        showNotification('Vui lòng nhập email');
-        return;
-    }
-    
-    showNotification(`Đã gửi liên kết đặt lại mật khẩu đến ${email} (Demo)`);
-    closeModal(document.getElementById('forgotPasswordModal'));
-}
+    if (user) {
+        showNotification('Đăng nhập thành công!', 'success');
+        updateUserInfo(email);
+        closeModal(document.getElementById('loginModal'));
+    } else {
+        showNotification('Email hoặc mật khẩu không đ
