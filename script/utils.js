@@ -61,22 +61,51 @@ export function showNotification(message, type = 'info') {
 }
 
 // =========================
-// MODAL FUNCTIONS
+// MODAL FUNCTIONS - FIXED
 // =========================
-export function openModal(modalId) {
-    const modal = document.getElementById(modalId);
+export function openModal(modalOrId) {
+    let modal;
+    
+    if (typeof modalOrId === 'string') {
+        modal = document.getElementById(modalOrId);
+    } else {
+        modal = modalOrId;
+    }
+    
     if (modal) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        console.log('✅ Modal opened:', modal.id);
+        return true;
+    } else {
+        console.error('❌ Cannot open modal - not found:', modalOrId);
+        return false;
     }
 }
 
-export function closeModal(modal) {
+export function closeModal(modalOrId) {
+    let modal;
+    
+    if (typeof modalOrId === 'string') {
+        modal = document.getElementById(modalOrId);
+    } else {
+        modal = modalOrId;
+    }
+    
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
+        console.log('✅ Modal closed:', modal.id);
+        return true;
+    } else {
+        console.error('❌ Cannot close modal - not found:', modalOrId);
+        return false;
     }
 }
+
+// 🟢 THÊM VÀO WINDOW ĐỂ DÙNG TỪ CONSOLE
+window.openModal = openModal;
+window.closeModal = closeModal;
 
 // =========================
 // SEARCH FUNCTION
