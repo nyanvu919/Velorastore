@@ -656,7 +656,7 @@ function showOrderSuccess(orderData) {
 }
 
 // =========================
-// CREATE ORDER SUCCESS MODAL
+/ CREATE ORDER SUCCESS MODAL
 // =========================
 function createOrderSuccessModal() {
     const modal = document.createElement('div');
@@ -690,14 +690,13 @@ function createOrderSuccessModal() {
 }
 
 // =========================
-// EXPORT FUNCTIONS
+// EXPORT FUNCTIONS - CHỈ 1 LẦN DUY NHẤT
 // =========================
 export {
-    cart,
     addToCart,
     removeFromCart,
     updateCartItemQuantity,
     updateCartCount,
-    updateCartModal,
+    updateCartModal,  // Export ở đây
     saveCart
 };
