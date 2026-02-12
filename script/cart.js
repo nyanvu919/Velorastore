@@ -697,6 +697,5 @@ export {
     removeFromCart,
     updateCartItemQuantity,
     updateCartCount,
-    updateCartModal,  // Export ở đây
     saveCart
 };
