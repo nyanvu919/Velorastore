@@ -109,6 +109,9 @@ export function addToCart(productId) {
 // =========================
 // UPDATE CART MODAL
 // =========================
+// =========================
+// UPDATE CART MODAL - FIXED FULL VERSION
+// =========================
 export function updateCartModal() {
     const cartItemsContainer = document.querySelector('.cart-items');
     const cartSummary = document.querySelector('.cart-summary');
@@ -138,6 +141,7 @@ export function updateCartModal() {
         return;
     }
     
+    // Render danh sách sản phẩm trong giỏ hàng
     cartItemsContainer.innerHTML = cart.map(item => `
         <div class="cart-item">
             <div class="cart-item-img">
@@ -166,11 +170,13 @@ export function updateCartModal() {
         </div>
     `).join('');
     
+    // Tính tổng tiền
     const subtotal = cart.reduce(
         (sum, item) => sum + (item.price * item.quantity),
         0
     );
     
+    // 🟢 PHẦN QUAN TRỌNG - RENDER NÚT ĐẶT HÀNG VÀ GẮN EVENT
     cartSummary.innerHTML = `
         <div class="summary-row">
             <span>Tạm tính:</span>
@@ -192,12 +198,23 @@ export function updateCartModal() {
         </button>
     `;
     
-    // Re-attach event listener for the new button
-    const newPlaceOrderBtn = document.getElementById('placeOrderBtn');
-    if (newPlaceOrderBtn) {
-        newPlaceOrderBtn.addEventListener('click', handlePlaceOrder);
-    }
+    // 🟢 QUAN TRỌNG: GẮN EVENT CHO NÚT ĐẶT HÀNG NGAY SAU KHI RENDER
+    setTimeout(() => {
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        if (placeOrderBtn) {
+            // Xóa event cũ để tránh bị gắn nhiều lần
+            placeOrderBtn.removeEventListener('click', handlePlaceOrder);
+            // Gắn event mới
+            placeOrderBtn.addEventListener('click', handlePlaceOrder);
+            // Đánh dấu đã gắn event
+            placeOrderBtn.setAttribute('data-event-attached', 'true');
+            console.log('✅ Đã gắn event cho nút đặt hàng trong cart modal');
+        } else {
+            console.warn('⚠️ Không tìm thấy nút đặt hàng sau khi render');
+        }
+    }, 50); // Delay nhỏ để đảm bảo DOM đã được cập nhật
     
+    // Gắn sự kiện cho các nút tăng/giảm số lượng và xóa sản phẩm
     attachCartItemEvents();
 }
 
