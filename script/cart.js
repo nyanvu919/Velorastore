@@ -298,17 +298,31 @@ function handlePlaceOrder() {
 }
 
 // =========================
-// OPEN ORDER MODAL
+// =========================
+// OPEN ORDER MODAL - FIXED
 // =========================
 function openOrderModal() {
-    const modal = document.getElementById('orderModal') || createOrderModal();
+    console.log('🟢 Mở modal đặt hàng...');
+    
+    const modal = document.getElementById('orderModal');
+    if (!modal) {
+        console.error('❌ Không tìm thấy orderModal trong HTML!');
+        showNotification('Lỗi hệ thống: Thiếu modal đặt hàng', 'error');
+        return;
+    }
+    
     const modalBody = modal.querySelector('.modal-body');
+    if (!modalBody) {
+        console.error('❌ Không tìm thấy modal-body!');
+        return;
+    }
     
     // Calculate total
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shipping = 0;
     const total = subtotal + shipping;
     
+    // Render nội dung ĐỘNG từ giỏ hàng
     modalBody.innerHTML = `
         <div class="order-form">
             <h3>Thông tin đặt hàng</h3>
@@ -390,7 +404,11 @@ function openOrderModal() {
     // Handle form submission
     const orderForm = document.getElementById('orderForm');
     if (orderForm) {
+        // Xóa event cũ để tránh gắn nhiều lần
+        orderForm.removeEventListener('submit', handleOrderSubmit);
+        // Gắn event mới
         orderForm.addEventListener('submit', handleOrderSubmit);
+        console.log('✅ Đã gắn event submit cho form đặt hàng');
     }
 }
 
