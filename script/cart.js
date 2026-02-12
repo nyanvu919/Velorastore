@@ -28,12 +28,28 @@ export function initCart() {
     
     updateCartCount();
     
-    // Đặt hàng
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
-    if (placeOrderBtn) {
-        placeOrderBtn.addEventListener('click', handlePlaceOrder);
-    }
+    // 🟢 QUAN TRỌNG: GẮN EVENT CHO NÚT ĐẶT HÀNG Ở NHIỀU CHỖ
+    attachPlaceOrderEvent();
 }
+
+// =========================
+// ATTACH PLACE ORDER EVENT - THÊM MỚI
+// =========================
+function attachPlaceOrderEvent() {
+    console.log('🔄 Gắn event cho nút đặt hàng...');
+    
+    // Tìm tất cả các nút đặt hàng
+    const placeOrderBtns = document.querySelectorAll('#placeOrderBtn');
+    
+    placeOrderBtns.forEach(btn => {
+        // Xóa event cũ để tránh bị gắn nhiều lần
+        btn.removeEventListener('click', handlePlaceOrder);
+        // Gắn event mới
+        btn.addEventListener('click', handlePlaceOrder);
+        console.log('✅ Đã gắn event cho nút:', btn);
+    });
+}
+
 
 // =========================
 // UPDATE CART COUNT
