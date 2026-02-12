@@ -3,14 +3,11 @@
 // API CONFIGURATION - PRODUCTION
 // =========================
 
-// THAY URL NÀY BẰNG URL WORKER THẬT CỦA BẠN!
-const API_BASE_URL = 'https://velora-api.nyaochen9.workers.dev/'; // 👈 URL THẬT
+// URL THẬT CỦA WORKER - KHÔNG CÓ DẤU / Ở CUỐI
+const API_BASE_URL = 'https://velora-api.nyaochen9.workers.dev'; // ✅ XÓA dấu / cuối
 
-// Fallback URLs (có thể để trống nếu chỉ dùng 1 URL)
-const API_FALLBACK_URLS = [
-    'https://velora-api.nyaochen9.workers.dev/', // URL THẬT
-    // Thêm URL khác nếu có nhiều worker
-];
+// Fallback URLs - để trống
+const API_FALLBACK_URLS = [];
 
 export const API_CONFIG = {
     BASE_URL: API_BASE_URL,
@@ -19,7 +16,7 @@ export const API_CONFIG = {
     RETRY_COUNT: 2,
     
     ENDPOINTS: {
-        HEALTH: '/api/health',
+        HEALTH: '/api/health',           // ✅ CÓ dấu / ở đầu
         PRODUCTS: '/api/products',
         PRODUCT_DETAIL: (id) => `/api/products/${id}`,
         ORDERS: '/api/orders',
@@ -35,13 +32,13 @@ export const API_CONFIG = {
     }
 };
 
-// Hàm lấy API URL
+// Hàm build URL - ĐÃ SỬA LỖI DOUBLE SLASH
 export function getApiBaseUrl() {
     return API_CONFIG.BASE_URL;
 }
 
-// Hàm build full URL
 export function buildApiUrl(endpoint) {
     const baseUrl = getApiBaseUrl();
-    return `${baseUrl}${endpoint}`;
+    // ✅ ĐẢM BẢO CHỈ 1 DẤU / GIỮA BASE URL VÀ ENDPOINT
+    return `${baseUrl}${endpoint}`;  // baseUrl KHÔNG có / cuối, endpoint CÓ / đầu
 }
