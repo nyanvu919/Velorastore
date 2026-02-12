@@ -53,20 +53,19 @@ window.onerror = function(msg, url, lineNo, columnNo, error) {
 // =========================
 // KIỂM TRA KẾT NỐI API
 // =========================
+// =========================
+// KIỂM TRA KẾT NỐI API - SỬA LẠI HOÀN TOÀN
+// =========================
 async function checkAPIHealth() {
     console.log('🔍 Đang kiểm tra kết nối API...');
     console.log('🌐 API Base URL:', getApiBaseUrl());
     
-    // Thử kết nối đến API với timeout
-    const controllers = [];
-    
-    // Thử URL chính trước
+    // THỬ URL CHÍNH
     try {
         const controller = new AbortController();
-        controllers.push(controller);
-        
         const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
         
+        // DÙNG buildApiUrl ĐỂ TẠO URL - QUAN TRỌNG!
         const url = buildApiUrl(API_CONFIG.ENDPOINTS.HEALTH);
         console.log('📡 Testing API:', url);
         
@@ -99,17 +98,17 @@ async function checkAPIHealth() {
         }
     }
     
-    // Nếu URL chính không hoạt động, thử các URL fallback
+    // THỬ FALLBACK URLS (nếu có)
     for (const fallbackUrl of API_CONFIG.FALLBACK_URLS) {
         try {
             console.log('🔄 Thử fallback URL:', fallbackUrl);
             
             const controller = new AbortController();
-            controllers.push(controller);
-            
             const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
             
-            const response = await fetch(`${fallbackUrl}${API_CONFIG.ENDPOINTS.HEALTH}`, {
+            const url = `${fallbackUrl}${API_CONFIG.ENDPOINTS.HEALTH}`;
+            
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -123,7 +122,6 @@ async function checkAPIHealth() {
             
             if (response.ok) {
                 console.log('✅ Fallback API OK:', fallbackUrl);
-                // Cập nhật API URL cho các request sau
                 window.API_BASE_URL = fallbackUrl;
                 return true;
             }
@@ -132,9 +130,6 @@ async function checkAPIHealth() {
             console.warn(`⚠️ Fallback ${fallbackUrl} failed:`, fallbackError.message);
         }
     }
-    
-    // Hủy tất cả controllers
-    controllers.forEach(c => c.abort());
     
     console.log('❌ Không thể kết nối đến API, sử dụng chế độ offline');
     return false;
