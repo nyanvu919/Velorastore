@@ -468,30 +468,56 @@ async function handleOrderSubmit(e) {
         return;
     }
     
-    try {
-        // Show loading
-        const submitBtn = document.querySelector('#orderForm button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-        submitBtn.disabled = true;
+  // Trong handleOrderSubmit - THAY THẾ PHẦN GỌI API
+try {
+    // Show loading
+    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    submitBtn.disabled = true;
+    
+    // Format data for API
+    const apiOrderData = {
+        customer: {
+            name: orderData.name,
+            phone: orderData.phone,
+            email: orderData.email,
+            address: orderData.address
+        },
+        items: orderData.items,
+        totalAmount: orderData.totalAmount,
+        shippingFee: 0,
+        notes: orderData.notes,
+        paymentMethod: orderData.paymentMethod
+    };
+    
+    let orderResult;
+    
+    // Nếu đang ở DEMO_MODE, không gọi API
+    if (window.DEMO_MODE) {
+        console.log('📦 DEMO MODE: Tạo đơn hàng demo');
         
-        // Format data for API
-        const apiOrderData = {
-            customer: {
-                name: orderData.name,
-                phone: orderData.phone,
-                email: orderData.email,
-                address: orderData.address
-            },
-            items: orderData.items,
-            totalAmount: orderData.totalAmount,
-            shippingFee: 0,
-            notes: orderData.notes,
-            paymentMethod: orderData.paymentMethod
+        // Tạo đơn hàng giả
+        orderResult = {
+            success: true,
+            data: {
+                orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
+                customerName: orderData.name,
+                totalAmount: orderData.totalAmount,
+                createdAt: new Date().toISOString()
+            }
         };
         
-        // Send order to API
-        const response = await fetch('/api/orders', {
+        // Lưu vào localStorage để xem lịch sử
+        saveOrderToLocalStorage(orderResult.data, orderData);
+        
+    } else {
+        // Gọi API thật
+        const apiUrl = window.API_BASE_URL 
+            ? `${window.API_BASE_URL}/api/orders`
+            : '/api/orders';
+            
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -499,64 +525,74 @@ async function handleOrderSubmit(e) {
             body: JSON.stringify(apiOrderData)
         });
         
-        const data = await response.json();
+        orderResult = await response.json();
         
-        if (response.ok && data.success) {
-            // Show success message
-            showOrderSuccess(data.data);
-            
-            // Clear cart
-            cart = [];
-            saveCart();
-            updateCartCount();
-            
-            // Close modals
-            closeModal(document.getElementById('orderModal'));
-            closeModal(document.getElementById('cartModal'));
-            
-            showNotification('Đặt hàng thành công!', 'success');
-        } else {
-            throw new Error(data.error || 'Đặt hàng thất bại');
+        if (!response.ok) {
+            throw new Error(orderResult.error || 'Đặt hàng thất bại');
+        }
+    }
+    
+    if (orderResult.success) {
+        // Show success message
+        showOrderSuccess(orderResult.data);
+        
+        // Clear cart
+        cart = [];
+        saveCart();
+        updateCartCount();
+        
+        // Close modals
+        closeModal(document.getElementById('orderModal'));
+        closeModal(document.getElementById('cartModal'));
+        
+        showNotification('Đặt hàng thành công!', 'success');
+    } else {
+        throw new Error(orderResult.error || 'Đặt hàng thất bại');
+    }
+    
+} catch (error) {
+    console.error('Order error:', error);
+    showNotification('Đặt hàng thất bại: ' + error.message, 'error');
+    
+    // Reset button
+    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đặt hàng';
+        submitBtn.disabled = false;
+    }
+}
+
+// Thêm hàm lưu đơn hàng vào localStorage
+function saveOrderToLocalStorage(orderData, rawOrderData) {
+    try {
+        const orders = JSON.parse(localStorage.getItem('velora_orders') || '[]');
+        
+        const order = {
+            id: orderData.orderNumber,
+            orderNumber: orderData.orderNumber,
+            customerName: orderData.customerName,
+            totalAmount: orderData.totalAmount,
+            createdAt: orderData.createdAt,
+            status: 'pending',
+            items: rawOrderData.items,
+            shippingAddress: rawOrderData.address,
+            phone: rawOrderData.phone,
+            email: rawOrderData.email,
+            notes: rawOrderData.notes,
+            demoMode: true
+        };
+        
+        orders.unshift(order);
+        
+        // Giữ tối đa 20 đơn hàng
+        if (orders.length > 20) {
+            orders.pop();
         }
         
-    } catch (error) {
-        console.error('Order error:', error);
+        localStorage.setItem('velora_orders', JSON.stringify(orders));
         
-        // DEMO MODE - Nếu API không có, vẫn cho đặt hàng thành công
-        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            console.log('⚠️ API không khả dụng, sử dụng chế độ demo');
-            
-            // Tạo dữ liệu demo
-            const demoOrderData = {
-                orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
-                customerName: orderData.name,
-                totalAmount: orderData.totalAmount,
-                createdAt: new Date().toISOString()
-            };
-            
-            // Show success
-            showOrderSuccess(demoOrderData);
-            
-            // Clear cart
-            cart = [];
-            saveCart();
-            updateCartCount();
-            
-            // Close modals
-            closeModal(document.getElementById('orderModal'));
-            closeModal(document.getElementById('cartModal'));
-            
-            showNotification('Đặt hàng thành công! (Chế độ demo)', 'success');
-        } else {
-            showNotification('Đặt hàng thất bại: ' + error.message, 'error');
-        }
-        
-        // Reset button
-        const submitBtn = document.querySelector('#orderForm button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đặt hàng';
-            submitBtn.disabled = false;
-        }
+    } catch (e) {
+        console.error('Error saving order to localStorage:', e);
     }
 }
 // =========================
