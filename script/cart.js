@@ -298,8 +298,7 @@ function handlePlaceOrder() {
 }
 
 // =========================
-// =========================
-// OPEN ORDER MODAL - FIXED
+// OPEN ORDER MODAL - FIXED 100%
 // =========================
 function openOrderModal() {
     console.log('🟢 Mở modal đặt hàng...');
@@ -322,7 +321,7 @@ function openOrderModal() {
     const shipping = 0;
     const total = subtotal + shipping;
     
-    // Render nội dung ĐỘNG từ giỏ hàng
+    // FORCE RENDER NỘI DUNG MODAL
     modalBody.innerHTML = `
         <div class="order-form">
             <h3>Thông tin đặt hàng</h3>
@@ -390,7 +389,7 @@ function openOrderModal() {
                     <button type="button" class="btn btn-secondary close-modal">
                         <i class="fas fa-times"></i> Hủy
                     </button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" id="confirmOrderBtn">
                         <i class="fas fa-check"></i> Xác nhận đặt hàng
                     </button>
                 </div>
@@ -398,17 +397,21 @@ function openOrderModal() {
         </div>
     `;
     
+    console.log('✅ Đã render form đặt hàng vào modal');
+    
     // Show modal
     openModal(modal);
     
-    // Handle form submission
+    // GẮN EVENT SUBMIT TRỰC TIẾP
     const orderForm = document.getElementById('orderForm');
     if (orderForm) {
-        // Xóa event cũ để tránh gắn nhiều lần
+        // Xóa event cũ
         orderForm.removeEventListener('submit', handleOrderSubmit);
         // Gắn event mới
         orderForm.addEventListener('submit', handleOrderSubmit);
         console.log('✅ Đã gắn event submit cho form đặt hàng');
+    } else {
+        console.error('❌ KHÔNG THỂ TẠO FORM!');
     }
 }
 
@@ -447,10 +450,11 @@ function createOrderModal() {
 }
 
 // =========================
-// HANDLE ORDER SUBMIT
+// HANDLE ORDER SUBMIT - FIXED WITH API
 // =========================
 async function handleOrderSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
     
     console.log('🟢🟢🟢 HANDLE ORDER SUBMIT ĐƯỢC GỌI!', new Date().toISOString());
     
@@ -537,8 +541,6 @@ async function handleOrderSubmit(e) {
         });
         
         console.log('📥 Response status:', response.status);
-        console.log('📥 Response status text:', response.statusText);
-        console.log('📥 Response headers:', [...response.headers.entries()]);
         
         // Đọc response text
         const responseText = await response.text();
@@ -551,7 +553,6 @@ async function handleOrderSubmit(e) {
             console.log('📥 Parsed response:', orderResult);
         } catch (e) {
             console.error('❌ Parse JSON failed:', e);
-            console.error('❌ Response text was:', responseText);
             throw new Error('Phản hồi từ server không hợp lệ');
         }
         
@@ -574,18 +575,15 @@ async function handleOrderSubmit(e) {
             showNotification('✅ Đặt hàng thành công! Mã đơn: ' + orderResult.data.orderNumber, 'success');
             
         } else {
-            console.error('❌ API returned error:', orderResult);
-            throw new Error(orderResult.error || `Lỗi ${response.status}: ${response.statusText}`);
+            throw new Error(orderResult.error || `Lỗi ${response.status}`);
         }
         
     } catch (error) {
         console.error('❌❌❌ ORDER ERROR:', error);
-        console.error('Error stack:', error.stack);
         
-        // FALLBACK: Nếu API lỗi thì dùng DEMO MODE
+        // FALLBACK: DEMO MODE
         console.log('⚠️ API failed, using demo mode');
         
-        // Tạo đơn hàng demo
         const demoOrderData = {
             orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
             customerName: orderData.name,
@@ -593,17 +591,12 @@ async function handleOrderSubmit(e) {
             createdAt: new Date().toISOString()
         };
         
-        console.log('📦 Demo order created:', demoOrderData);
-        
-        // Show success với demo
         showOrderSuccess(demoOrderData);
         
-        // Clear cart
         cart = [];
         saveCart();
         updateCartCount();
         
-        // Close modals
         closeModal(document.getElementById('orderModal'));
         closeModal(document.getElementById('cartModal'));
         
@@ -617,7 +610,6 @@ async function handleOrderSubmit(e) {
         }
     }
 }
-
 
 // =========================
 // SHOW ORDER SUCCESS
@@ -758,10 +750,21 @@ function saveOrderToLocalStorage(orderData, rawOrderData) {
     }
 }
 
-
+// =========================
+// EXPORT FUNCTIONS
+// =========================
+export {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateCartItemQuantity,
+    updateCartCount,
+    updateCartModal,
+    saveCart
+};
 
 // =========================
-// TEST FUNCTIONS
+// TEST FUNCTIONS - FORCE TEST
 // =========================
 window.testOrder = function() {
     console.log('🧪 Test đặt hàng thủ công');
@@ -770,6 +773,64 @@ window.testOrder = function() {
         return;
     }
     handlePlaceOrder();
+};
+
+window.forceTestOrder = function() {
+    console.log('🧪 FORCE TEST ORDER');
+    
+    // Tạo cart demo nếu đang trống
+    if (cart.length === 0) {
+        cart.push({
+            id: '1',
+            name: 'Đầm dạ hội lộng lẫy',
+            price: 3500000,
+            quantity: 1,
+            image: 'srcimg/5 (3).png',
+            stock: 10
+        });
+        saveCart();
+        updateCartCount();
+        console.log('✅ Đã thêm sản phẩm demo vào giỏ');
+    }
+    
+    // Mở modal đặt hàng
+    handlePlaceOrder();
+};
+
+window.testAPI = async function() {
+    console.log('🧪 TEST API DIRECTLY');
+    try {
+        const res = await fetch('https://velora-api.nyaochen9.workers.dev/api/orders', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                customer: {
+                    name: 'Test User',
+                    phone: '0912345678',
+                    email: 'test@test.com',
+                    address: '123 Test St'
+                },
+                items: [{
+                    productId: '1',
+                    name: 'Test Product',
+                    price: 100000,
+                    quantity: 1
+                }],
+                totalAmount: 100000
+            })
+        });
+        const text = await res.text();
+        console.log('📥 Response status:', res.status);
+        console.log('📥 Response text:', text);
+        try {
+            const json = JSON.parse(text);
+            console.log('✅ JSON response:', json);
+        } catch(e) {
+            console.log('❌ Not JSON:', text);
+        }
+    } catch(e) {
+        console.error('❌ Fetch error:', e);
+    }
 };
 
 console.log('✅ Cart.js loaded - Nút đặt hàng đã sẵn sàng!');
