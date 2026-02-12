@@ -689,13 +689,4 @@ function createOrderSuccessModal() {
     return modal;
 }
 
-// =========================
-// EXPORT FUNCTIONS - CHỈ 1 LẦN DUY NHẤT
-// =========================
-export {
-    addToCart,
-    removeFromCart,
-    updateCartItemQuantity,
-    updateCartCount,
-    saveCart
-};
+
