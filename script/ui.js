@@ -1,6 +1,6 @@
 // script/ui.js
 import { updateCartModal } from './cart.js';
-import { openModal, closeModal, performSearch } from './utils.js';
+import { openModal, closeModal, performSearch } from './utils.js'; // ✅ Import từ utils
 
 // =========================
 // INIT UI
