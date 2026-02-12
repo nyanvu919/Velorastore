@@ -453,18 +453,43 @@ function createOrderModal() {
 }
 
 // =========================
-// HANDLE ORDER SUBMIT - FIXED VERSION
+// =========================
+// HANDLE ORDER SUBMIT - FULL FIXED VERSION
 // =========================
 async function handleOrderSubmit(e) {
+    console.log('🟢🟢🟢 HANDLE ORDER SUBMIT ĐƯỢC GỌI!', new Date().toISOString());
+    console.log('🟢 Cart hiện tại:', cart);
+    
     e.preventDefault();
+    
+    // Kiểm tra form elements
+    const orderName = document.getElementById('orderName');
+    const orderPhone = document.getElementById('orderPhone');
+    const orderEmail = document.getElementById('orderEmail');
+    const orderAddress = document.getElementById('orderAddress');
+    const orderNotes = document.getElementById('orderNotes');
+    
+    console.log('📝 Form elements:', {
+        name: orderName,
+        phone: orderPhone,
+        email: orderEmail,
+        address: orderAddress,
+        notes: orderNotes
+    });
+    
+    if (!orderName || !orderPhone || !orderEmail || !orderAddress) {
+        console.error('❌ Không tìm thấy form elements!');
+        showNotification('Lỗi hệ thống, vui lòng thử lại', 'error');
+        return;
+    }
     
     // Get form data
     const orderData = {
-        name: document.getElementById('orderName').value.trim(),
-        phone: document.getElementById('orderPhone').value.trim(),
-        email: document.getElementById('orderEmail').value.trim(),
-        address: document.getElementById('orderAddress').value.trim(),
-        notes: document.getElementById('orderNotes').value.trim(),
+        name: orderName.value.trim(),
+        phone: orderPhone.value.trim(),
+        email: orderEmail.value.trim(),
+        address: orderAddress.value.trim(),
+        notes: orderNotes ? orderNotes.value.trim() : '',
         items: cart.map(item => ({
             productId: item.id,
             name: item.name,
@@ -476,8 +501,11 @@ async function handleOrderSubmit(e) {
         paymentMethod: 'cod'
     };
     
+    console.log('📦 Order data:', orderData);
+    
     // Validate
     if (!orderData.name || !orderData.phone || !orderData.email || !orderData.address) {
+        console.warn('⚠️ Thiếu thông tin bắt buộc');
         showNotification('Vui lòng điền đầy đủ thông tin', 'error');
         return;
     }
@@ -485,6 +513,7 @@ async function handleOrderSubmit(e) {
     // Validate phone
     const phoneRegex = /^(84|0[35789])[0-9]{8}$/;
     if (!phoneRegex.test(orderData.phone)) {
+        console.warn('⚠️ Số điện thoại không hợp lệ:', orderData.phone);
         showNotification('Số điện thoại không hợp lệ (VD: 0912345678)', 'error');
         return;
     }
@@ -492,12 +521,18 @@ async function handleOrderSubmit(e) {
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(orderData.email)) {
+        console.warn('⚠️ Email không hợp lệ:', orderData.email);
         showNotification('Email không hợp lệ', 'error');
         return;
     }
     
     // Show loading
     const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+    if (!submitBtn) {
+        console.error('❌ Không tìm thấy nút submit!');
+        return;
+    }
+    
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
     submitBtn.disabled = true;
@@ -518,10 +553,11 @@ async function handleOrderSubmit(e) {
             paymentMethod: orderData.paymentMethod
         };
         
-        console.log('📤 Sending order to API:', apiOrderData);
+        console.log('📤 Sending order to API:', JSON.stringify(apiOrderData, null, 2));
         
-        // GỌI API TRỰC TIẾP - KHÔNG DÙNG DEMO MODE
+        // GỌI API TRỰC TIẾP
         const API_URL = 'https://velora-api.nyaochen9.workers.dev/api/orders';
+        console.log('🌐 API URL:', API_URL);
         
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -533,11 +569,24 @@ async function handleOrderSubmit(e) {
         });
         
         console.log('📥 Response status:', response.status);
+        console.log('📥 Response headers:', [...response.headers.entries()]);
         
-        const orderResult = await response.json();
+        const responseText = await response.text();
+        console.log('📥 Response text:', responseText);
+        
+        let orderResult;
+        try {
+            orderResult = JSON.parse(responseText);
+        } catch (e) {
+            console.error('❌ Parse JSON failed:', e);
+            throw new Error('Phản hồi từ server không hợp lệ');
+        }
+        
         console.log('📥 Response data:', orderResult);
         
         if (response.ok && orderResult.success) {
+            console.log('🎉 ORDER SUCCESS!', orderResult.data);
+            
             // Show success message
             showOrderSuccess(orderResult.data);
             
@@ -558,7 +607,8 @@ async function handleOrderSubmit(e) {
         }
         
     } catch (error) {
-        console.error('❌ Order error:', error);
+        console.error('❌❌❌ ORDER ERROR:', error);
+        console.error('Error stack:', error.stack);
         
         // FALLBACK: Nếu API lỗi thì dùng DEMO MODE
         console.log('⚠️ API failed, using demo mode');
@@ -593,7 +643,6 @@ async function handleOrderSubmit(e) {
         }
     }
 }
-
 
 // =========================
 // SAVE ORDER TO LOCALSTORAGE
@@ -747,3 +796,66 @@ window.testOrder = function() {
 
 // Log để biết file đã load xong
 console.log('✅ Cart.js loaded - Nút đặt hàng đã sẵn sàng!');
+// =========================
+// TEST FUNCTIONS - THÊM VÀO CUỐI FILE
+// =========================
+
+// Test trực tiếp hàm handleOrderSubmit
+window.testHandleOrderSubmit = function() {
+    console.log('🧪 Test handleOrderSubmit manually');
+    if (typeof handleOrderSubmit === 'function') {
+        handleOrderSubmit(new Event('click', { bubbles: true }));
+    } else {
+        console.error('❌ handleOrderSubmit is not defined');
+    }
+};
+
+// Test API trực tiếp
+window.testAPIOrder = async function() {
+    console.log('🧪 Test API order directly');
+    try {
+        const res = await fetch('https://velora-api.nyaochen9.workers.dev/api/orders', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                customer: {
+                    name: 'Test User',
+                    phone: '0912345678',
+                    email: 'test@test.com',
+                    address: 'Test Address'
+                },
+                items: [{
+                    id: '1',
+                    name: 'Test Product',
+                    price: 100000,
+                    quantity: 1
+                }],
+                totalAmount: 100000
+            })
+        });
+        const data = await res.json();
+        console.log('📦 API Result:', data);
+        alert(data.success ? '✅ Success: ' + data.data.orderNumber : '❌ Failed: ' + data.error);
+    } catch (e) {
+        console.error('❌ API Error:', e);
+        alert('❌ Error: ' + e.message);
+    }
+};
+
+// Gán event trực tiếp vào nút
+window.forceAttachEvent = function() {
+    console.log('🔧 Force attach event to place order button');
+    const btn = document.getElementById('placeOrderBtn');
+    if (btn) {
+        btn.removeEventListener('click', handlePlaceOrder);
+        btn.addEventListener('click', function(e) {
+            console.log('🟢 Button clicked!');
+            e.preventDefault();
+            handlePlaceOrder();
+        });
+        console.log('✅ Event attached');
+        return 'OK';
+    }
+    console.log('❌ Button not found');
+    return 'Failed';
+};
