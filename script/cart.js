@@ -733,4 +733,17 @@ function createOrderSuccessModal() {
     return modal;
 }
 
+// =========================
+// TEST FUNCTIONS - THÊM VÀO ĐỂ DEBUG
+// =========================
+window.testOrder = function() {
+    console.log('🟢 Test đặt hàng thủ công');
+    if (cart.length === 0) {
+        alert('Giỏ hàng trống! Thêm sản phẩm trước đã.');
+        return;
+    }
+    handlePlaceOrder();
+};
 
+// Log để biết file đã load xong
+console.log('✅ Cart.js loaded - Nút đặt hàng đã sẵn sàng!');
