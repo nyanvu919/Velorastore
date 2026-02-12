@@ -1,31 +1,23 @@
 // script/config.js
 // =========================
-// API CONFIGURATION
+// API CONFIGURATION - PRODUCTION
 // =========================
 
-// Xác định môi trường
-const isDevelopment = window.location.hostname === 'localhost' || 
-                      window.location.hostname === '127.0.0.1' ||
-                      window.location.hostname.includes('.pages.dev');
+// THAY URL NÀY BẰNG URL WORKER THẬT CỦA BẠN!
+const API_BASE_URL = 'https://velora-api.nyaochen9.workers.dev/'; // 👈 URL THẬT
 
-// Cấu hình API URL - THAY ĐỔI URL NÀY THÀNH WORKER CỦA BẠN!
-const API_BASE_URL = isDevelopment 
-    ? 'http://localhost:8787'  // Local development (wrangler dev)
-    : 'https://velora-api.your-worker.workers.dev'; // Production - THAY URL WORKER CỦA BẠN!
-
-// Fallback URLs nếu URL chính không hoạt động
+// Fallback URLs (có thể để trống nếu chỉ dùng 1 URL)
 const API_FALLBACK_URLS = [
-    'https://velora-api.your-worker.workers.dev',
-    // Thêm các URL fallback khác nếu cần
+    'https://velora-api.nyaochen9.workers.dev/', // URL THẬT
+    // Thêm URL khác nếu có nhiều worker
 ];
 
 export const API_CONFIG = {
     BASE_URL: API_BASE_URL,
     FALLBACK_URLS: API_FALLBACK_URLS,
-    TIMEOUT: 10000, // 10 seconds
+    TIMEOUT: 10000,
     RETRY_COUNT: 2,
     
-    // Endpoints
     ENDPOINTS: {
         HEALTH: '/api/health',
         PRODUCTS: '/api/products',
@@ -43,7 +35,7 @@ export const API_CONFIG = {
     }
 };
 
-// Hàm lấy API URL (có thể thay đổi động)
+// Hàm lấy API URL
 export function getApiBaseUrl() {
     return API_CONFIG.BASE_URL;
 }
