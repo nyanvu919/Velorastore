@@ -750,18 +750,7 @@ function saveOrderToLocalStorage(orderData, rawOrderData) {
     }
 }
 
-// =========================
-// EXPORT FUNCTIONS
-// =========================
-export {
-    cart,
-    addToCart,
-    removeFromCart,
-    updateCartItemQuantity,
-    updateCartCount,
-    updateCartModal,
-    saveCart
-};
+
 
 // =========================
 // TEST FUNCTIONS - FORCE TEST
