@@ -141,7 +141,7 @@ export function updateCartModal() {
         return;
     }
     
-    // Render danh sách sản phẩm trong giỏ hàng
+    // Render giỏ hàng
     cartItemsContainer.innerHTML = cart.map(item => `
         <div class="cart-item">
             <div class="cart-item-img">
@@ -154,8 +154,7 @@ export function updateCartModal() {
                 
                 <div class="cart-item-quantity">
                     <button class="quantity-btn minus" data-id="${item.id}">-</button>
-                    <input type="number" class="quantity-value" value="${item.quantity}" min="1" max="${item.stock}" 
-                           data-id="${item.id}">
+                    <span class="quantity-value">${item.quantity}</span>
                     <button class="quantity-btn plus" data-id="${item.id}">+</button>
                 </div>
                 
@@ -170,22 +169,13 @@ export function updateCartModal() {
         </div>
     `).join('');
     
-    // Tính tổng tiền
-    const subtotal = cart.reduce(
-        (sum, item) => sum + (item.price * item.quantity),
-        0
-    );
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
-    // 🟢 PHẦN QUAN TRỌNG - RENDER NÚT ĐẶT HÀNG VÀ GẮN EVENT
+    // PHẦN QUAN TRỌNG - RENDER NÚT ĐẶT HÀNG
     cartSummary.innerHTML = `
         <div class="summary-row">
             <span>Tạm tính:</span>
             <span class="price">${formatPrice(subtotal)}</span>
-        </div>
-        
-        <div class="summary-row">
-            <span>Phí vận chuyển:</span>
-            <span class="price">${formatPrice(0)}</span>
         </div>
         
         <div class="summary-row total">
@@ -198,26 +188,9 @@ export function updateCartModal() {
         </button>
     `;
     
-    // 🟢 QUAN TRỌNG: GẮN EVENT CHO NÚT ĐẶT HÀNG NGAY SAU KHI RENDER
-    setTimeout(() => {
-        const placeOrderBtn = document.getElementById('placeOrderBtn');
-        if (placeOrderBtn) {
-            // Xóa event cũ để tránh bị gắn nhiều lần
-            placeOrderBtn.removeEventListener('click', handlePlaceOrder);
-            // Gắn event mới
-            placeOrderBtn.addEventListener('click', handlePlaceOrder);
-            // Đánh dấu đã gắn event
-            placeOrderBtn.setAttribute('data-event-attached', 'true');
-            console.log('✅ Đã gắn event cho nút đặt hàng trong cart modal');
-        } else {
-            console.warn('⚠️ Không tìm thấy nút đặt hàng sau khi render');
-        }
-    }, 50); // Delay nhỏ để đảm bảo DOM đã được cập nhật
-    
-    // Gắn sự kiện cho các nút tăng/giảm số lượng và xóa sản phẩm
-    attachCartItemEvents();
+    // GẮN EVENT TRỰC TIẾP GIỐNG ABOUT
+    attachCartEvents();
 }
-
 // =========================
 // ATTACH CART ITEM EVENTS
 // =========================
