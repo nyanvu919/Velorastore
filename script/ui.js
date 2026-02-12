@@ -202,6 +202,8 @@ function initCollections() {
 // =========================
 export { openModal, closeModal };
 
-// 🟢🟢🟢 THÊM DÒNG NÀY ĐỂ CÓ THỂ GỌI TỪ CONSOLE 🟢🟢🟢
+// 🟢🟢🟢 THÊM 2 DÒNG NÀY ĐỂ CÓ THỂ GỌI TỪ CONSOLE 🟢🟢🟢
 window.openModal = openModal;
 window.closeModal = closeModal;
+
+console.log('✅ Modal functions loaded - Có thể gọi openModal() từ console');
