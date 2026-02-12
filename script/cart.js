@@ -424,6 +424,9 @@ function createOrderModal() {
 // =========================
 // HANDLE ORDER SUBMIT
 // =========================
+// =========================
+// HANDLE ORDER SUBMIT - FIXED VERSION
+// =========================
 async function handleOrderSubmit(e) {
     e.preventDefault();
     
@@ -442,7 +445,7 @@ async function handleOrderSubmit(e) {
             image: item.image
         })),
         totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        paymentMethod: 'cod' // Cash on delivery
+        paymentMethod: 'cod'
     };
     
     // Validate
@@ -464,71 +467,74 @@ async function handleOrderSubmit(e) {
         showNotification('Email không hợp lệ', 'error');
         return;
     }
-        try {
+    
+    try {
         // Show loading
         const submitBtn = document.querySelector('#orderForm button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
         submitBtn.disabled = true;
         
-        // Thử gọi API, nếu thất bại thì dùng demo data
-        try {
-            // Send order to API
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    items: orderData.items,
-                    customer: {
-                        name: orderData.name,
-                        phone: orderData.phone,
-                        email: orderData.email,
-                        address: orderData.address
-                    },
-                    totalAmount: orderData.totalAmount,
-                    shippingAddress: orderData.address,
-                    notes: orderData.notes,
-                    paymentMethod: orderData.paymentMethod
-                })
-            });
+        // Format data for API
+        const apiOrderData = {
+            customer: {
+                name: orderData.name,
+                phone: orderData.phone,
+                email: orderData.email,
+                address: orderData.address
+            },
+            items: orderData.items,
+            totalAmount: orderData.totalAmount,
+            shippingFee: 0,
+            notes: orderData.notes,
+            paymentMethod: orderData.paymentMethod
+        };
+        
+        // Send order to API
+        const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(apiOrderData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Show success message
+            showOrderSuccess(data.data);
             
-            // Kiểm tra nếu response không OK (404, 500, etc)
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+            // Clear cart
+            cart = [];
+            saveCart();
+            updateCartCount();
             
-            const data = await response.json();
+            // Close modals
+            closeModal(document.getElementById('orderModal'));
+            closeModal(document.getElementById('cartModal'));
             
-            if (data.success) {
-                // Show success message
-                showOrderSuccess(data.data);
-                
-                // Clear cart
-                cart = [];
-                saveCart();
-                updateCartCount();
-                
-                // Close modals
-                closeModal(document.getElementById('orderModal'));
-                closeModal(document.getElementById('cartModal'));
-            } else {
-                throw new Error(data.error || 'Đặt hàng thất bại');
-            }
+            showNotification('Đặt hàng thành công!', 'success');
+        } else {
+            throw new Error(data.error || 'Đặt hàng thất bại');
+        }
+        
+    } catch (error) {
+        console.error('Order error:', error);
+        
+        // DEMO MODE - Nếu API không có, vẫn cho đặt hàng thành công
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            console.log('⚠️ API không khả dụng, sử dụng chế độ demo');
             
-        } catch (apiError) {
-            console.log('API không khả dụng, sử dụng chế độ demo:', apiError);
-            
-            // Tạo dữ liệu demo cho đơn hàng thành công
+            // Tạo dữ liệu demo
             const demoOrderData = {
-                orderNumber: 'VEL-' + Date.now().toString().substring(7),
+                orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
                 customerName: orderData.name,
                 totalAmount: orderData.totalAmount,
-                items: orderData.items
+                createdAt: new Date().toISOString()
             };
             
-            // Show success message với dữ liệu demo
+            // Show success
             showOrderSuccess(demoOrderData);
             
             // Clear cart
@@ -540,25 +546,19 @@ async function handleOrderSubmit(e) {
             closeModal(document.getElementById('orderModal'));
             closeModal(document.getElementById('cartModal'));
             
-            // Hiển thị thông báo demo
             showNotification('Đặt hàng thành công! (Chế độ demo)', 'success');
+        } else {
+            showNotification('Đặt hàng thất bại: ' + error.message, 'error');
         }
-        
-    } catch (error) {
-        console.error('Order error:', error);
-        showNotification('Đặt hàng thất bại: ' + error.message, 'error');
         
         // Reset button
         const submitBtn = document.querySelector('#orderForm button[type="submit"]');
         if (submitBtn) {
-            submitBtn.innerHTML = originalText || '<i class="fas fa-check"></i> Xác nhận đặt hàng';
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đặt hàng';
             submitBtn.disabled = false;
         }
     }
-   
-    
 }
-
 // =========================
 // SHOW ORDER SUCCESS
 // =========================
