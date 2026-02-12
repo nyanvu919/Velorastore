@@ -201,3 +201,7 @@ function initCollections() {
 // EXPORT MODAL FUNCTIONS
 // =========================
 export { openModal, closeModal };
+
+// 🟢🟢🟢 THÊM DÒNG NÀY ĐỂ CÓ THỂ GỌI TỪ CONSOLE 🟢🟢🟢
+window.openModal = openModal;
+window.closeModal = closeModal;
