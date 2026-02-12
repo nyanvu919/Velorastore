@@ -656,7 +656,7 @@ function showOrderSuccess(orderData) {
 }
 
 // =========================
-/ CREATE ORDER SUCCESS MODAL
+// CREATE ORDER SUCCESS MODAL
 // =========================
 function createOrderSuccessModal() {
     const modal = document.createElement('div');
