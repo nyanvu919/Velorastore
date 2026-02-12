@@ -602,6 +602,8 @@ function saveOrderToLocalStorage(orderData, rawOrderData) {
 // SHOW ORDER SUCCESS
 // =========================
 function showOrderSuccess(orderData) {
+    console.log('🎉 Order success:', orderData);
+    
     const modal = document.getElementById('orderSuccessModal') || createOrderSuccessModal();
     const modalBody = modal.querySelector('.modal-body');
     
@@ -616,27 +618,34 @@ function showOrderSuccess(orderData) {
             <div class="order-details">
                 <div class="detail-row">
                     <strong>Mã đơn hàng:</strong> 
-                    <span class="order-number">${orderData.orderNumber}</span>
+                    <span class="order-number" style="color: #e74c3c; font-weight: bold; font-size: 1.2rem;">
+                        ${orderData.orderNumber}
+                    </span>
                 </div>
                 <div class="detail-row">
-                    <strong>Khách hàng:</strong> ${orderData.customerName}
+                    <strong>Khách hàng:</strong> ${orderData.customerName || 'Khách'}
                 </div>
                 <div class="detail-row">
                     <strong>Tổng tiền:</strong> 
-                    <span class="total-price">${formatPrice(orderData.totalAmount)}</span>
+                    <span style="color: #27ae60; font-weight: bold;">
+                        ${formatPrice(orderData.totalAmount)}
+                    </span>
                 </div>
                 <div class="detail-row">
                     <strong>Trạng thái:</strong> 
-                    <span class="status-badge">Chờ xử lý</span>
+                    <span class="status-badge" style="background: #f39c12; color: white; padding: 4px 12px; border-radius: 20px;">
+                        Chờ xử lý
+                    </span>
                 </div>
             </div>
             
-            <p class="success-message">
-                Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận đơn hàng.
+            <p style="margin: 20px 0; color: #7f8c8d;">
+                <i class="fas fa-info-circle"></i> 
+                Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.
             </p>
             
-            <div class="success-actions">
-                <button class="btn btn-primary" id="continueShopping">
+            <div class="success-actions" style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                <button class="btn btn-primary" id="continueShopping" style="background: #e74c3c;">
                     <i class="fas fa-shopping-bag"></i> Tiếp tục mua sắm
                 </button>
                 <button class="btn btn-secondary close-modal">
@@ -657,7 +666,6 @@ function showOrderSuccess(orderData) {
         });
     }
 }
-
 // =========================
 // CREATE ORDER SUCCESS MODAL
 // =========================
