@@ -1,6 +1,7 @@
 // script/cart.js
 import { formatPrice, showNotification } from './utils.js';
 import { openModal, closeModal } from './ui.js';
+import { buildApiUrl } from './config.js';
 
 // =========================
 // GLOBAL STATE
@@ -59,7 +60,6 @@ export function addToCart(productId) {
         return;
     }
     
-    // Check stock
     if (product.stock <= 0) {
         showNotification('Sản phẩm đã hết hàng', 'error');
         return;
@@ -68,7 +68,6 @@ export function addToCart(productId) {
     const existingItem = cart.find(item => item.id == productId);
     
     if (existingItem) {
-        // Check if we have enough stock
         if (existingItem.quantity >= product.stock) {
             showNotification(`Chỉ còn ${product.stock} sản phẩm trong kho`, 'warning');
             return;
@@ -187,7 +186,7 @@ export function updateCartModal() {
 }
 
 // =========================
-// EVENTS
+// ATTACH CART ITEM EVENTS
 // =========================
 function attachCartItemEvents() {
     // Remove item
@@ -221,7 +220,7 @@ function attachCartItemEvents() {
 }
 
 // =========================
-// REMOVE ITEM
+// REMOVE FROM CART
 // =========================
 function removeFromCart(productId) {
     const item = cart.find(item => item.id == productId);
@@ -237,7 +236,7 @@ function removeFromCart(productId) {
 }
 
 // =========================
-// UPDATE QUANTITY
+// UPDATE CART ITEM QUANTITY
 // =========================
 function updateCartItemQuantity(productId, change, setAbsolute = false) {
     const itemIndex = cart.findIndex(item => item.id == productId);
@@ -253,7 +252,6 @@ function updateCartItemQuantity(productId, change, setAbsolute = false) {
         newQuantity = item.quantity + change;
     }
     
-    // Validate
     if (newQuantity < 1) {
         removeFromCart(productId);
         return;
@@ -278,7 +276,7 @@ function saveCart() {
 }
 
 // =========================
-// PLACE ORDER
+// PLACE ORDER - HANDLE
 // =========================
 function handlePlaceOrder() {
     if (cart.length === 0) {
@@ -299,7 +297,7 @@ function openOrderModal() {
     
     // Calculate total
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shipping = 0; // Free shipping for demo
+    const shipping = 0;
     const total = subtotal + shipping;
     
     modalBody.innerHTML = `
@@ -422,9 +420,6 @@ function createOrderModal() {
 }
 
 // =========================
-// HANDLE ORDER SUBMIT
-// =========================
-// =========================
 // HANDLE ORDER SUBMIT - FIXED VERSION
 // =========================
 async function handleOrderSubmit(e) {
@@ -468,101 +463,105 @@ async function handleOrderSubmit(e) {
         return;
     }
     
-  // Trong handleOrderSubmit - THAY THẾ PHẦN GỌI API
-try {
-    // Show loading
-    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-    submitBtn.disabled = true;
-    
-    // Format data for API
-    const apiOrderData = {
-        customer: {
-            name: orderData.name,
-            phone: orderData.phone,
-            email: orderData.email,
-            address: orderData.address
-        },
-        items: orderData.items,
-        totalAmount: orderData.totalAmount,
-        shippingFee: 0,
-        notes: orderData.notes,
-        paymentMethod: orderData.paymentMethod
-    };
-    
-    let orderResult;
-    
-    // Nếu đang ở DEMO_MODE, không gọi API
-    if (window.DEMO_MODE) {
-        console.log('📦 DEMO MODE: Tạo đơn hàng demo');
+    try {
+        // Show loading
+        const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+        submitBtn.disabled = true;
         
-        // Tạo đơn hàng giả
-        orderResult = {
-            success: true,
-            data: {
-                orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
-                customerName: orderData.name,
-                totalAmount: orderData.totalAmount,
-                createdAt: new Date().toISOString()
-            }
+        // Format data for API
+        const apiOrderData = {
+            customer: {
+                name: orderData.name,
+                phone: orderData.phone,
+                email: orderData.email,
+                address: orderData.address
+            },
+            items: orderData.items,
+            totalAmount: orderData.totalAmount,
+            shippingFee: 0,
+            notes: orderData.notes,
+            paymentMethod: orderData.paymentMethod
         };
         
-        // Lưu vào localStorage để xem lịch sử
-        saveOrderToLocalStorage(orderResult.data, orderData);
+        let orderResult;
         
-    } else {
-        // Gọi API thật
-        const apiUrl = window.API_BASE_URL 
-            ? `${window.API_BASE_URL}/api/orders`
-            : '/api/orders';
+        // Check if demo mode
+        if (window.DEMO_MODE) {
+            console.log('📦 DEMO MODE: Tạo đơn hàng demo');
             
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(apiOrderData)
-        });
+            // Generate demo order
+            orderResult = {
+                success: true,
+                data: {
+                    orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
+                    customerName: orderData.name,
+                    totalAmount: orderData.totalAmount,
+                    createdAt: new Date().toISOString()
+                }
+            };
+            
+            // Save to localStorage
+            saveOrderToLocalStorage(orderResult.data, orderData);
+            
+        } else {
+            // Call real API
+            const apiUrl = window.API_BASE_URL 
+                ? `${window.API_BASE_URL}/api/orders`
+                : buildApiUrl('/api/orders');
+                
+            console.log('📡 Sending order to:', apiUrl);
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(apiOrderData)
+            });
+            
+            orderResult = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(orderResult.error || 'Đặt hàng thất bại');
+            }
+        }
         
-        orderResult = await response.json();
-        
-        if (!response.ok) {
+        if (orderResult.success) {
+            // Show success message
+            showOrderSuccess(orderResult.data);
+            
+            // Clear cart
+            cart = [];
+            saveCart();
+            updateCartCount();
+            
+            // Close modals
+            closeModal(document.getElementById('orderModal'));
+            closeModal(document.getElementById('cartModal'));
+            
+            showNotification('Đặt hàng thành công!', 'success');
+        } else {
             throw new Error(orderResult.error || 'Đặt hàng thất bại');
         }
-    }
-    
-    if (orderResult.success) {
-        // Show success message
-        showOrderSuccess(orderResult.data);
         
-        // Clear cart
-        cart = [];
-        saveCart();
-        updateCartCount();
+    } catch (error) {
+        console.error('Order error:', error);
+        showNotification('Đặt hàng thất bại: ' + error.message, 'error');
         
-        // Close modals
-        closeModal(document.getElementById('orderModal'));
-        closeModal(document.getElementById('cartModal'));
-        
-        showNotification('Đặt hàng thành công!', 'success');
-    } else {
-        throw new Error(orderResult.error || 'Đặt hàng thất bại');
-    }
-    
-} catch (error) {
-    console.error('Order error:', error);
-    showNotification('Đặt hàng thất bại: ' + error.message, 'error');
-    
-    // Reset button
-    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đặt hàng';
-        submitBtn.disabled = false;
+        // Reset button
+        const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đặt hàng';
+            submitBtn.disabled = false;
+        }
     }
 }
 
-// Thêm hàm lưu đơn hàng vào localStorage
+// =========================
+// SAVE ORDER TO LOCALSTORAGE
+// =========================
 function saveOrderToLocalStorage(orderData, rawOrderData) {
     try {
         const orders = JSON.parse(localStorage.getItem('velora_orders') || '[]');
@@ -584,7 +583,7 @@ function saveOrderToLocalStorage(orderData, rawOrderData) {
         
         orders.unshift(order);
         
-        // Giữ tối đa 20 đơn hàng
+        // Keep only last 20 orders
         if (orders.length > 20) {
             orders.pop();
         }
@@ -595,6 +594,7 @@ function saveOrderToLocalStorage(orderData, rawOrderData) {
         console.error('Error saving order to localStorage:', e);
     }
 }
+
 // =========================
 // SHOW ORDER SUCCESS
 // =========================
@@ -612,16 +612,19 @@ function showOrderSuccess(orderData) {
             
             <div class="order-details">
                 <div class="detail-row">
-                    <strong>Mã đơn hàng:</strong> ${orderData.orderNumber}
+                    <strong>Mã đơn hàng:</strong> 
+                    <span class="order-number">${orderData.orderNumber}</span>
                 </div>
                 <div class="detail-row">
                     <strong>Khách hàng:</strong> ${orderData.customerName}
                 </div>
                 <div class="detail-row">
-                    <strong>Tổng tiền:</strong> ${formatPrice(orderData.totalAmount)}
+                    <strong>Tổng tiền:</strong> 
+                    <span class="total-price">${formatPrice(orderData.totalAmount)}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Trạng thái:</strong> <span class="status-badge">Chờ xử lý</span>
+                    <strong>Trạng thái:</strong> 
+                    <span class="status-badge">Chờ xử lý</span>
                 </div>
             </div>
             
@@ -644,9 +647,12 @@ function showOrderSuccess(orderData) {
     openModal(modal);
     
     // Add event listeners
-    document.getElementById('continueShopping').addEventListener('click', () => {
-        closeModal(modal);
-    });
+    const continueBtn = document.getElementById('continueShopping');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            closeModal(modal);
+        });
+    }
 }
 
 // =========================
@@ -682,3 +688,16 @@ function createOrderSuccessModal() {
     
     return modal;
 }
+
+// =========================
+// EXPORT FUNCTIONS
+// =========================
+export {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateCartItemQuantity,
+    updateCartCount,
+    updateCartModal,
+    saveCart
+};
