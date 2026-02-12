@@ -472,6 +472,8 @@ async function handleOrderSubmit(e) {
         paymentMethod: 'cod'
     };
     
+    console.log('📦 Order Data:', orderData);
+    
     // Validate
     if (!orderData.name || !orderData.phone || !orderData.email || !orderData.address) {
         showNotification('Vui lòng điền đầy đủ thông tin', 'error');
@@ -519,10 +521,11 @@ async function handleOrderSubmit(e) {
             paymentMethod: orderData.paymentMethod
         };
         
-        console.log('📤 Sending order to API:', apiOrderData);
+        console.log('📤 Sending order to API:', JSON.stringify(apiOrderData, null, 2));
         
         // GỌI API
         const API_URL = 'https://velora-api.nyaochen9.workers.dev/api/orders';
+        console.log('🌐 API URL:', API_URL);
         
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -534,15 +537,21 @@ async function handleOrderSubmit(e) {
         });
         
         console.log('📥 Response status:', response.status);
+        console.log('📥 Response status text:', response.statusText);
+        console.log('📥 Response headers:', [...response.headers.entries()]);
         
+        // Đọc response text
         const responseText = await response.text();
         console.log('📥 Response text:', responseText);
         
+        // Parse JSON
         let orderResult;
         try {
             orderResult = JSON.parse(responseText);
+            console.log('📥 Parsed response:', orderResult);
         } catch (e) {
             console.error('❌ Parse JSON failed:', e);
+            console.error('❌ Response text was:', responseText);
             throw new Error('Phản hồi từ server không hợp lệ');
         }
         
@@ -565,11 +574,13 @@ async function handleOrderSubmit(e) {
             showNotification('✅ Đặt hàng thành công! Mã đơn: ' + orderResult.data.orderNumber, 'success');
             
         } else {
-            throw new Error(orderResult.error || 'Đặt hàng thất bại');
+            console.error('❌ API returned error:', orderResult);
+            throw new Error(orderResult.error || `Lỗi ${response.status}: ${response.statusText}`);
         }
         
     } catch (error) {
         console.error('❌❌❌ ORDER ERROR:', error);
+        console.error('Error stack:', error.stack);
         
         // FALLBACK: Nếu API lỗi thì dùng DEMO MODE
         console.log('⚠️ API failed, using demo mode');
@@ -581,6 +592,8 @@ async function handleOrderSubmit(e) {
             totalAmount: orderData.totalAmount,
             createdAt: new Date().toISOString()
         };
+        
+        console.log('📦 Demo order created:', demoOrderData);
         
         // Show success với demo
         showOrderSuccess(demoOrderData);
@@ -604,6 +617,7 @@ async function handleOrderSubmit(e) {
         }
     }
 }
+
 
 // =========================
 // SHOW ORDER SUCCESS
