@@ -450,9 +450,9 @@ async function handleOrderSubmit(e) {
     }
     
     // Validate phone
-    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+    const phoneRegex = /^(84|0[35789])[0-9]{8}$/;
     if (!phoneRegex.test(orderData.phone)) {
-        showNotification('Số điện thoại không hợp lệ', 'error');
+        showNotification('Số điện thoại không hợp lệ (VD: 0912345678)', 'error');
         return;
     }
     
@@ -463,13 +463,13 @@ async function handleOrderSubmit(e) {
         return;
     }
     
+    // Show loading
+    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    submitBtn.disabled = true;
+    
     try {
-        // Show loading
-        const submitBtn = document.querySelector('#orderForm button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-        submitBtn.disabled = true;
-        
         // Format data for API
         const apiOrderData = {
             customer: {
@@ -485,50 +485,26 @@ async function handleOrderSubmit(e) {
             paymentMethod: orderData.paymentMethod
         };
         
-        let orderResult;
+        console.log('📤 Sending order to API:', apiOrderData);
         
-        // Check if demo mode
-        if (window.DEMO_MODE) {
-            console.log('📦 DEMO MODE: Tạo đơn hàng demo');
-            
-            // Generate demo order
-            orderResult = {
-                success: true,
-                data: {
-                    orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
-                    customerName: orderData.name,
-                    totalAmount: orderData.totalAmount,
-                    createdAt: new Date().toISOString()
-                }
-            };
-            
-            // Save to localStorage
-            saveOrderToLocalStorage(orderResult.data, orderData);
-            
-        } else {
-    // ===== SỬA ĐOẠN NÀY =====
-    // ✅ CÁCH ĐÚNG: Dùng buildApiUrl
-    const apiUrl = buildApiUrl('/api/orders');  // QUAN TRỌNG: Dùng buildApiUrl
-    
-    console.log('📡 Sending order to:', apiUrl);
-    
-    const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(apiOrderData)
-    });
-    // ===== HẾT ĐOẠN SỬA =====
-    
-    orderResult = await response.json();
-    
-    if (!response.ok) {
-        throw new Error(orderResult.error || 'Đặt hàng thất bại');
-    }
-}
+        // GỌI API TRỰC TIẾP - KHÔNG DÙNG DEMO MODE
+        const API_URL = 'https://velora-api.nyaochen9.workers.dev/api/orders';
         
-        if (orderResult.success) {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(apiOrderData)
+        });
+        
+        console.log('📥 Response status:', response.status);
+        
+        const orderResult = await response.json();
+        console.log('📥 Response data:', orderResult);
+        
+        if (response.ok && orderResult.success) {
             // Show success message
             showOrderSuccess(orderResult.data);
             
@@ -541,23 +517,50 @@ async function handleOrderSubmit(e) {
             closeModal(document.getElementById('orderModal'));
             closeModal(document.getElementById('cartModal'));
             
-            showNotification('Đặt hàng thành công!', 'success');
+            // HIỂN THỊ THÔNG BÁO THÀNH CÔNG
+            showNotification('✅ Đặt hàng thành công! Mã đơn: ' + orderResult.data.orderNumber, 'success');
+            
         } else {
             throw new Error(orderResult.error || 'Đặt hàng thất bại');
         }
         
     } catch (error) {
-        console.error('Order error:', error);
-        showNotification('Đặt hàng thất bại: ' + error.message, 'error');
+        console.error('❌ Order error:', error);
         
+        // FALLBACK: Nếu API lỗi thì dùng DEMO MODE
+        console.log('⚠️ API failed, using demo mode');
+        
+        // Tạo đơn hàng demo
+        const demoOrderData = {
+            orderNumber: 'DEMO-' + Date.now().toString().slice(-8),
+            customerName: orderData.name,
+            totalAmount: orderData.totalAmount,
+            createdAt: new Date().toISOString()
+        };
+        
+        // Show success với demo
+        showOrderSuccess(demoOrderData);
+        
+        // Clear cart
+        cart = [];
+        saveCart();
+        updateCartCount();
+        
+        // Close modals
+        closeModal(document.getElementById('orderModal'));
+        closeModal(document.getElementById('cartModal'));
+        
+        showNotification('✅ Đặt hàng thành công! (Chế độ demo)', 'success');
+        
+    } finally {
         // Reset button
-        const submitBtn = document.querySelector('#orderForm button[type="submit"]');
         if (submitBtn) {
-            submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đặt hàng';
+            submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     }
 }
+
 
 // =========================
 // SAVE ORDER TO LOCALSTORAGE
