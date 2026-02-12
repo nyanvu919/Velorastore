@@ -506,27 +506,27 @@ async function handleOrderSubmit(e) {
             saveOrderToLocalStorage(orderResult.data, orderData);
             
         } else {
-            // Call real API
-            const apiUrl = window.API_BASE_URL 
-                ? `${window.API_BASE_URL}/api/orders`
-                : buildApiUrl('/api/orders');
-                
-            console.log('📡 Sending order to:', apiUrl);
-            
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(apiOrderData)
-            });
-            
-            orderResult = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(orderResult.error || 'Đặt hàng thất bại');
-            }
-        }
+    // ===== SỬA ĐOẠN NÀY =====
+    // ✅ CÁCH ĐÚNG: Dùng buildApiUrl
+    const apiUrl = buildApiUrl('/api/orders');  // QUAN TRỌNG: Dùng buildApiUrl
+    
+    console.log('📡 Sending order to:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(apiOrderData)
+    });
+    // ===== HẾT ĐOẠN SỬA =====
+    
+    orderResult = await response.json();
+    
+    if (!response.ok) {
+        throw new Error(orderResult.error || 'Đặt hàng thất bại');
+    }
+}
         
         if (orderResult.success) {
             // Show success message
